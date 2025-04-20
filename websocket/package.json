@@ -6,7 +6,7 @@
     "build": "tsc",
     "start": "node dist/server.js",
     "dev": "ts-node-dev --transpile-only --respawn src/server.ts",
-    "prod": "npm run compile && npm run build"
+    "prod": "npm run build && npm run start"
   },
   "keywords": [],
   "author": "",

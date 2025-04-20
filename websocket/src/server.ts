@@ -7,6 +7,10 @@ const PORT = process.env.WS_PORT || 3001;
 const app = express();
 const server = createServer(app);
 
+app.get("/health", (req, res) => {
+  res.status(200).json({ message: "Web Socket Server health ok " });
+});
+
 const io = new Server(server, {
   cors: { origin: process.env.FRONTEND_URL, credentials: true },
 });
@@ -25,7 +29,7 @@ io.on("connection", socket => {
     if (direction.x) players[socket.id].x = direction.x;
     if (direction.y) players[socket.id].y = direction.y;
     // console.log("location",Math.random());
-    
+
     io.emit("update-players", players);
   });
 
