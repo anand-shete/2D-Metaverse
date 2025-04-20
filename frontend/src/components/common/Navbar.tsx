@@ -10,40 +10,43 @@ const Navbar = () => {
 
   const navItems = [
     { path: "/", name: "Home", icon: <Home className="h-4 w-4 mr-2" /> },
-    { path: "/login", name: "Login", icon: <LogIn className="h-4 w-4 mr-2" /> },
     {
       path: "/signup",
-      name: "Sign In",
+      name: "Sign Up",
       icon: <User className="h-4 w-4 mr-2" />,
     },
+    { path: "/login", name: "Login", icon: <LogIn className="h-4 w-4 mr-2" /> },
   ];
 
   return (
-    <nav className="fixed top-0 w-full z-50 backdrop-blur-md bg-[#1a1f2c]/80 border-b border-metaverse-purple/20">
+    <nav className="z-1 fixed top-0 w-full bg-slate-800 border-b text-white">
+      {/* Desktop view */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-16">
-          <div className="flex items-center">
-            <Link to="/" className="flex-shrink-0">
-              <div className="flex items-center">
-                <div className="w-8 h-8 bg-gradient-to-r from-metaverse-purple to-metaverse-blue rounded-md shadow-lg shadow-metaverse-purple/30"></div>
-                <span className="ml-2 text-xl font-bold text-white tracking-wider ">
-                  PixelVerse
-                </span>
-              </div>
-            </Link>
-          </div>
+        <div className="flex justify-between items-center h-20">
+          <Link to="/" className="flex-shrink-0">
+            <div className="flex items-center">
+              <img
+                src="/logos/logo.png"
+                alt="metaverse_logo"
+                className="h-10 rounded-lg"
+              />
+              <span className="ml-2 text-xl font-bold text-white tracking-wider ">
+                Metaverse
+              </span>
+            </div>
+          </Link>
 
           <div className="hidden md:block">
             <div className="ml-10 flex items-center space-x-4">
-              {navItems.map((item) => (
+              {navItems.map(item => (
                 <Link
                   key={item.name}
                   to={item.path}
                   className={cn(
                     "px-3 py-2 rounded-md text-sm font-medium flex items-center",
                     location.pathname === item.path
-                      ? "bg-metaverse-purple text-white"
-                      : "text-gray-300 hover:bg-metaverse-purple/20 hover:text-white transition-colors duration-200"
+                      ? "bg-sky-500"
+                      : "hover:bg-sky-500/30 transition-colors"
                   )}
                 >
                   {item.icon}
@@ -72,16 +75,14 @@ const Navbar = () => {
       {/* Mobile menu */}
       {isMenuOpen && (
         <div className="md:hidden">
-          <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3 bg-[#1a1f2c]/95 backdrop-blur-lg border-b border-metaverse-purple/20">
-            {navItems.map((item) => (
+          <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3 bg-slate-800 backdrop-blur-lg border-b border-metaverse-purple/20">
+            {navItems.map(item => (
               <Link
                 key={item.name}
                 to={item.path}
                 className={cn(
-                  "block px-3 py-2 rounded-md text-base font-medium flex items-center",
-                  location.pathname === item.path
-                    ? "bg-metaverse-purple text-white"
-                    : "text-gray-300 hover:bg-metaverse-purple/20 hover:text-white"
+                  "px-3 py-2 rounded-md font-medium flex flex-row items-center",
+                  location.pathname === item.path ? "bg-[#8b5cf6]" : "hover:[#8b5cf6]/20"
                 )}
                 onClick={() => setIsMenuOpen(false)}
               >

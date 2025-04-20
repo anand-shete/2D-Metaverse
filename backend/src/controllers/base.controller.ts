@@ -1,5 +1,5 @@
 import { FastifyRequest, FastifyReply } from "fastify";
-import { SigninSchema, SignupSchema } from "../types/index";
+import { LoginSchema, SignupSchema } from "../types/index";
 import { AvatarModel, ElementModel, UserModel as User } from "../models";
 import { generateAdminToken } from "../helper/jwt";
 /*
@@ -11,47 +11,42 @@ import { generateAdminToken } from "../helper/jwt";
 export const signup = async (req: FastifyRequest, res: FastifyReply) => {
   try {
     const parsedData = SignupSchema.safeParse(req.body);
-    if (!parsedData.success)
-      return res.status(400).send({ message: "Parsing failed" });
+    if (!parsedData.success) return res.status(400).send({ message: "Parsing failed" });
 
     const check = await User.countDocuments({
-      username: parsedData.data.username,
+      email: parsedData.data.email,
     }).lean();
-    if (check) return res.status(409).send({ message: "User exists" });
+    if (check) return res.status(409).send({ message: "Account aldready exists" });
 
     const user = await User.create({
+      email: parsedData.data.email,
       username: parsedData.data.username,
       password: parsedData.data.password,
-      role: parsedData.data.type,
     });
-    return res.status(201).send({ userId: user._id });
+    return res
+      .status(201)
+      .send({ message: "Account created successfully", userId: user._id });
   } catch (error: any) {
     console.log(error);
-    return res.status(500).send({ message: "Failed to Create User" });
+    return res.status(500).send({ message: "Failed to Create Account" });
   }
 };
 
-export const signin = async (req: FastifyRequest, res: FastifyReply) => {
+export const login = async (req: FastifyRequest, res: FastifyReply) => {
   try {
-    const parsedData = SigninSchema.safeParse(req.body);
-    if (!parsedData.success)
-      return res.status(400).send({ message: "Parsing failed" });
+    const parsedData = LoginSchema.safeParse(req.body);
+    if (!parsedData.success) return res.status(400).send({ message: "Parsing failed" });
 
     const user = await User.findOne({
-      username: parsedData.data.username,
+      email: parsedData.data.email,
     }).lean();
     if (!user) return res.status(404).send({ message: "User doesn't exists" });
 
-    const isValid = await User.comparePassword(
-      parsedData.data.password,
-      user.password
-    );
-    if (!isValid)
-      return res.status(401).send({ message: "Incorrect Password Entered" });
+    const isValid = await User.comparePassword(parsedData.data.password, user.password);
+    if (!isValid) return res.status(401).send({ message: "Incorrect Password Entered" });
 
     const token = await generateAdminToken(user);
-    if (!token)
-      return res.status(500).send({ message: "Error generating token" });
+    if (!token) return res.status(500).send({ message: "Error generating token" });
 
     if (process.env.MODE === "DEVELOPMENT") {
       return res
@@ -62,7 +57,7 @@ export const signin = async (req: FastifyRequest, res: FastifyReply) => {
           maxAge: 3600,
         })
         .status(200)
-        .send({ token: token, message: "User Sign In success" });
+        .send({ token: token, message: "User Login success" });
     } else {
       return res
         .setCookie("token", token, {
@@ -73,7 +68,7 @@ export const signin = async (req: FastifyRequest, res: FastifyReply) => {
           maxAge: 3600,
         })
         .status(200)
-        .send({ token: token, message: "User Sign In success" });
+        .send({ token: token, message: "User Login success" });
     }
   } catch (error: any) {
     console.log(error);
@@ -85,7 +80,7 @@ export const avatar = async (req: FastifyRequest, res: FastifyReply) => {
   try {
     const avatars = await AvatarModel.find({}).lean();
     return res.status(200).send({
-      avatars: avatars.map((a) => ({
+      avatars: avatars.map(a => ({
         id: a._id,
         imageUrl: a.imageUrl,
         name: a.name,
@@ -101,7 +96,7 @@ export const elements = async (req: FastifyRequest, res: FastifyReply) => {
   try {
     const elements = await ElementModel.find({}).lean();
     return res.status(200).send({
-      elements: elements.map((e) => ({
+      elements: elements.map(e => ({
         id: e._id,
         imageUrl: e.imageUrl,
         width: e.width,

@@ -7,13 +7,19 @@ import spaceRoutes from "./routes/space.routes";
 import fastifyCookie from "@fastify/cookie";
 import Formbody from "@fastify/formbody";
 import connectDB from "./config/db";
+import cors from "@fastify/cors";
 
 const fastify = Fastify({ logger: false });
 const PORT = Number(process.env.PORT) || 3000;
 
 (async () => {
   await connectDB();
-
+  await fastify.register(cors, {
+    methods: ["GET", "POST", "PUT", "DELETE"],
+    origin: process.env.FRONTEND_URL,
+    credentials: true,
+  });
+  
   await fastify.register(Formbody);
   await fastify.register(fastifyCookie);
 
@@ -29,7 +35,7 @@ const PORT = Number(process.env.PORT) || 3000;
   try {
     await fastify.listen({ port: PORT });
     console.log(`Server started on PORT:${PORT}`);
-  } catch (error) { 
+  } catch (error) {
     console.log(error);
     process.exit(1);
   }

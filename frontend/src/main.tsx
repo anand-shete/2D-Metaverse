@@ -1,6 +1,5 @@
 import { createRoot } from "react-dom/client";
 import "./index.css";
-import App from "./App.tsx";
 import {
   createRoutesFromElements,
   createBrowserRouter,
@@ -10,20 +9,20 @@ import {
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import Index from "./pages/Index";
-import Login from "./pages/Login";
-import SignIn from "./pages/SignIn";
-import NotFound from "./pages/NotFound.tsx";
+import { LandingPage, Metaverse, Login, NotFound, SignUp } from "./pages";
+import { ChatBox, MediaControls } from "./components";
 
 const queryClient = new QueryClient();
 
 const router = createBrowserRouter(
   createRoutesFromElements(
     <Route>
-      <Route path="/" element={<Index />} />
-      <Route path="/signup" element={<SignIn />} />
+      <Route path="/" element={<LandingPage />} />
+      <Route path="/signup" element={<SignUp />} />
       <Route path="/login" element={<Login />} />
-      <Route path="/canvas" element={<App />} />
+      <Route path="/canvas" element={<Metaverse />} />
+      <Route path="/media" element={<MediaControls />} />
+      <Route path="/chat" element={<ChatBox />} />
       <Route path="*" element={<NotFound />} />
     </Route>
   )
@@ -33,7 +32,7 @@ createRoot(document.getElementById("root")!).render(
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
       <Toaster />
-      <RouterProvider router={router}></RouterProvider>
+      <RouterProvider router={router} />
     </TooltipProvider>
   </QueryClientProvider>
 );

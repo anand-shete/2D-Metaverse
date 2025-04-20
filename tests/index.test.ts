@@ -44,7 +44,7 @@ describe("Authentication", () => {
       type: "admin",
     });
 
-    const response = await axios.post(`${BACKEND_URL}/api/v1/signin`, {
+    const response = await axios.post(`${BACKEND_URL}/api/v1/login`, {
       username,
       password,
     });
@@ -63,7 +63,7 @@ describe("Authentication", () => {
       role: "admin",
     });
 
-    const response = await axios.post(`${BACKEND_URL}/api/v1/signin`, {
+    const response = await axios.post(`${BACKEND_URL}/api/v1/login`, {
       username: "WrongUsername",
       password,
     });
@@ -86,7 +86,7 @@ describe("User metadata endpoint", () => {
       type: "admin",
     });
 
-    const response = await axios.post(`${BACKEND_URL}/api/v1/signin`, {
+    const response = await axios.post(`${BACKEND_URL}/api/v1/login`, {
       username,
       password,
     });
@@ -172,7 +172,7 @@ describe("User avatar information", () => {
     userId = signupResponse.data.userId;
 
     console.log("userid is " + userId);
-    const response = await axios.post(`${BACKEND_URL}/api/v1/signin`, {
+    const response = await axios.post(`${BACKEND_URL}/api/v1/login`, {
       username,
       password,
     });
@@ -235,7 +235,7 @@ describe("Space information", () => {
     });
     adminId = signupResponse.data.userId;
 
-    const response = await axios.post(`${BACKEND_URL}/api/v1/signin`, {
+    const response = await axios.post(`${BACKEND_URL}/api/v1/login`, {
       username,
       password,
     });
@@ -252,7 +252,7 @@ describe("Space information", () => {
     userId = userSignupResponse.data.userId;
 
     const userSigninResponse = await axios.post(
-      `${BACKEND_URL}/api/v1/signin`,
+      `${BACKEND_URL}/api/v1/login`,
       {
         username: username + "-user",
         password,
@@ -467,7 +467,7 @@ describe("Arena endpoints", () => {
 
     adminId = signupResponse.data.userId;
 
-    const response = await axios.post(`${BACKEND_URL}/api/v1/signin`, {
+    const response = await axios.post(`${BACKEND_URL}/api/v1/login`, {
       username: username,
       password,
     });
@@ -486,7 +486,7 @@ describe("Arena endpoints", () => {
     userId = userSignupResponse.data.userId;
 
     const userSigninResponse = await axios.post(
-      `${BACKEND_URL}/api/v1/signin`,
+      `${BACKEND_URL}/api/v1/login`,
       {
         username: username + "-user",
         password,
@@ -689,7 +689,7 @@ describe("Admin Endpoints", () => {
 
     adminId = signupResponse.data.userId;
 
-    const response = await axios.post(`${BACKEND_URL}/api/v1/signin`, {
+    const response = await axios.post(`${BACKEND_URL}/api/v1/login`, {
       username: username,
       password,
     });
@@ -708,7 +708,7 @@ describe("Admin Endpoints", () => {
     userId = userSignupResponse.data.userId;
 
     const userSigninResponse = await axios.post(
-      `${BACKEND_URL}/api/v1/signin`,
+      `${BACKEND_URL}/api/v1/login`,
       {
         username: username + "-user",
         password,

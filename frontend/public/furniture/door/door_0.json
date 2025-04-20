@@ -1,32 +1,34 @@
-{ "frames": {
-   "door_0 0.png": {
-    "frame": { "x": 1, "y": 1, "w": 128, "h": 192 },
-    "rotated": false,
-    "trimmed": false,
-    "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 192 },
-    "sourceSize": { "w": 128, "h": 192 },
-    "duration": 100
-   },
-   "door_0 1.png": {
-    "frame": { "x": 1, "y": 193, "w": 128, "h": 192 },
-    "rotated": false,
-    "trimmed": false,
-    "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 192 },
-    "sourceSize": { "w": 128, "h": 192 },
-    "duration": 100
-   }
- },
- "meta": {
-  "app": "https://github.com/LibreSprite/LibreSprite/",
-  "version": "1.1-dev",
-  "image": "D:\\ARS\\Projects\\2D Metaverse\\frontend\\public\\furniture\\door_0.png",
-  "format": "RGBA8888",
-  "size": { "w": 256, "h": 512 },
-  "scale": "1",
-  "frameTags": [
-  ],
-  "layers": [
-   { "name": "Layer 1", "opacity": 255, "blendMode": "normal" }
-  ]
- }
+{
+  "frames": {
+    "door_0 0.png": {
+      "frame": { "x": 1, "y": 1, "w": 128, "h": 192 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 192 },
+      "sourceSize": { "w": 128, "h": 192 },
+      "duration": 100
+    },
+    "door_0 1.png": {
+      "frame": { "x": 1, "y": 193, "w": 128, "h": 192 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 192 },
+      "sourceSize": { "w": 128, "h": 192 },
+      "duration": 100
+    }
+  },
+  "meta": {
+    "app": "https://github.com/LibreSprite/LibreSprite/",
+    "version": "1.1-dev",
+    "image": "D:\\ARS\\Projects\\2D Metaverse\\frontend\\public\\furniture\\door_0.png",
+    "format": "RGBA8888",
+    "size": { "w": 256, "h": 512 },
+    "scale": "1",
+    "frameTags": [],
+    "layers": [{ "name": "Layer 1", "opacity": 255, "blendMode": "normal" }]
+  },
+  "animations": {
+    "close": ["door_0 0.png", "door_0 1.png"],
+    "open": ["door_0 1.png"]
+  }
 }

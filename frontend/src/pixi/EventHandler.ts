@@ -1,35 +1,49 @@
 import { Application } from "pixi.js";
-import { socket } from "./Canvas";
-import { Player } from "./Player";
-import { RemotePlayers } from "./RemotePlayers";
-import { SpriteManager } from "./SpriteManager";
+import { ObjectFactory, Player, RemotePlayers, SpriteManager } from ".";
+import { SocketClient } from "@/network/SocketClient";
 
-export class EventHandler {
+enum Keys {
+  w = "w",
+  a = "a",
+  s = "s",
+  d = "d",
+}
+
+export default class EventHandler {
   private player?: Player;
   private remotePlayers: RemotePlayers;
 
-  constructor(public app: Application, public spriteManager: SpriteManager) {
+  constructor(
+    public app: Application,
+    public socket: SocketClient,
+    public spriteManager: SpriteManager,
+    public objectFactory: ObjectFactory
+  ) {
     this.app = app;
+    this.socket = socket;
     this.spriteManager = spriteManager;
-    this.remotePlayers = new RemotePlayers(app);
+    this.remotePlayers = new RemotePlayers(app, this.socket);
   }
 
-  setPlayer(player?: Player) {
+  setEventHandlerForPlayer(player: Player, socket: SocketClient) {
     this.player = player;
+    this.socket = socket;
     this.setupEventListeners();
   }
 
-  private async setupEventListeners() {
+  private setupEventListeners() {
     window.addEventListener("keydown", this.handleKeyDown.bind(this));
     window.addEventListener("keyup", this.handleKeyUp.bind(this));
-    socket.on("update-players", (players: any) => {
-      this.remotePlayers.updatePlayers(players);
+
+    // broadcasting player movement to other connected sockets
+    this.socket.getSocket().on("update-players", (players: any) => {
+      this.remotePlayers.updatePlayers(players, this.spriteManager.mapContainer);
     });
     window.addEventListener("beforeunload", this.cleanup.bind(this));
   }
 
   private handleKeyDown(e: KeyboardEvent) {
-    if (this.player && !this.player.keys[e.key]) {
+    if (this.player && Object.values(Keys).includes(e.key as Keys)) {
       this.player.keys[e.key] = true;
     }
   }
@@ -43,6 +57,6 @@ export class EventHandler {
   private cleanup() {
     window.removeEventListener("keydown", this.handleKeyDown);
     window.removeEventListener("keyup", this.handleKeyUp);
-    socket.off("update-players"); 
+    this.socket.getSocket().off("update-players");
   }
 }

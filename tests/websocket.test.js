@@ -52,7 +52,7 @@ describe("Websocket tests", () => {
       );
   
       const adminSigninResponse = await axios.post(
-        `${BACKEND_URL}/api/v1/signin`,
+        `${BACKEND_URL}/api/v1/login`,
         {
           username,
           password,
@@ -73,7 +73,7 @@ describe("Websocket tests", () => {
         }
       );
       const userSigninResponse = await axios.post(
-        `${BACKEND_URL}/api/v1/signin`,
+        `${BACKEND_URL}/api/v1/login`,
         {
           username: username + `-user`,
           password,

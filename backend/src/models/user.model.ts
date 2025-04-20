@@ -1,12 +1,6 @@
 import mongoose from "mongoose";
 import bcrypt from "bcrypt";
-import {
-  getModelForClass,
-  pre,
-  prop,
-  Ref,
-  ReturnModelType,
-} from "@typegoose/typegoose";
+import { getModelForClass, pre, prop, Ref, ReturnModelType } from "@typegoose/typegoose";
 import { Roles } from "../helper/enum";
 import { Space } from "./space.model";
 import { Avatar } from "./avatar.model";
@@ -23,6 +17,9 @@ export class User {
 
   @prop({ type: String, required: true })
   username!: string;
+
+  @prop({ type: String, required: true })
+  email!: string;
 
   @prop({ type: String, required: true })
   password!: string;

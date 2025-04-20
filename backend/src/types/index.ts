@@ -3,12 +3,12 @@ import { Roles } from "../helper/enum";
 
 export const SignupSchema = z.object({
   username: z.string(),
+  email: z.string(),
   password: z.string(),
-  type: z.enum(["user", "admin"]),
 });
 
-export const SigninSchema = z.object({
-  username: z.string(),
+export const LoginSchema = z.object({
+  email: z.string(),
   password: z.string(),
 });
 
@@ -19,7 +19,7 @@ export const UpdateMetadataSchema = z.object({
 export const CreateSpaceSchema = z.object({
   name: z.string(),
   dimensions: z.string().regex(/^[0-9]{1,4}x[0-9]{1,4}$/),
-  thumbnail:z.string(),
+  thumbnail: z.string(),
   mapId: z.string().optional(),
 });
 
