@@ -1,15 +1,21 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Canvas } from "../pixi";
 import { Button, MediaControls } from "@/components";
 import { Locate, ZoomIn, ZoomOut } from "lucide-react";
+import { SocketClient } from "@/network/SocketClient";
+import userContext from "../context/user";
+
+type User = { id: string; name: string };
 
 export default function Metaverse() {
   const pixiContainer = useRef<HTMLDivElement>(null);
   const canvasInstance = useRef<Canvas | null>(null);
+  const socketClientRef = useRef<SocketClient>(new SocketClient());
+  const [user, setUser] = useState<User | null>(null);
 
   useEffect(() => {
     if (pixiContainer.current && !canvasInstance.current) {
-      canvasInstance.current = new Canvas(pixiContainer.current);
+      canvasInstance.current = new Canvas(pixiContainer.current, socketClientRef.current);
     }
     return () => {
       if (canvasInstance.current?.app) {
@@ -21,7 +27,6 @@ export default function Metaverse() {
       canvasInstance.current = null;
     };
   }, []);
-
   return (
     <div>
       <div ref={pixiContainer} className="max-w-screen min-h-screen " />
@@ -37,7 +42,7 @@ export default function Metaverse() {
         </Button>
       </div>
       <div className="fixed z-1 bottom-0 h-20 w-screen bg-slate-800 border-t">
-        <MediaControls />
+        <MediaControls socketClient={socketClientRef.current} />
       </div>
     </div>
   );

@@ -10,18 +10,36 @@ export function createCollisionMap(): number[][] {
     collisionMap[71][x] = 1;
   }
 
+  // library area
+  for (let x = 43; x < 64; x++) {
+    collisionMap[26][x] = 1;
+    collisionMap[27][x] = 1;
+    collisionMap[28][x] = 1;
+  }
   // gaming rooms orange map boundary
   for (let x = 0; x < 10; x++) {
     collisionMap[16][x] = 1;
   }
 
-  // gaming room first door
-  for (let x = 10; x < 16; x++) {
-    collisionMap[16][x] = 1;
+  // inside first gaming room
+  // desks
+  for (let x = 5; x < 14; x++) {
+    collisionMap[8][x] = 1;
+  }
+  // whiteboard
+  collisionMap[3][15] = 1;
+  collisionMap[3][16] = 1;
+
+  // first gaming room right wall
+  for (let x = 18; x < 30; x++) {
+    collisionMap[3][x] = 1;
   }
 
   // first gaming room, after the door
-  for (let x = 16; x < 20; x++) {
+  for (let x = 16; x < 27; x++) {
+    collisionMap[16][x] = 1;
+  }
+  for (let x = 32; x < 39; x++) {
     collisionMap[16][x] = 1;
   }
   return collisionMap;

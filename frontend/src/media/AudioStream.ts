@@ -8,7 +8,7 @@ export class AudioStream {
       this.stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       const audio = new Audio();
       audio.srcObject = this.stream;
-      audio.play(); // For testing
+      // audio.play(); // For testing
       return this.stream;
     } catch (error) {
       toast.error("Microphone access denied", {

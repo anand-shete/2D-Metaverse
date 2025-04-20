@@ -1,7 +1,7 @@
 import { FastifyRequest, FastifyReply } from "fastify";
 import { LoginSchema, SignupSchema } from "../types/index";
-import { AvatarModel, ElementModel, UserModel as User } from "../models";
-import { generateAdminToken } from "../helper/jwt";
+import { AvatarModel, ElementModel, UserModel as User, UserModel } from "../models";
+import { generateAdminToken, verfiyToken } from "../helper/jwt";
 /*
 400 Invalid Request → The request is invalid.
 401 Auth Required  → User is unauthorized. Authentication required to access resource.
@@ -23,9 +23,7 @@ export const signup = async (req: FastifyRequest, res: FastifyReply) => {
       username: parsedData.data.username,
       password: parsedData.data.password,
     });
-    return res
-      .status(201)
-      .send({ message: "Account created successfully", userId: user._id });
+    return res.status(201).send({ message: "Account created successfully", userId: user._id });
   } catch (error: any) {
     console.log(error);
     return res.status(500).send({ message: "Failed to Create Account" });
@@ -75,7 +73,25 @@ export const login = async (req: FastifyRequest, res: FastifyReply) => {
     return res.status(500).send({ message: "Failed to Sign In User" });
   }
 };
+export const user = async (req: FastifyRequest, res: FastifyReply) => {
+  try {
+    const token = req.cookies["token"];
+    if (!token) return res.status(404).send({ message: "Token not found" });
 
+    const { username } = (await verfiyToken(token)) as {
+      _id: string;
+      username: string;
+      role: string;
+      spaces: string[];
+      iat: number;
+    };
+    return res.status(200).send({ message: "User found", username: username });
+    // const user = await UserModel.findOne({user})
+  } catch (error) {
+    console.log(error);
+    return res.status(500).send({ message: "Eroror getting user data" });
+  }
+};
 export const avatar = async (req: FastifyRequest, res: FastifyReply) => {
   try {
     const avatars = await AvatarModel.find({}).lean();

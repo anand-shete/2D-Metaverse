@@ -5,7 +5,7 @@ export class SocketClient {
   private socket: Socket;
 
   constructor() {
-    this.socket = io(WS_URL, { withCredentials: true });
+    this.socket = io(WS_URL);
   }
 
   getSocket(): Socket {

@@ -42,7 +42,7 @@ export default class SpriteManager {
     const doorSpriteSheet = new Spritesheet(texture, atlasData);
     await doorSpriteSheet.parse();
     const doorSprite = new AnimatedSprite(doorSpriteSheet.animations["close"]);
-    doorSprite.animationSpeed = 0.1;  
+    doorSprite.animationSpeed = 0.1;
     doorSprite.x = 200;
     doorSprite.y = 200;
     // this.app.stage.addChild(doorSprite);

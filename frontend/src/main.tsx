@@ -1,16 +1,11 @@
 import { createRoot } from "react-dom/client";
 import "./index.css";
-import {
-  createRoutesFromElements,
-  createBrowserRouter,
-  RouterProvider,
-  Route,
-} from "react-router";
+import { createRoutesFromElements, createBrowserRouter, RouterProvider, Route } from "react-router";
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { LandingPage, Metaverse, Login, NotFound, SignUp } from "./pages";
-import { ChatBox, MediaControls } from "./components";
+import { ChatBox } from "./components";
 
 const queryClient = new QueryClient();
 
@@ -21,7 +16,6 @@ const router = createBrowserRouter(
       <Route path="/signup" element={<SignUp />} />
       <Route path="/login" element={<Login />} />
       <Route path="/canvas" element={<Metaverse />} />
-      <Route path="/media" element={<MediaControls />} />
       <Route path="/chat" element={<ChatBox />} />
       <Route path="*" element={<NotFound />} />
     </Route>

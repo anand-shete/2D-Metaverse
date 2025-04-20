@@ -2,6 +2,7 @@
 import { AnimatedSprite, Application, Assets, Container, Spritesheet, Texture } from "pixi.js";
 import { SpriteManager } from ".";
 import { SocketClient } from "@/network/SocketClient";
+import { Joystick } from "./JoyStick";
 
 export default class Player {
   public playerSprite: AnimatedSprite;
@@ -10,8 +11,8 @@ export default class Player {
   private currentAnimation: string = "idle";
   public worldX: number;
   public worldY: number;
-  public moveX: number = 0; // FIXME: joystick movement on phone
-  public moveY: number = 0;
+  private joystick?: Joystick;
+  private isMobile: boolean = window.innerWidth <= 600 || "ontouchstart" in window;
 
   constructor(
     public app: Application,
@@ -33,6 +34,11 @@ export default class Player {
     this.app.stage.addChild(this.playerSprite);
     this.playerSprite.play();
     this.spriteManager = spriteManager;
+
+    // Initialize joystick for mobile
+    if (this.isMobile) {
+      this.joystick = new Joystick(this.app);
+    }
   }
 
   updatePlayer() {
@@ -42,30 +48,45 @@ export default class Player {
     let dy = 0;
     let newWorldX = this.worldX;
     let newWorldY = this.worldY;
-    console.log("worldX", this.worldX, "worldY", this.worldY);
+    // console.log("worldX", this.worldX, "worldY", this.worldY);
     // console.log("Initial Y (world):", this.playerSprite.y);
     // console.log("Initial Tile X:", Math.floor(this.playerSprite.x / 64));
     // console.log("Initial Tile Y:", Math.floor(this.playerSprite.y / 64));
     // console.log("test ", this.app.screen.height / 2);
 
     // we are not moving the player at all, we are animating the player and moving the entire mapContainer based on user inputs
-    if (this.keys["w"]) {
-      newAnimation = "front";
-      dy -= speed;
-    }
-    if (this.keys["s"]) {
-      newAnimation = "back";
-      dy += speed;
-    }
-    if (this.keys["a"]) {
-      newAnimation = "left";
-      dx -= speed;
-    }
-    if (this.keys["d"]) {
-      newAnimation = "right";
-      dx += speed;
-    }
 
+    if (this.isMobile && this.joystick && this.joystick.isActive()) {
+      // Joystick input
+
+      dx = this.joystick.dx * speed;
+      dy = this.joystick.dy * speed;
+      console.log("dx", Math.abs(dx) > Math.abs(dy));
+
+      // Update animation based on joystick direction
+      if (Math.abs(dx) > Math.abs(dy)) {
+        newAnimation = dx > 0 ? "right" : "left";
+      } else if (dy !== 0) {
+        newAnimation = dy > 0 ? "back" : "front";
+      }
+    } else {
+      if (this.keys["w"]) {
+        newAnimation = "front";
+        dy -= speed;
+      }
+      if (this.keys["s"]) {
+        newAnimation = "back";
+        dy += speed;
+      }
+      if (this.keys["a"]) {
+        newAnimation = "left";
+        dx -= speed;
+      }
+      if (this.keys["d"]) {
+        newAnimation = "right";
+        dx += speed;
+      }
+    }
     // Constants (adjust as needed)
     const TILE_SIZE = 32;
     const PLAYER_WIDTH = 43;
@@ -104,14 +125,38 @@ export default class Player {
   ): boolean {
     // ((player's current world co-ordinates - player width) / 2) / size of single tile (32px)
     // all this to calculate player's current tile to check our collision array
-    const left = Math.floor((x - playerWidth / 2) / tileSize);
-    const right = Math.floor((x + playerWidth / 2) / tileSize);
-    const top = Math.floor((y - playerHeight / 2) / tileSize);
-    const bottom = Math.floor((y + playerHeight / 2) / tileSize);
+    const l = Math.floor((x - playerWidth / 2) / tileSize);
+    const r = Math.floor((x + playerWidth / 2) / tileSize);
+    const t = Math.floor((y - playerHeight / 2) / tileSize);
+    const b = Math.floor((y + playerHeight / 2) / tileSize);
+
+    // Define the original listener function
+    const keyListener = (e: KeyboardEvent) => {
+      if (e.key.toLowerCase() === "x") {
+        // Recalculate current tile position on keypress
+        const left = Math.floor((x - playerWidth / 2) / tileSize);
+        const right = Math.floor((x + playerWidth / 2) / tileSize);
+        const top = Math.floor((y - playerHeight / 2) / tileSize);
+        const bottom = Math.floor((y + playerHeight / 2) / tileSize);
+        if ((top === 3 || top === 4) && left >= 14 && left <= 17 && right >= 14 && right <= 18) {
+          window.open("https://app.eraser.io/", "_blank");
+          document.removeEventListener("keydown", keyListener); // Remove this specific listener
+        } else if (top === 28 && left > 40 && left < 48) {
+          window.open("https://ndl.iitkgp.ac.in/", "_blank");
+          document.removeEventListener("keydown", keyListener);
+        } else if (top === 28 && left > 50 && left < 58) {
+          window.open("https://open.spotify.com/", "_blank");
+          document.removeEventListener("keydown", keyListener);
+        }
+      }
+    };
+
+    // Add the listener (only if not already added, but this is a quick fix)
+    document.addEventListener("keydown", keyListener);
 
     // Check all the adjacent cell to the players
-    for (let gy = top; gy <= bottom; gy++) {
-      for (let gx = left; gx <= right; gx++) {
+    for (let gy = t; gy <= b; gy++) {
+      for (let gx = l; gx <= r; gx++) {
         if (
           gy < 0 ||
           gy >= 71 ||
@@ -128,49 +173,6 @@ export default class Player {
     }
     return false; // No collision
   }
-
-  // updatePlayer() {
-  //   let moveX = 0;
-  //   let moveY = 0;
-
-  //   if (window.innerWidth > 600) {
-  //     // Keyboard controls for desktop
-  //     if (this.keys["w"]) moveY -= 1;
-  //     if (this.keys["s"]) moveY += 1;
-  //     if (this.keys["a"]) moveX -= 1;
-  //     if (this.keys["d"]) moveX += 1;
-  //   } else {
-  //     // Joystick controls for mobile
-  //     moveX = this.moveX;
-  //     moveY = this.moveY;
-  //   }
-
-  //   const speed = 7;
-  //   this.worldX += moveX * speed;
-  //   this.worldY += moveY * speed;
-
-  //   // Update animation based on movement
-  //   let newAnimation = "idle";
-  //   if (moveX !== 0 || moveY !== 0) {
-  //     if (Math.abs(moveX) > Math.abs(moveY)) {
-  //       newAnimation = moveX > 0 ? "right" : "left";
-  //     } else {
-  //       newAnimation = moveY > 0 ? "back" : "front";
-  //     }
-  //   }
-
-  //   if (newAnimation !== this.currentAnimation) {
-  //     this.currentAnimation = newAnimation;
-  //     this.playerSprite.textures = this.loadedSprite.animations[this.currentAnimation];
-  //     this.playerSprite.play();
-  //   }
-
-  //   // Emit position to server
-  //   if (!this.lastSent || Date.now() - this.lastSent > 100) {
-  //     this.socket.getSocket().emit("move", { x: this.worldX, y: this.worldY });
-  //     this.lastSent = Date.now();
-  //   }
-  // }
 
   static async create(
     app: Application,

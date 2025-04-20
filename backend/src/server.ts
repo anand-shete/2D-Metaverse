@@ -16,7 +16,8 @@ const PORT = Number(process.env.PORT) || 3000;
   await connectDB();
   await fastify.register(cors, {
     methods: ["GET", "POST", "PUT", "DELETE"],
-    origin: process.env.FRONTEND_URL,
+    // origin: process.env.FRONTEND_URL,
+    origin: "*",
     credentials: true,
   });
   
