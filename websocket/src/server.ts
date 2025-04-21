@@ -15,7 +15,7 @@ const options: https.ServerOptions = {
   cert,
 };
 
-const PORT = Number(process.env.WS_PORT) || 3001;
+const PORT = Number(process.env.PORT) || 3001;
 const app = express();
 const server = https.createServer(options, app);
 
