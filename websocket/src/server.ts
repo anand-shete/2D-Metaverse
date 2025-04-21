@@ -1,23 +1,12 @@
 import "dotenv/config";
 import express from "express";
-import https from "https";
 import { createServer } from "http";
 import { Server } from "socket.io";
-import fs from "fs";
 
-// Load the certificate and key
-const key = fs.readFileSync("certs/server.key");
-const cert = fs.readFileSync("certs/server.crt");
-
-// Explicitly type the options for HTTPS server
-const options: https.ServerOptions = {
-  key,
-  cert,
-};
 
 const PORT = Number(process.env.PORT) || 3001;
 const app = express();
-const server = https.createServer(options, app);
+const server = createServer(app);
 
 app.get("/health", (req, res) => {
   res.status(200).json({ message: "Web Socket Server health ok " });
