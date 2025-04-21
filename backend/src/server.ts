@@ -19,7 +19,7 @@ const PORT = Number(process.env.PORT) || 3000;
     origin: process.env.FRONTEND_URL,
     credentials: true,
   });
-  
+
   await fastify.register(Formbody);
   await fastify.register(fastifyCookie);
 
@@ -33,7 +33,7 @@ const PORT = Number(process.env.PORT) || 3000;
   await fastify.register(spaceRoutes, { prefix: "/api/v1/space" });
 
   try {
-    await fastify.listen({ port: PORT });
+    await fastify.listen({ port: PORT, host: "0.0.0.0" });
     console.log(`Server started on PORT:${PORT}`);
   } catch (error) {
     console.log(error);
