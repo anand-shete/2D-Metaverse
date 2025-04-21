@@ -19,7 +19,7 @@ export default defineConfig({
       key: fs.readFileSync("./certs/server.key"),
       cert: fs.readFileSync("./certs/server.crt"),
     },
-    host: "0.0.0.0", // Binds the server to all network interfaces
+    // host: "0.0.0.0", // Binds the server to all network interfaces
     proxy: {
       "/api": "http://localhost:3000",
     },

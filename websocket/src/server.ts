@@ -101,4 +101,4 @@ io.on("connection", socket => {
   });
 });
 
-server.listen(PORT, "0.0.0.0", () => console.log(`Web socket Server running on port:${PORT}`));
+server.listen(PORT, () => console.log(`Web socket Server running on port:${PORT}`));

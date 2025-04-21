@@ -51,7 +51,7 @@ export const login = async (req: FastifyRequest, res: FastifyReply) => {
         .setCookie("token", token, {
           path: "/",
           httpOnly: true,
-          sameSite: "strict",
+          sameSite: "none",
           maxAge: 3600,
         })
         .status(200)
@@ -62,7 +62,7 @@ export const login = async (req: FastifyRequest, res: FastifyReply) => {
           path: "/",
           httpOnly: true,
           secure: true,
-          sameSite: "strict",
+          sameSite: "none",
           maxAge: 3600,
         })
         .status(200)
