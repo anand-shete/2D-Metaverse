@@ -24,8 +24,7 @@ app.get("/health", (req, res) => {
 });
 
 const io = new Server(server, {
-  // cors: { origin: process.env.FRONTEND_URL, credentials: true },
-  cors: { origin: "*" },
+  cors: { origin: process.env.FRONTEND_URL, credentials: true },
 });
 
 const players: any = {}; // Store player positions
