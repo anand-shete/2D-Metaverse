@@ -11,7 +11,7 @@ export default function Metaverse() {
   const pixiContainer = useRef<HTMLDivElement>(null);
   const canvasInstance = useRef<Canvas | null>(null);
   const socketClientRef = useRef<SocketClient>(new SocketClient());
-  const [user, setUser] = useState<User | null>(null);
+  // const [user, setUser] = useState<User | null>(null);
 
   useEffect(() => {
     if (pixiContainer.current && !canvasInstance.current) {
