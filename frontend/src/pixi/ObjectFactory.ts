@@ -1,7 +1,10 @@
 import { AnimatedSprite, Application, Assets, Sprite, Spritesheet } from "pixi.js";
 
 export default class ObjectFactory {
-  constructor(public app: Application, public assets: Record<string, any>) {
+  constructor(
+    public app: Application,
+    public assets: Record<string, any>,
+  ) {
     this.app = app;
     this.assets = assets;
   }

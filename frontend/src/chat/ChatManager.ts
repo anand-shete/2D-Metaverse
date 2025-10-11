@@ -8,11 +8,9 @@ export class ChatManager {
   }
 
   private setupSocketListeners() {
-    this.socketClient
-      .getSocket()
-      .on("chat-message", (data: { user: string; text: string }) => {
-        this.messages.push({ ...data, timestamp: Date.now() });
-      });
+    this.socketClient.getSocket().on("chat-message", (data: { user: string; text: string }) => {
+      this.messages.push({ ...data, timestamp: Date.now() });
+    });
   }
 
   sendMessage(user: string, text: string) {

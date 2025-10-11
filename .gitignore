@@ -2,14 +2,11 @@ node_modules
 
 dist
 
-package-lock.json
-
-*.env
+.env
 
 *.log
 
 node_modules
 .vscode/*
 
-*.txt
 .prettierrc

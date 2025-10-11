@@ -5,7 +5,10 @@ export default class RemotePlayers {
   private remotePlayers: { [id: string]: Sprite } = {};
   private texture?: Texture;
 
-  constructor(public app: Application, public socket: SocketClient) {
+  constructor(
+    public app: Application,
+    public socket: SocketClient,
+  ) {
     this.app = app;
     this.socket = socket;
   }
@@ -13,7 +16,7 @@ export default class RemotePlayers {
   // called only after recieving the "update-players" socket event from setupEventListeners()
   async updatePlayers(
     players: { [id: string]: { x: number; y: number } },
-    mapContainer: Container
+    mapContainer: Container,
   ) {
     // console.log("total players", Object.keys(players).length);
     for (const id in this.remotePlayers) {

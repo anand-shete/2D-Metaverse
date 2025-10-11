@@ -4,9 +4,7 @@ import { ChatManager } from "@/chat/ChatManager";
 
 export default function ChatBox() {
   const [message, setMessage] = useState("");
-  const [messages, setMessages] = useState<
-    { user: string; text: string; timestamp: number }[]
-  >([]);
+  const [messages, setMessages] = useState<{ user: string; text: string; timestamp: number }[]>([]);
   const chatManagerRef = useRef<ChatManager | null>(null);
   const user = "Player1"; // Replace with dynamic user ID later
 
@@ -35,10 +33,10 @@ export default function ChatBox() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-gray-100 p-4">
-      <h1 className="text-2xl font-bold mb-4">Chat Test Page</h1>
-      <div className="w-80 bg-white rounded shadow-lg p-4">
-        <div className="h-64 overflow-y-auto mb-2">
+    <div className="flex min-h-screen flex-col items-center justify-center bg-gray-100 p-4">
+      <h1 className="mb-4 text-2xl font-bold">Chat Test Page</h1>
+      <div className="w-80 rounded bg-white p-4 shadow-lg">
+        <div className="mb-2 h-64 overflow-y-auto">
           {messages.map((msg, i) => (
             <p key={i}>
               <strong>{msg.user}</strong>: {msg.text}
@@ -51,7 +49,7 @@ export default function ChatBox() {
           onChange={e => setMessage(e.target.value)}
           onKeyPress={e => e.key === "Enter" && handleSend()}
           placeholder="Type a message..."
-          className="w-full p-2 border rounded"
+          className="w-full rounded border p-2"
         />
       </div>
     </div>

@@ -8,7 +8,10 @@ export default class Canvas {
   public spriteManager!: SpriteManager;
   public eventHandler?: EventHandler;
 
-  constructor(divElement: HTMLDivElement, public socket: SocketClient) {
+  constructor(
+    divElement: HTMLDivElement,
+    public socket: SocketClient,
+  ) {
     this.app = new Application();
     this.app
       .init({ resizeTo: window })
@@ -22,7 +25,7 @@ export default class Canvas {
           this.app,
           this.socket,
           this.spriteManager,
-          this.spriteManager.factory
+          this.spriteManager.factory,
         );
         await this.init();
         this.setup3Buttons();
@@ -36,7 +39,7 @@ export default class Canvas {
       this.app,
       this.socket,
       this.spriteManager,
-      this.spriteManager.mapContainer
+      this.spriteManager.mapContainer,
     );
     this.spriteManager.setPlayerSprite(this.player);
     if (this.eventHandler) this.eventHandler.setEventHandlerForPlayer(this.player, this.socket);

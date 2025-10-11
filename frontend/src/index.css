@@ -111,15 +111,12 @@
 }
 
 @theme {
-  --shadow-custom: 0 5px 50px 0;
+  --shadow-custom: 0 5px 40px 0;
 }
 
 @layer base {
   * {
     @apply border-border outline-ring/50;
-  }
-  body {
-    @apply bg-background text-foreground;
   }
 }
 

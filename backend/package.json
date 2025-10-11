@@ -1,43 +1,42 @@
 {
-  "name": "backend",
-  "version": "1.0.0",
-  "main": "index.js",
-  "scripts": {
-    "build": "tsc",
-    "start": "node dist/server.js",
-    "prod": "npm run compile && npm run build",
-    "dev:fastify": "ts-node-dev --transpile-only --respawn ./src/server.ts",
-    "dev:socket": "ts-node-dev --transpile-only --respawn ./src/socket-server.ts",
-    "dev": "npm-run-all --parallel dev:fastify dev:socket"
-  },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "type": "commonjs",
-  "description": "",
-  "dependencies": {
-    "@fastify/cookie": "^11.0.2",
-    "@fastify/cors": "^11.0.1",
-    "@fastify/formbody": "^8.0.2",
-    "@typegoose/typegoose": "^12.14.0",
-    "@types/express": "^5.0.3",
-    "@types/socket.io": "^3.0.1",
-    "bcrypt": "^5.1.1",
-    "dotenv": "^16.4.7",
-    "express": "^5.1.0",
-    "fastify": "^5.2.2",
-    "jsonwebtoken": "^9.0.2",
-    "mongoose": "^8.13.1",
-    "socket.io": "^4.8.1",
-    "zod": "^3.24.2"
-  },
-  "devDependencies": {
-    "@types/bcrypt": "^5.0.2",
-    "@types/jsonwebtoken": "^9.0.9",
-    "@types/node": "^22.13.14",
-    "@types/ws": "^8.18.1",
-    "npm-run-all": "^4.1.5",
-    "ts-node-dev": "^2.0.0",
-    "typescript": "^5.8.2"
-  }
+    "name": "backend",
+    "version": "1.0.0",
+    "main": "index.js",
+    "scripts": {
+        "build": "tsc",
+        "start": "node dist/server.js",
+        "dev:fastify": "ts-node-dev --transpile-only --respawn ./src/server.ts",
+        "dev:socket": "ts-node-dev --transpile-only --respawn ./src/socket-server.ts",
+        "dev": "npm-run-all --parallel dev:fastify dev:socket"
+    },
+    "keywords": [],
+    "author": "",
+    "license": "ISC",
+    "type": "commonjs",
+    "description": "",
+    "dependencies": {
+        "@fastify/cookie": "^11.0.2",
+        "@fastify/cors": "^11.0.1",
+        "@fastify/formbody": "^8.0.2",
+        "@typegoose/typegoose": "^12.14.0",
+        "@types/express": "^5.0.3",
+        "@types/socket.io": "^3.0.1",
+        "bcrypt": "^5.1.1",
+        "dotenv": "^16.4.7",
+        "express": "^5.1.0",
+        "fastify": "^5.2.2",
+        "jsonwebtoken": "^9.0.2",
+        "mongoose": "^8.13.1",
+        "socket.io": "^4.8.1",
+        "zod": "^3.24.2"
+    },
+    "devDependencies": {
+        "@types/bcrypt": "^5.0.2",
+        "@types/jsonwebtoken": "^9.0.9",
+        "@types/node": "^22.13.14",
+        "@types/ws": "^8.18.1",
+        "npm-run-all": "^4.1.5",
+        "ts-node-dev": "^2.0.0",
+        "typescript": "^5.8.2"
+    }
 }

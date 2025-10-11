@@ -17,7 +17,7 @@ export default class EventHandler {
     public app: Application,
     public socket: SocketClient,
     public spriteManager: SpriteManager,
-    public objectFactory: ObjectFactory
+    public objectFactory: ObjectFactory,
   ) {
     this.app = app;
     this.socket = socket;

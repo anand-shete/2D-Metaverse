@@ -1,5 +1,5 @@
 import "dotenv/config";
-import express from "express";
+import express, { Request, Response } from "express";
 import { createServer } from "http";
 import { Server } from "socket.io";
 
@@ -10,6 +10,10 @@ const server = createServer(app);
 
 const io = new Server(server, {
   cors: { origin: process.env.FRONTEND_URL, credentials: true },
+});
+
+app.get("/", (req: Request, res: Response) => {
+  return res.status(200).json({ message: "Web socket server Healthcheck passed🚀" });
 });
 
 const players: any = {}; // Store player positions
@@ -85,4 +89,6 @@ io.on("connection", socket => {
   });
 });
 
-server.listen(WS_PORT, () => console.log(`Web socket server running on PORT:${WS_PORT}`));
+server.listen(WS_PORT, () =>
+  console.log(`Web socket server running on http://localhost:${WS_PORT}`)
+);

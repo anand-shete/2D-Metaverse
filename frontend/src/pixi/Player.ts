@@ -19,7 +19,7 @@ export default class Player {
     public socket: SocketClient,
     public loadedSprite: Spritesheet,
     public spriteManager: SpriteManager,
-    public mapContainer: Container
+    public mapContainer: Container,
   ) {
     this.socket = socket;
     this.mapContainer = mapContainer;
@@ -121,7 +121,7 @@ export default class Player {
     y: number,
     playerWidth: number,
     playerHeight: number,
-    tileSize: number
+    tileSize: number,
   ): boolean {
     // ((player's current world co-ordinates - player width) / 2) / size of single tile (32px)
     // all this to calculate player's current tile to check our collision array
@@ -178,7 +178,7 @@ export default class Player {
     app: Application,
     socket: SocketClient,
     spriteManager: SpriteManager,
-    mapContainer: Container
+    mapContainer: Container,
   ): Promise<Player> {
     const texture = await Assets.load("/player/girl/girl-sheet.png");
     const atlasData = await (await fetch("/player/girl/girl.json")).json();

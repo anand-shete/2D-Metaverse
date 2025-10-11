@@ -50,8 +50,8 @@ export class Joystick {
   private onPointerDown(event: any) {
     if (!this.isDragging) {
       const touchData = event.data;
-    //   console.log("touchData",touchData);
-      
+      //   console.log("touchData",touchData);
+
       this.touchId = touchData.identifier;
       this.isDragging = true;
 

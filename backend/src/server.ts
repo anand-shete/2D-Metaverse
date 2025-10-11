@@ -23,8 +23,8 @@ const PORT = Number(process.env.PORT) || 3000;
   await fastify.register(Formbody);
   await fastify.register(fastifyCookie);
 
-  fastify.get("/health", async (req: FastifyRequest, res: FastifyReply) => {
-    return res.status(200).send({ message: "Health check passed 🚀" });
+  fastify.get("/", async (req: FastifyRequest, res: FastifyReply) => {
+    return res.status(200).send({ message: "Fastify Backend Health check passed 🚀" });
   });
 
   await fastify.register(baseRoutes, { prefix: "/api/v1" });
@@ -34,7 +34,7 @@ const PORT = Number(process.env.PORT) || 3000;
 
   try {
     await fastify.listen({ port: PORT, host: "0.0.0.0" });
-    console.log(`Server started on PORT:${PORT}`);
+    console.log(`Server started on http://localhost:${PORT}`);
   } catch (error) {
     console.log(error);
     process.exit(1);

@@ -14,7 +14,10 @@ export class MediaManager {
   private onRemoteStreamRemoved?: (peerId: string) => void;
   private videoElement?: HTMLVideoElement;
 
-  constructor(private socket: SocketClient, peerOptions?: PeerJSOption) {
+  constructor(
+    private socket: SocketClient,
+    peerOptions?: PeerJSOption,
+  ) {
     this.peer = new Peer(null as any, peerOptions);
     this.setupPeerListeners();
     this.setupSocketListeners();

@@ -1,9 +1,9 @@
 import { useEffect, useRef, useState } from "react";
 import { Canvas } from "../pixi";
-import { Button, MediaControls } from "@/components";
 import { Locate, ZoomIn, ZoomOut } from "lucide-react";
 import { SocketClient } from "@/network/SocketClient";
-import userContext from "../context/user";
+import { Button } from "@/components/ui/button";
+import { MediaControls } from "@/components/sections";
 
 type User = { id: string; name: string };
 
@@ -29,19 +29,19 @@ export default function Metaverse() {
   }, []);
   return (
     <div>
-      <div ref={pixiContainer} className="max-w-screen min-h-screen " />
-      <div className="absolute bottom-25 right-4 flex flex-col gap-2">
-        <Button id="zoom-in" className="rounded opacity-80 border">
+      <div ref={pixiContainer} className="min-h-screen max-w-screen" />
+      <div className="absolute right-4 bottom-25 flex flex-col gap-2">
+        <Button id="zoom-in" className="rounded border opacity-80">
           <ZoomIn />
         </Button>
-        <Button id="zoom-out" className="rounded opacity-80 border">
+        <Button id="zoom-out" className="rounded border opacity-80">
           <ZoomOut />
         </Button>
-        <Button id="locate-player" className="rounded opacity-80 border">
+        <Button id="locate-player" className="rounded border opacity-80">
           <Locate />
         </Button>
       </div>
-      <div className="fixed z-1 bottom-0 h-20 w-screen bg-slate-800 border-t">
+      <div className="fixed bottom-0 z-1 h-20 w-screen border-t bg-slate-800">
         <MediaControls socketClient={socketClientRef.current} />
       </div>
     </div>
