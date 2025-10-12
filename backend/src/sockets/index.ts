@@ -41,11 +41,13 @@ const initSockets = async (fastify: FastifyInstance) => {
 
       // Handle join-room event
       socket.on("join-room", (peerId, username) => {
+        // console.log("done1");
         if (!peerId || typeof peerId !== "string") {
           console.error("Invalid peerId:", peerId);
           return;
         }
 
+        // console.log("done2");
         // Join the room
         socket.join(roomName);
         peersInRoom.add(peerId);

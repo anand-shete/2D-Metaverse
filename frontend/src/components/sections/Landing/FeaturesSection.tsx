@@ -49,7 +49,7 @@ export default function FeaturesSection() {
 
   return (
     <section className="min-w-full border-t bg-black/60 px-4 py-20 text-white">
-      <div className="mx-30">
+      <div className="mx-10 md:mx-20 lg:mx-30">
         <div className="mb-12 text-center">
           <h2 className="mb-4 text-4xl font-bold">Metaverse Features</h2>
           <p className="mx-auto max-w-2xl text-gray-300">

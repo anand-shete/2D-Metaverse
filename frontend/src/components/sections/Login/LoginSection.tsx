@@ -32,7 +32,6 @@ const LoginSection = () => {
   const submit = async (data: z.infer<typeof LoginSchema>) => {
     try {
       const res = await api.post("/login", data);
-      console.log("res", res.request);
       toast.success(res.data.message);
       navigate("/metaverse");
     } catch (error: any) {
@@ -43,7 +42,7 @@ const LoginSection = () => {
 
   return (
     <div className="mt-22 flex w-full flex-row items-center justify-center bg-blue-950">
-      <Card className="mt-20 mb-40 w-[30vw] rounded-2xl shadow-sm shadow-sky-300 transition-shadow hover:shadow-2xl">
+      <Card className="mx-10 mt-20 mb-40 w-md rounded-2xl shadow-sm shadow-sky-300 transition-shadow hover:shadow-2xl">
         <CardHeader className="text-center">
           <CardTitle className="text-2xl">Login</CardTitle>
           <CardDescription>Login to the Metaverse</CardDescription>

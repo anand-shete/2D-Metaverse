@@ -44,10 +44,10 @@ const SignupSection = () => {
   return (
     <div className="bg-blue-950">
       <div className="mt-10 flex min-h-svh w-full flex-row items-center justify-center md:p-10">
-        <div className="w-full max-w-sm rounded-2xl shadow-custom shadow-sky-300">
+        <div className="mx-10 w-md rounded-2xl shadow-sm shadow-sky-300 transition-shadow hover:shadow-2xl">
           <Card>
             <CardHeader className="text-center">
-              <CardTitle className="text-3xl">Signup</CardTitle>
+              <CardTitle className="text-2xl">Signup</CardTitle>
               <CardDescription className="text-sm">Join the Metaverse Community</CardDescription>
             </CardHeader>
             <CardContent>

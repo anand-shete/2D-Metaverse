@@ -1,10 +1,14 @@
+import { Button } from "@/components/ui/button";
 import { ShootingStars } from "@/components/ui/shooting-stars";
 import { StarsBackground } from "@/components/ui/stars-background";
+import { LogIn } from "lucide-react";
 import { lazy } from "react";
+import { useNavigate } from "react-router";
 
 const PixelTrail = lazy(() => import("@/components/PixelTrail"));
 
 export default function HeroSection() {
+  const navigate = useNavigate();
   return (
     <>
       <div style={{ height: "100vh", width: "100vw", position: "fixed", top: "0px" }}>
@@ -23,12 +27,15 @@ export default function HeroSection() {
       </div>
 
       <div className="flex h-screen flex-col items-center justify-center">
-        <h1 className="mb-4 text-5xl font-bold text-white md:text-6xl">
+        <h1 className="mb-4 text-center text-4xl font-bold text-white md:text-5xl lg:text-6xl">
           Welcome to The Metaverse!
         </h1>
-        <p className="max-w-2xl text-lg text-white md:text-xl">
-          Connect, play, and build your digital legacy
+        <p className="text-center text-white md:text-xl lg:text-lg">
+          Connect, play, and build your digital legacy.
         </p>
+        <Button className="z-10 mt-10 text-black" size="lg" onClick={() => navigate("/login")}>
+          Enter The Metaverse <LogIn className="text-neutral-800" />
+        </Button>
       </div>
     </>
   );
