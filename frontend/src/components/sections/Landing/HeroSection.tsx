@@ -33,7 +33,7 @@ export default function HeroSection() {
         <p className="text-center text-white md:text-xl lg:text-lg">
           Connect, play, and build your digital legacy.
         </p>
-        <Button className="z-10 mt-10 text-black" size="lg" onClick={() => navigate("/login")}>
+        <Button className="z-10 mt-10 text-white" size="lg" onClick={() => navigate("/login")}>
           Enter The Metaverse <LogIn className="text-neutral-800" />
         </Button>
       </div>

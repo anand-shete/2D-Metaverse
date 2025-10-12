@@ -25,7 +25,7 @@ export class MediaManager {
 
   private setupPeerListeners() {
     this.peer.on("open", id => {
-      console.log("okay")
+      console.log("okay");
       this.socket.getSocket().emit("join-room", id);
     });
 
