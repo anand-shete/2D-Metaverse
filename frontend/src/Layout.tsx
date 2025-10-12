@@ -11,9 +11,9 @@ const Layout = () => {
 
   return (
     <Suspense key={key} fallback={<Loader />}>
-      <Navbar />
+      {pathname !== "/metaverse" && <Navbar />}
       <Outlet />
-      <Footer />
+      {pathname !== "/metaverse" && <Footer />}
     </Suspense>
   );
 };

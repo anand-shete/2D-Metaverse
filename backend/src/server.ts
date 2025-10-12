@@ -8,11 +8,13 @@ import fastifyCookie from "@fastify/cookie";
 import Formbody from "@fastify/formbody";
 import connectDB from "./config/db";
 import cors from "@fastify/cors";
+import fastifySocketIO from "fastify-socket.io";
+import initSockets from "./sockets";
 
 const fastify = Fastify({ logger: false });
 const PORT = Number(process.env.PORT) || 3000;
 
-(async () => {
+const start = async () => {
   await connectDB();
   await fastify.register(cors, {
     methods: ["GET", "POST", "PUT", "DELETE"],
@@ -22,15 +24,27 @@ const PORT = Number(process.env.PORT) || 3000;
 
   await fastify.register(Formbody);
   await fastify.register(fastifyCookie);
+  await fastify.register(fastifySocketIO, {
+    cors: {
+      origin: process.env.FRONTEND_URL,
+      methods: ["GET", "POST"],
+      allowedHeaders: "*",
+      credentials: true,
+    },
+  });
 
   fastify.get("/", async (req: FastifyRequest, res: FastifyReply) => {
-    return res.status(200).send({ message: "Fastify Backend Health check passed 🚀" });
+    res.status(200).send({ message: "Fastify Backend Health check passed 🚀" });
+    return;
   });
 
   await fastify.register(baseRoutes, { prefix: "/api/v1" });
   await fastify.register(userRoutes, { prefix: "/api/v1/user" });
   await fastify.register(adminRoutes, { prefix: "/api/v1/admin" });
   await fastify.register(spaceRoutes, { prefix: "/api/v1/space" });
+
+  // initalize web sockets
+  await initSockets(fastify);
 
   try {
     await fastify.listen({ port: PORT, host: "0.0.0.0" });
@@ -39,4 +53,6 @@ const PORT = Number(process.env.PORT) || 3000;
     console.log(error);
     process.exit(1);
   }
-})();
+};
+
+start();

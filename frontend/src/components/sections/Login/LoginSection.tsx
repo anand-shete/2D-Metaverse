@@ -1,3 +1,11 @@
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
 import api from "@/api";
 import { z } from "zod";
 import { toast } from "sonner";
@@ -8,21 +16,8 @@ import { Button } from "@/components/ui/button";
 import { Link, useNavigate } from "react-router";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
+import { LoginSchema } from "@/schema";
 
-const LoginSchema = z.object({
-  email: z.string().min(1, { message: "Email is required" }),
-  password: z.string().min(1, { message: "Password is required" }),
-});
-
-// export Login Component
 const LoginSection = () => {
   const navigate = useNavigate();
 
@@ -37,8 +32,9 @@ const LoginSection = () => {
   const submit = async (data: z.infer<typeof LoginSchema>) => {
     try {
       const res = await api.post("/login", data);
+      console.log("res", res.request);
       toast.success(res.data.message);
-      navigate("/canvas");
+      navigate("/metaverse");
     } catch (error: any) {
       console.log("error", error.response.data);
       toast.error(error.response.data.message || "Login Failed");

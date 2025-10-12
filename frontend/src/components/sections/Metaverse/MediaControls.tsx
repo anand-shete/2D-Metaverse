@@ -18,6 +18,7 @@ const MediaControls: React.FC<Props> = ({ socketClient }) => {
   const [remoteVideos, setRemoteVideos] = useState<{ [peerId: string]: HTMLVideoElement }>({});
   const [fullScreenPeerId, setFullScreenPeerId] = useState<string | null>(null);
 
+  // init video and audio
   useEffect(() => {
     mediaManagerRef.current = new MediaManager(socketClient);
 
@@ -87,94 +88,92 @@ const MediaControls: React.FC<Props> = ({ socketClient }) => {
     }
   };
 
-  const resizeVideo = () => {
-    setIsFullScreen(!isFullScreen);
-  };
-
   return (
-    <div className="flex w-screen flex-col items-center">
-      {/* Remote Videos Grid at the Top */}
-      <div className="fixed top-0 mb-4 flex w-full flex-wrap justify-center gap-4 bg-slate-700">
-        {Object.entries(remoteVideos).map(([peerId, videoElement]) => (
-          <div
-            key={peerId}
-            className={`mt-1 transition-all duration-300 ${
-              fullScreenPeerId === peerId
-                ? "fixed top-1/2 left-1/2 h-[60%] w-[40%] -translate-x-1/2 -translate-y-1/2 rounded-lg bg-slate-600/50 p-4 text-white"
-                : "relative h-18 w-28 text-black shadow-custom"
-            }`}
-          >
-            <video
-              autoPlay
-              className="h-full w-full rounded shadow-custom"
-              ref={el => {
-                if (el && videoElement.srcObject) el.srcObject = videoElement.srcObject;
-              }}
-            />
+    <div className="fixed bottom-0 z-1 h-23 border-t bg-slate-800">
+      <div className="flex w-screen flex-col items-center">
+        {/* Remote Videos Grid at the Top */}
+        <div className="fixed top-0 mb-4 flex w-full flex-wrap justify-center gap-4 bg-slate-700">
+          {Object.entries(remoteVideos).map(([peerId, videoElement]) => (
             <div
-              className={`${
-                isVideoActive ? "block" : "hidden"
-              } absolute top-1 right-1 cursor-pointer rounded-lg bg-black/40 p-1`}
-              onClick={() => setFullScreenPeerId(prev => (prev === peerId ? null : peerId))}
+              key={peerId}
+              className={`mt-1 transition-all duration-300 ${
+                fullScreenPeerId === peerId
+                  ? "fixed top-1/2 left-1/2 h-[60%] w-[40%] -translate-x-1/2 -translate-y-1/2 rounded-lg bg-slate-600/50 p-4 text-white"
+                  : "relative h-18 w-28 text-black shadow-custom"
+              }`}
             >
-              {isFullScreen ? <Minimize2 className="h-5 w-5" /> : <Maximize2 />}
+              <video
+                autoPlay
+                className="h-full w-full rounded shadow-custom"
+                ref={el => {
+                  if (el && videoElement.srcObject) el.srcObject = videoElement.srcObject;
+                }}
+              />
+              <div
+                className={`${
+                  isVideoActive ? "block" : "hidden"
+                } absolute top-1 right-1 cursor-pointer rounded-lg bg-black/40 p-1`}
+                onClick={() => setFullScreenPeerId(prev => (prev === peerId ? null : peerId))}
+              >
+                {isFullScreen ? <Minimize2 className="h-5 w-5" /> : <Maximize2 />}
+              </div>
+              <span className="absolute top-1 left-1 rounded bg-black/50 px-1 text-xs text-white">
+                User {peerId.slice(0, 4)}
+              </span>
             </div>
-            <span className="absolute top-1 left-1 rounded bg-black/50 px-1 text-xs text-white">
-              User {peerId.slice(0, 4)}
-            </span>
-          </div>
-        ))}
-      </div>
-
-      {/* Local Video and Controls */}
-      <div className="flex w-full flex-row items-center justify-between">
-        <div className="flex flex-row items-center space-x-10">
-          <div
-            className={`mt-1 transition-all duration-300 ${
-              isFullScreen
-                ? "fixed top-1/2 left-1/2 h-[60%] w-[40%] -translate-x-1/2 -translate-y-1/2 rounded-lg bg-slate-600/50 p-4 text-white"
-                : "relative ml-20 h-18 w-28 text-black shadow-custom"
-            }`}
-          >
-            <video ref={videoRef} autoPlay muted className="h-full w-full rounded" />
-            <div
-              className={`${
-                isVideoActive ? "block" : "hidden"
-              } absolute top-1 right-1 cursor-pointer rounded-lg bg-black/40 p-1`}
-              onClick={resizeVideo}
-            >
-              {isFullScreen ? <Minimize2 className="h-5 w-5" /> : <Maximize2 />}
-            </div>
-          </div>
-
-          <Button
-            onClick={!isAudioActive ? startAudio : stopAudio}
-            className={`rounded px-2 py-1 text-sm ${
-              isAudioActive
-                ? "bg-green-500/70 hover:bg-green-600/70"
-                : "bg-red-500/70 hover:bg-red-600/70"
-            }`}
-          >
-            {isAudioActive ? <Mic /> : <MicOff />}
-          </Button>
-          <Button
-            onClick={!isVideoActive ? startVideo : stopVideo}
-            className={`rounded px-2 py-1 text-sm text-white ${
-              isVideoActive
-                ? "bg-green-500/70 hover:bg-green-600/70"
-                : "bg-red-500/70 hover:bg-red-600/70"
-            }`}
-          >
-            {isVideoActive ? <Video /> : <VideoOff />}
-          </Button>
+          ))}
         </div>
 
-        <Link to="/" className="mr-5 flex p-4">
-          <Button className="">
-            <LogOut />
-            Exit
-          </Button>
-        </Link>
+        {/* Local Video and Controls */}
+        <div className="flex w-full flex-row items-center justify-between">
+          <div className="flex flex-row items-center space-x-10">
+            <div
+              className={`mt-1 transition-all duration-300 ${
+                isFullScreen
+                  ? "fixed top-1/2 left-1/2 h-[60%] w-[40%] -translate-x-1/2 -translate-y-1/2 rounded-lg bg-slate-600/50 p-4 text-white"
+                  : "relative ml-20 h-18 w-28 text-black shadow-custom"
+              }`}
+            >
+              <video ref={videoRef} autoPlay muted className="h-full w-full" />
+              <div
+                className={`${
+                  isVideoActive ? "block" : "hidden"
+                } absolute top-1 right-1 cursor-pointer rounded-lg bg-black/40 p-1`}
+                onClick={() => setIsFullScreen(!isFullScreen)}
+              >
+                {isFullScreen ? <Minimize2 className="h-5 w-5" /> : <Maximize2 />}
+              </div>
+            </div>
+
+            <Button
+              onClick={!isAudioActive ? startAudio : stopAudio}
+              className={`rounded px-2 py-1 text-sm ${
+                isAudioActive
+                  ? "bg-green-500/70 hover:bg-green-600/70"
+                  : "bg-red-500/70 hover:bg-red-600/70"
+              }`}
+            >
+              {isAudioActive ? <Mic /> : <MicOff />}
+            </Button>
+            <Button
+              onClick={!isVideoActive ? startVideo : stopVideo}
+              className={`rounded px-2 py-1 text-sm text-white ${
+                isVideoActive
+                  ? "bg-green-500/70 hover:bg-green-600/70"
+                  : "bg-red-500/70 hover:bg-red-600/70"
+              }`}
+            >
+              {isVideoActive ? <Video /> : <VideoOff />}
+            </Button>
+          </div>
+
+          <Link to="/" className="mr-5 flex p-4">
+            <Button className="">
+              <LogOut />
+              Exit
+            </Button>
+          </Link>
+        </div>
       </div>
     </div>
   );

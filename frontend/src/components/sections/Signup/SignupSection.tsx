@@ -1,5 +1,5 @@
+import z from "zod";
 import api from "@/api";
-import { z } from "zod";
 import { toast } from "sonner";
 import { Input } from "@/components/ui/input";
 import { User, Mail, Lock } from "lucide-react";
@@ -16,12 +16,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { useForm } from "react-hook-form";
-
-const SignupSchema = z.object({
-  username: z.string().min(1, { message: "Username is required" }),
-  email: z.string().min(1, { message: "Email is required" }),
-  password: z.string().min(1, { message: "Password is required" }),
-});
+import { SignupSchema } from "@/schema";
 
 const SignupSection = () => {
   const navigate = useNavigate();
@@ -39,6 +34,7 @@ const SignupSection = () => {
     try {
       const res = await api.post("/signup", data);
       toast.success(res.data.message);
+      navigate("/login");
     } catch (error: any) {
       console.log("error", error.response.data);
       toast.error(error.response.data.message || "Account creation failed");

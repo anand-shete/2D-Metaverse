@@ -14,10 +14,4 @@ export default defineConfig({
       "@": path.resolve(__dirname, "./src"),
     },
   },
-  server: {
-    // host: "0.0.0.0", // Binds the server to all network interfaces
-    proxy: {
-      "/api": "http://localhost:3000",
-    },
-  },
 });

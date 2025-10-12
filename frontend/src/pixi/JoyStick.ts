@@ -1,5 +1,6 @@
 import { Container, Sprite, Application, Assets } from "pixi.js";
 
+// fixme add buttons
 export class Joystick {
   private outerCircle!: Sprite;
   private innerCircle!: Sprite;

@@ -5,9 +5,7 @@
     "scripts": {
         "build": "tsc",
         "start": "node dist/server.js",
-        "dev:fastify": "ts-node-dev --transpile-only --respawn ./src/server.ts",
-        "dev:socket": "ts-node-dev --transpile-only --respawn ./src/socket-server.ts",
-        "dev": "npm-run-all --parallel dev:fastify dev:socket"
+        "dev": "ts-node-dev --transpile-only --respawn ./src/server.ts"
     },
     "keywords": [],
     "author": "",
@@ -25,6 +23,7 @@
         "dotenv": "^16.4.7",
         "express": "^5.1.0",
         "fastify": "^5.2.2",
+        "fastify-socket.io": "^5.1.0",
         "jsonwebtoken": "^9.0.2",
         "mongoose": "^8.13.1",
         "socket.io": "^4.8.1",

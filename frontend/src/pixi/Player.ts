@@ -1,5 +1,5 @@
 // Handles the create of new Player, animating the playerSprite based on keys object
-import { AnimatedSprite, Application, Assets, Container, Spritesheet, Texture } from "pixi.js";
+import { AnimatedSprite, Application, Assets, Container, Spritesheet } from "pixi.js";
 import { SpriteManager } from ".";
 import { SocketClient } from "@/network/SocketClient";
 import { Joystick } from "./JoyStick";
@@ -137,15 +137,18 @@ export default class Player {
         const left = Math.floor((x - playerWidth / 2) / tileSize);
         const right = Math.floor((x + playerWidth / 2) / tileSize);
         const top = Math.floor((y - playerHeight / 2) / tileSize);
-        const bottom = Math.floor((y + playerHeight / 2) / tileSize);
+        // const bottom = Math.floor((y + playerHeight / 2) / tileSize);
         if ((top === 3 || top === 4) && left >= 14 && left <= 17 && right >= 14 && right <= 18) {
-          window.open("https://app.eraser.io/", "_blank");
+          // window.open("", "_blank");
+          this.openInNewTab("https://app.eraser.io/");
           document.removeEventListener("keydown", keyListener); // Remove this specific listener
         } else if (top === 28 && left > 40 && left < 48) {
-          window.open("https://ndl.iitkgp.ac.in/", "_blank");
+          // window.open("https://ndl.iitkgp.ac.in/", "_blank");
+          this.openInNewTab("https://ndl.iitkgp.ac.in/");
           document.removeEventListener("keydown", keyListener);
         } else if (top === 28 && left > 50 && left < 58) {
-          window.open("https://open.spotify.com/", "_blank");
+          // window.open("https://open.spotify.com/", "_blank");
+          this.openInNewTab("https://open.spotify.com/");
           document.removeEventListener("keydown", keyListener);
         }
       }
@@ -185,5 +188,13 @@ export default class Player {
     const loadedSpriteSheet = new Spritesheet(texture, atlasData);
     await loadedSpriteSheet.parse();
     return new Player(app, socket, loadedSpriteSheet, spriteManager, mapContainer);
+  }
+
+  private openInNewTab(url: string) {
+    const link = document.createElement("a");
+    link.href = url;
+    link.target = "_blank";
+    link.rel = "noopener noreferrer"; // Prevents security vulnerabilities
+    link.click();
   }
 }

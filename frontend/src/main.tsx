@@ -15,7 +15,7 @@ const router = createBrowserRouter(
       <Route path="/" element={<Lazy.LandingPage />} />
       <Route path="/signup" element={<Lazy.SignUp />} />
       <Route path="/login" element={<Lazy.Login />} />
-      <Route path="/canvas" element={<Lazy.Metaverse />} />
+      <Route path="/metaverse" element={<Lazy.Metaverse />} />
       <Route path="/chat" element={<Lazy.ChatBox />} />
       <Route path="*" element={<Lazy.NotFound />} />
     </Route>,

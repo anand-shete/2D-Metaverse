@@ -1,4 +1,4 @@
-import { AnimatedSprite, Application, Assets, Sprite, Spritesheet } from "pixi.js";
+import { AnimatedSprite, Application, Sprite, Spritesheet } from "pixi.js";
 
 export default class ObjectFactory {
   constructor(

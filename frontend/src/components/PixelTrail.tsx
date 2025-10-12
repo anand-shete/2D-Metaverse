@@ -8,12 +8,12 @@ interface GooeyFilterProps {
   strength?: number;
 }
 
-interface DotMaterialUniforms {
-  resolution: THREE.Vector2;
-  mouseTrail: THREE.Texture | null;
-  gridSize: number;
-  pixelColor: THREE.Color;
-}
+// interface DotMaterialUniforms {
+//   resolution: THREE.Vector2;
+//   mouseTrail: THREE.Texture | null;
+//   gridSize: number;
+//   pixelColor: THREE.Color;
+// }
 
 interface SceneProps {
   gridSize: number;

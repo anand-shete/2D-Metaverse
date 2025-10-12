@@ -1,6 +1,8 @@
-import PixelTrail from "@/components/PixelTrail";
 import { ShootingStars } from "@/components/ui/shooting-stars";
 import { StarsBackground } from "@/components/ui/stars-background";
+import { lazy } from "react";
+
+const PixelTrail = lazy(() => import("@/components/PixelTrail"));
 
 export default function HeroSection() {
   return (
