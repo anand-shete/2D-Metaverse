@@ -22,7 +22,7 @@ const MediaControls: React.FC<Props> = ({ socketClient }) => {
   useEffect(() => {
     mediaManagerRef.current = new MediaManager(socketClient);
 
-    startVideo();
+    async () => await startVideo();
 
     // Set up callbacks for remote streams
     mediaManagerRef.current.setOnRemoteStreamAdded((peerId, stream) => {
