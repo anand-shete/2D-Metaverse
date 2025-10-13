@@ -132,7 +132,7 @@ const MediaControls: React.FC<Props> = ({ socketClient }) => {
               className={`mt-1 transition-all duration-300 ${
                 isFullScreen
                   ? "fixed top-1/2 left-1/2 h-[60%] w-[40%] -translate-x-1/2 -translate-y-1/2 rounded-lg bg-slate-600/50 p-4 text-white"
-                  : "relative ml-20 h-18 w-28 text-black shadow-custom"
+                  : "relative mr-4 ml-10 h-18 w-28 text-black shadow-custom md:mr-10 md:ml-20"
               }`}
             >
               <video ref={videoRef} autoPlay muted className="h-full w-full" />
@@ -148,7 +148,8 @@ const MediaControls: React.FC<Props> = ({ socketClient }) => {
 
             <Button
               onClick={!isAudioActive ? startAudio : stopAudio}
-              className={`rounded px-2 py-1 text-sm ${
+              size="icon"
+              className={`mr-2 rounded md:mr-6 ${
                 isAudioActive
                   ? "bg-green-500/70 hover:bg-green-600/70"
                   : "bg-red-500/70 hover:bg-red-600/70"
@@ -158,7 +159,8 @@ const MediaControls: React.FC<Props> = ({ socketClient }) => {
             </Button>
             <Button
               onClick={!isVideoActive ? startVideo : stopVideo}
-              className={`rounded px-2 py-1 text-sm text-white ${
+              size="icon"
+              className={`rounded text-white ${
                 isVideoActive
                   ? "bg-green-500/70 hover:bg-green-600/70"
                   : "bg-red-500/70 hover:bg-red-600/70"
@@ -168,7 +170,7 @@ const MediaControls: React.FC<Props> = ({ socketClient }) => {
             </Button>
           </div>
 
-          <Link to="/" className="mr-5 flex p-4">
+          <Link to="/" className="mr-3 flex p-4 md:mr-10">
             <Button className="">
               <LogOut />
               Exit
