@@ -1,5 +1,6 @@
 import { io, Socket } from "socket.io-client";
-import { WS_URL } from "@/api";
+
+const WS_URL = import.meta.env.VITE_WS_URL;
 
 export class SocketClient {
   private socket: Socket;

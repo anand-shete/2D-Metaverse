@@ -1,11 +1,11 @@
-import { getModelForClass } from "@typegoose/typegoose";
+import { Map } from "./map.model";
+import { User } from "./user.model";
+import { Space } from "./space.model";
 import { Avatar } from "./avatar.model";
 import { Element } from "./element.model";
-import { Map } from "./map.model";
 import { MapElements } from "./mapElements.model";
-import { Space } from "./space.model";
 import { SpaceElements } from "./spaceElements.model";
-import { User } from "./user.model";
+import { getModelForClass } from "@typegoose/typegoose";
 
 export const AvatarModel = getModelForClass(Avatar);
 export const ElementModel = getModelForClass(Element);

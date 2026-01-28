@@ -1,9 +1,6 @@
 import "dotenv/config";
 import Fastify, { FastifyReply, FastifyRequest } from "fastify";
-import baseRoutes from "./routes/base.routes";
-import userRoutes from "./routes/user.routes";
-import adminRoutes from "./routes/admin.routes";
-import spaceRoutes from "./routes/space.routes";
+import * as Routes from "./routes/index";
 import fastifyCookie from "@fastify/cookie";
 import Formbody from "@fastify/formbody";
 import connectDB from "./config/db";
@@ -38,10 +35,10 @@ const start = async () => {
     return;
   });
 
-  await fastify.register(baseRoutes, { prefix: "/api/v1" });
-  await fastify.register(userRoutes, { prefix: "/api/v1/user" });
-  await fastify.register(adminRoutes, { prefix: "/api/v1/admin" });
-  await fastify.register(spaceRoutes, { prefix: "/api/v1/space" });
+  await fastify.register(Routes.baseRoutes, { prefix: "/api/v1" });
+  await fastify.register(Routes.userRoutes, { prefix: "/api/v1/user" });
+  await fastify.register(Routes.adminRoutes, { prefix: "/api/v1/admin" });
+  await fastify.register(Routes.spaceRoutes, { prefix: "/api/v1/space" });
 
   // initalize web sockets
   await initSockets(fastify);

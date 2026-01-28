@@ -1,5 +1,4 @@
 export const RENDER_API = import.meta.env.VITE_BASE_API_URL;
-export const WS_URL = import.meta.env.VITE_WS_URL;
 
 import axios from "axios";
 

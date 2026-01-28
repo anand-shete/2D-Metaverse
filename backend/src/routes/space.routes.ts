@@ -9,7 +9,7 @@ import {
 } from "../controllers/space.controller";
 import { userMiddleware } from "../middlewares/user";
 
-export default async function spaceRoutes(fastify: FastifyInstance) {
+export async function spaceRoutes(fastify: FastifyInstance) {
   fastify.addHook("preHandler", userMiddleware);
 
   fastify.post("/", createSpace); // create a space

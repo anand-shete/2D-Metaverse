@@ -46,7 +46,7 @@ export const login = async (req: FastifyRequest, res: FastifyReply) => {
     const token = await generateAdminToken(user);
     if (!token) return res.status(500).send({ message: "Error generating token" });
 
-    if (process.env.MODE === "DEVELOPMENT") {
+    if (process.env.NODE_ENV === "DEVELOPMENT") {
       return res
         .setCookie("token", token, {
           path: "/",
