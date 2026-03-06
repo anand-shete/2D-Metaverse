@@ -17,4 +17,3 @@ export class Map {
   @prop({ type: MapElements, ref: () => MapElements })
   mapElements?: MapElements[];
 }
-  

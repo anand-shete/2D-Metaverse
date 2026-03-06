@@ -36,7 +36,7 @@ export class User {
   static async comparePassword(
     this: ReturnModelType<typeof User>,
     candidatePassword: string,
-    hashedPassword: string
+    hashedPassword: string,
   ): Promise<boolean> {
     return bcrypt.compare(candidatePassword, hashedPassword);
   }

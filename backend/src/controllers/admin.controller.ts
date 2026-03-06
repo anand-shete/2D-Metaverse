@@ -4,7 +4,7 @@ import {
   CreateElementSchema,
   CreateMapSchema,
   UpdateElementSchema,
-} from "../types";
+} from "../schema/index";
 import { ElementModel as Element, UserModel } from "../models";
 import { AvatarModel as Avatar } from "../models";
 import { MapModel as Map } from "../models";

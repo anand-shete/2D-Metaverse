@@ -1,10 +1,7 @@
 import { FastifyReply, FastifyRequest } from "fastify";
 import { verfiyToken } from "../helper/jwt";
 
-export const userMiddleware = async (
-  req: FastifyRequest,
-  res: FastifyReply
-) => {
+export const userMiddleware = async (req: FastifyRequest, res: FastifyReply) => {
   try {
     const header = req.headers["authorization"];
     const token = header?.split(" ")[1];

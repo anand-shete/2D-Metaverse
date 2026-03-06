@@ -1,13 +1,9 @@
 import { FastifyRequest, FastifyReply } from "fastify";
-import { LoginSchema, SignupSchema } from "../types/index";
+import { LoginSchema, SignupSchema } from "../schema/index";
 import { AvatarModel, ElementModel, UserModel as User, UserModel } from "../models";
 import { generateAdminToken, verfiyToken } from "../helper/jwt";
-/*
-400 Invalid Request → The request is invalid.
-401 Auth Required  → User is unauthorized. Authentication required to access resource.
-403 Access Denied → User is authenticated but not authorized to access the resource.
-404 Not Found → The requested resource doesn’t exist.
-*/
+import { env } from "../config/env.config";
+
 export const signup = async (req: FastifyRequest, res: FastifyReply) => {
   try {
     const parsedData = SignupSchema.safeParse(req.body);
@@ -46,7 +42,7 @@ export const login = async (req: FastifyRequest, res: FastifyReply) => {
     const token = await generateAdminToken(user);
     if (!token) return res.status(500).send({ message: "Error generating token" });
 
-    if (process.env.NODE_ENV === "DEVELOPMENT") {
+    if (env.NODE_ENV === "development") {
       return res
         .setCookie("token", token, {
           path: "/",

@@ -1,41 +1,45 @@
 import { FastifyInstance } from "fastify";
+import { createPlayer } from "./player";
+import { Server } from "socket.io";
 
-const players: any = {}; // Store player positions
+// Store player positions
+const players: {
+  [id: string]: { x: number; y: number };
+} = {};
 
-const initSockets = async (fastify: FastifyInstance) => {
+export const initSockets = async (fastify: FastifyInstance, io: Server) => {
   try {
     await fastify.ready();
 
     // refactor
-    fastify.io.on("connection", socket => {
-      console.log("socket connected", socket.id);
-      players[socket.id] = {
-        x: Math.floor(Math.random() * 701) + 300,
-        y: Math.floor(Math.random() * 501) + 100,
-      };
+    io.on("connection", socket => {
+      const { id } = socket;
+
+      console.log("socket connected", id);
+      players[id] = createPlayer();
+
       // console.log("New player connected, players: ", players);
-      fastify.io.emit("user-joined", players);
+      io.emit("user-joined", players);
 
       socket.on("move", direction => {
-        if (direction.x) players[socket.id].x = direction.x;
-        if (direction.y) players[socket.id].y = direction.y;
+        if (direction.x) players[id].x = direction.x;
+        if (direction.y) players[id].y = direction.y;
         // console.log("location",Math.random());
 
-        fastify.io.emit("update-players", players);
+        io.emit("update-players", players);
       });
 
       socket.on("chat-message", data => {
-        fastify.io.emit("chat-message", { user: data.user, text: data.text });
+        io.emit("chat-message", { user: data.user, text: data.text });
       });
 
       socket.on("disconnect", () => {
-        // console.log(`Player disconnected with id ${socket.id} Remaining: `, players);
-        delete players[socket.id];
-        fastify.io.emit("update-players", players);
+        // console.log(`Player disconnected with id ${id} Remaining: `, players);
+        delete players[id];
+        io.emit("update-players", players);
       });
 
       // video streams functionality
-      // Store peer IDs in a room (for simplicity, using a single room)
       const roomName = "video-room";
       const peersInRoom = new Set(); // Tracks PeerJS IDs in the room
 
@@ -57,13 +61,13 @@ const initSockets = async (fastify: FastifyInstance) => {
         // Send the new client a list of existing peers (optional, for immediate connection)
         socket.emit(
           "existing-peers",
-          Array.from(peersInRoom).filter(id => id !== peerId)
+          Array.from(peersInRoom).filter(id => id !== peerId),
         );
       });
 
       // Handle client disconnect
       socket.on("disconnect", () => {
-        console.log("Client disconnected:", socket.id);
+        console.log("Client disconnected:", id);
         // Find the peerId associated with this socket (if any)
         let peerIdToRemove;
         for (const peerId of peersInRoom) {
@@ -75,7 +79,7 @@ const initSockets = async (fastify: FastifyInstance) => {
         if (peerIdToRemove) {
           peersInRoom.delete(peerIdToRemove);
           // Notify other clients in the room
-          fastify.io.to(roomName).emit("user-disconnected", peerIdToRemove);
+          io.to(roomName).emit("user-disconnected", peerIdToRemove);
           console.log(`Peer ${peerIdToRemove} left room ${roomName}`);
         }
       });

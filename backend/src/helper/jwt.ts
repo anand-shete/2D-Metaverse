@@ -1,5 +1,6 @@
 import jwt from "jsonwebtoken";
 import { User } from "../models/user.model";
+import { env } from "../config/env.config";
 
 export const generateAdminToken = async (user: User): Promise<string> => {
   const payload = {
@@ -9,9 +10,9 @@ export const generateAdminToken = async (user: User): Promise<string> => {
     role: user.role,
     spaces: user.spaces,
   };
-  return jwt.sign(payload, String(process.env.JWT_SECRET));
+  return jwt.sign(payload, String(env.JWT_SECRET));
 };
 
 export const verfiyToken = async (token: string) => {
-  return jwt.verify(token, String(process.env.JWT_SECRET));
+  return jwt.verify(token, String(env.JWT_SECRET));
 };
