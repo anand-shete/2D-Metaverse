@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 import bcrypt from "bcrypt";
-import { getModelForClass, pre, prop, Ref, ReturnModelType } from "@typegoose/typegoose";
+import { pre, prop, Ref, ReturnModelType } from "@typegoose/typegoose";
 import { Roles } from "../helper/enum";
 import { Space } from "./space.model";
 import { Avatar } from "./avatar.model";

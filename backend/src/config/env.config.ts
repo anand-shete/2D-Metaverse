@@ -5,7 +5,8 @@ const envSchema = z.object({
   PORT: z.coerce.number(),
   NODE_ENV: z.enum(["development", "production"]),
   MONGO_URL: z.string(),
-  FRONTEND_URL: z.string(),
+  FRONTEND_URL1: z.string(),
+  FRONTEND_URL2: z.string(),
   JWT_SECRET: z.string(),
 });
 

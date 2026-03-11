@@ -14,26 +14,27 @@ const PORT = Number(env.PORT) || 3000;
 
 const start = async () => {
   await connectDB();
-  await fastify.register(cors, {
-    methods: ["GET", "POST", "PUT", "DELETE"],
-    origin: env.FRONTEND_URL,
-    credentials: true,
-  });
-
-  await fastify.register(Formbody);
-  await fastify.register(fastifyCookie);
 
   const io = new Server(fastify.server, {
     cors: {
-      origin: env.FRONTEND_URL,
+      origin: [env.FRONTEND_URL1, env.FRONTEND_URL2],
       methods: ["GET", "POST", "PUT", "DELETE"],
       allowedHeaders: "*",
       credentials: true,
     },
   });
 
-  // 2. Add to Fastify decorate so you can use 'this.io' in routes
+  // Add to Fastify decorate so you can use 'fastify.io'
   fastify.decorate("io", io);
+
+  await fastify.register(cors, {
+    methods: ["GET", "POST", "PUT", "DELETE"],
+    origin: [env.FRONTEND_URL1, env.FRONTEND_URL2],
+    credentials: true,
+  });
+
+  await fastify.register(Formbody);
+  await fastify.register(fastifyCookie);
 
   fastify.get("/", async (req: FastifyRequest, res: FastifyReply) => {
     res.status(200).send({ message: "Fastify Backend Health check passed 🚀" });
@@ -46,7 +47,7 @@ const start = async () => {
   await fastify.register(Routes.spaceRoutes, { prefix: "/api/v1/space" });
 
   // initalize web sockets
-  await initSockets(fastify, io);
+  await initSockets(fastify);
 
   try {
     await fastify.listen({ port: PORT, host: "0.0.0.0" });

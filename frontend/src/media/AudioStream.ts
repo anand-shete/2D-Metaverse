@@ -3,7 +3,7 @@ import { toast } from "sonner";
 export class AudioStream {
   private stream?: MediaStream;
 
-  async start(): Promise<MediaStream> {
+  async requestMicAccess(): Promise<MediaStream> {
     try {
       this.stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       const audio = new Audio();
@@ -19,16 +19,15 @@ export class AudioStream {
   }
 
   stop() {
-    if (this.stream) {
-      this.stream.getTracks().forEach(track => {
-        track.stop();
-        track.enabled = false; // Explicitly disable
-      });
-      this.stream = undefined;
-    }
+    if (!this.stream) return;
+
+    this.stream.getTracks().forEach(track => {
+      track.stop();
+    });
+    this.stream = undefined;
   }
 
-  getStream(): MediaStream | undefined {
+  getAudioStream(): MediaStream | undefined {
     return this.stream;
   }
 }

@@ -1,5 +1,5 @@
 // mediaManager.ts
-import { Peer, MediaConnection, PeerJSOption } from "peerjs";
+import { Peer, MediaConnection } from "peerjs";
 import { AudioStream } from "./AudioStream";
 import { VideoStream } from "./VideoStream";
 import { SocketClient } from "@/network/SocketClient";
@@ -8,25 +8,22 @@ export class MediaManager {
   private audioStream?: AudioStream;
   private videoStream?: VideoStream;
   private peer: Peer;
-  private connections: Record<string, MediaConnection> = {};
-  private localStream: MediaStream = new MediaStream(); // Single stream for all tracks
+  private connections: Map<string, MediaConnection> = new Map();
+  private localStream = new MediaStream();
   private onRemoteStreamAdded?: (peerId: string, stream: MediaStream) => void;
   private onRemoteStreamRemoved?: (peerId: string) => void;
   private videoElement?: HTMLVideoElement;
 
-  constructor(
-    private socket: SocketClient,
-    peerOptions?: PeerJSOption,
-  ) {
-    this.peer = new Peer(null as any, peerOptions);
+  constructor(private socket: SocketClient) {
+    this.peer = new Peer();
     this.setupPeerListeners();
     this.setupSocketListeners();
   }
 
   private setupPeerListeners() {
-    this.peer.on("open", id => {
-      console.log("okay");
-      this.socket.getSocket().emit("join-room", id);
+    this.peer.on("open", peerId => {
+      console.log("connected to peerjs server");
+      this.socket.getSocket().emit("peer:joined", peerId);
     });
 
     this.peer.on("call", call => {
@@ -35,44 +32,44 @@ export class MediaManager {
     });
 
     this.peer.on("error", err => {
-      console.error("PeerJS error:", err);
+      console.error("PeerJS server error:", err);
     });
   }
 
   private setupSocketListeners() {
-    const sock = this.socket.getSocket();
+    const socket = this.socket.getSocket();
 
-    sock.on("user-connected", (peerId: string) => {
+    socket.on("media:ready", (peerId: string) => {
       this.callPeer(peerId);
     });
 
-    sock.on("user-disconnected", (peerId: string) => {
-      const conn = this.connections[peerId];
-      if (conn) {
-        conn.close();
-        delete this.connections[peerId];
-        this.onRemoteStreamRemoved?.(peerId);
-      }
+    socket.on("player:disconnect", (peerId: string) => {
+      const call = this.connections.get(peerId);
+      if (!call) return;
+
+      call.close();
+      this.connections.delete(peerId);
+      this.onRemoteStreamRemoved?.(peerId);
     });
   }
 
   private callPeer(peerId: string) {
-    if (this.localStream.getTracks().length > 0) {
-      const call = this.peer.call(peerId, this.localStream);
-      this.registerCall(call);
-    }
+    if (!this.localStream.getTracks().length) return;
+
+    const call = this.peer.call(peerId, this.localStream);
+    this.registerCall(call);
   }
 
   private registerCall(call: MediaConnection) {
     const peerId = call.peer;
-    this.connections[peerId] = call;
+    this.connections.set(peerId, call);
 
     call.on("stream", remoteStream => {
       this.onRemoteStreamAdded?.(peerId, remoteStream);
     });
 
     call.on("close", () => {
-      delete this.connections[peerId];
+      this.connections.delete(peerId);
       this.onRemoteStreamRemoved?.(peerId);
     });
 
@@ -92,7 +89,7 @@ export class MediaManager {
 
   public isAudioActive(): boolean {
     if (!this.audioStream) return false;
-    const s = this.audioStream.getStream();
+    const s = this.audioStream.getAudioStream();
     return !!s && s.getAudioTracks().some(t => t.enabled);
   }
 
@@ -102,37 +99,36 @@ export class MediaManager {
     return !!s && s.getVideoTracks().some(t => t.enabled);
   }
 
-  public async startAudio(): Promise<MediaStream | null> {
-    if (this.isAudioActive()) return this.audioStream!.getStream()!;
+  public async startAudio(): Promise<MediaStream | undefined> {
+    if (this.isAudioActive()) return this.audioStream!.getAudioStream()!;
     this.audioStream = new AudioStream();
-    const audioStream = await this.audioStream.start();
-    if (audioStream) {
-      audioStream.getAudioTracks().forEach(track => {
-        this.localStream.addTrack(track);
-      });
-      this.updateVideoElement();
-    }
+    const audioStream = await this.audioStream.requestMicAccess();
+    if (!audioStream) return;
+
+    audioStream.getAudioTracks().forEach(track => {
+      this.localStream.addTrack(track);
+    });
+    this.updateVideoElement();
     return audioStream;
   }
 
   public async startVideo(videoEl: HTMLVideoElement): Promise<MediaStream | null> {
     this.videoElement = videoEl;
     this.videoStream = new VideoStream(videoEl);
+
     const videoStream = await this.videoStream.start();
-    if (videoStream) {
-      videoStream.getVideoTracks().forEach(track => {
-        this.localStream.addTrack(track);
-      });
-      this.updateVideoElement();
-    } else {
-      console.error("Failed to start video stream");
-    }
+    if (!videoStream) console.error("Failed to start video stream");
+
+    videoStream.getVideoTracks().forEach(track => {
+      this.localStream.addTrack(track);
+    });
+    this.updateVideoElement();
     return videoStream;
   }
 
   public stopAudio() {
     if (this.audioStream) {
-      const tracks = this.audioStream.getStream()?.getAudioTracks() || [];
+      const tracks = this.audioStream.getAudioStream()?.getAudioTracks() || [];
       tracks.forEach(track => {
         this.localStream.removeTrack(track);
         track.stop();

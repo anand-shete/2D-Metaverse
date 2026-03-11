@@ -1,5 +1,5 @@
 import { FastifyRequest, FastifyReply } from "fastify";
-import { AddElementSchema, CreateSpaceSchema, DeleteElementSchema } from "../types";
+import { AddElementSchema, CreateSpaceSchema, DeleteElementSchema } from "../schema/index";
 import { SpaceModel as Space } from "../models";
 import { MapModel as Map } from "../models";
 import { SpaceElementsModel as SpaceElements } from "../models";

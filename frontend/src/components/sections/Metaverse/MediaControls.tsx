@@ -4,13 +4,18 @@ import { SocketClient } from "@/network/SocketClient";
 import { LogOut, Maximize2, Mic, MicOff, Minimize2, Video, VideoOff } from "lucide-react";
 import { Link } from "react-router";
 import { Button } from "@/components/ui/button";
+import { startAudio, startVideo, stopAudio, stopVideo } from "@/components/utils/media.utils";
 
 interface Props {
   socketClient: SocketClient;
 }
 
+/**
+ *  Entire bg-slate bar at bottom that contains media functionality
+ * @param socketClient - the socket connection created in `Metaverse.tsx`
+ */
 const MediaControls: React.FC<Props> = ({ socketClient }) => {
-  const videoRef = useRef<HTMLVideoElement>(null);
+  const videoRef = useRef<HTMLVideoElement | null>(null);
   const mediaManagerRef = useRef<MediaManager | null>(null);
   const [isVideoActive, setIsVideoActive] = useState<boolean>(false);
   const [isAudioActive, setIsAudioActive] = useState<boolean>(false);
@@ -20,10 +25,12 @@ const MediaControls: React.FC<Props> = ({ socketClient }) => {
 
   // init video and audio
   useEffect(() => {
-    mediaManagerRef.current = new MediaManager(socketClient);
+    if (!mediaManagerRef.current) {
+      mediaManagerRef.current = new MediaManager(socketClient);
+    }
 
     // dont use await here
-    startVideo();
+    startVideo(mediaManagerRef, setIsVideoActive, videoRef);
 
     // Set up callbacks for remote streams
     mediaManagerRef.current.setOnRemoteStreamAdded((peerId, stream) => {
@@ -31,6 +38,7 @@ const MediaControls: React.FC<Props> = ({ socketClient }) => {
       videoElement.srcObject = stream;
       videoElement.autoplay = true;
       videoElement.muted = false; // Unmute for remote audio
+
       // Append to a container instead of storing in state
       const container = document.querySelector(".remote-video-container");
       if (container) container.appendChild(videoElement);
@@ -43,51 +51,14 @@ const MediaControls: React.FC<Props> = ({ socketClient }) => {
         return rest;
       });
     });
+
     return () => {
-      if (mediaManagerRef.current) {
-        mediaManagerRef.current.stopAudio();
-        mediaManagerRef.current.stopVideo();
-      }
+      if (!mediaManagerRef.current) return;
+
+      mediaManagerRef.current.stopAudio();
+      mediaManagerRef.current.stopVideo();
     };
   }, []);
-
-  const startAudio = async () => {
-    try {
-      await mediaManagerRef.current?.startAudio();
-      if (mediaManagerRef.current?.isAudioActive()) setIsAudioActive(true);
-    } catch (error) {
-      console.error("Audio error caught in MediaControls:", error);
-    }
-  };
-
-  const stopAudio = () => {
-    try {
-      mediaManagerRef.current?.stopAudio();
-      setIsAudioActive(false);
-    } catch (error) {
-      console.log("Error while stopping audio", error);
-    }
-  };
-
-  const startVideo = async () => {
-    if (videoRef.current && mediaManagerRef.current) {
-      try {
-        await mediaManagerRef.current.startVideo(videoRef.current);
-        if (mediaManagerRef.current.isVideoActive()) setIsVideoActive(true);
-      } catch (error) {
-        console.error("Video failed:", error);
-      }
-    }
-  };
-
-  const stopVideo = () => {
-    try {
-      mediaManagerRef.current?.stopVideo();
-      setIsVideoActive(false);
-    } catch (error) {
-      console.log("Error stopping video", error);
-    }
-  };
 
   return (
     <div className="fixed bottom-0 z-1 h-23 border-t bg-slate-800">
@@ -147,7 +118,11 @@ const MediaControls: React.FC<Props> = ({ socketClient }) => {
             </div>
 
             <Button
-              onClick={!isAudioActive ? startAudio : stopAudio}
+              onClick={
+                !isAudioActive
+                  ? () => startAudio(mediaManagerRef, setIsAudioActive)
+                  : () => stopAudio(mediaManagerRef, setIsAudioActive)
+              }
               size="icon"
               className={`mr-2 rounded md:mr-6 ${
                 isAudioActive
@@ -158,7 +133,11 @@ const MediaControls: React.FC<Props> = ({ socketClient }) => {
               {isAudioActive ? <Mic /> : <MicOff />}
             </Button>
             <Button
-              onClick={!isVideoActive ? startVideo : stopVideo}
+              onClick={
+                !isVideoActive
+                  ? () => startVideo(mediaManagerRef, setIsVideoActive, videoRef)
+                  : () => stopVideo(mediaManagerRef, setIsVideoActive)
+              }
               size="icon"
               className={`rounded text-white ${
                 isVideoActive
