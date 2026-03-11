@@ -27,7 +27,7 @@ jobs:
         env:
           EC2_USER: ${{secrets.EC2_USER}}
           EC2_HOST: ${{ secrets.EC2_HOST }}
-        run: scp deploy.sh "$EC2_USER"@"$EC2_HOST":/home/ubuntu
+        run: scp ./backend/deploy.sh "$EC2_USER"@"$EC2_HOST":/home/ubuntu
 
       - name: Execute the deploy.sh script
         env:
