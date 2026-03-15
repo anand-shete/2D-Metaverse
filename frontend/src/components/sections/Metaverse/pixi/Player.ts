@@ -28,9 +28,9 @@ export default class Player {
     this.playerSprite.x = app.screen.width / 2; // 515.5(1031/2) - initial position of the player sprite
     this.playerSprite.y = app.screen.height / 2; // 351(702/2)
     this.playerSprite.anchor.set(0.5);
-    this.playerSprite.scale.set(1);
-    this.worldX = 1024; // 2048/2. These are world co-ordinates of the player
-    this.worldY = 1124; // 2248/2. Player position = This is the initial position + these values
+    this.playerSprite.scale.set(1.2);
+    this.worldX = 800 + Math.random() * 224; // 2048/2. These are world co-ordinates of the player
+    this.worldY = 800 + Math.random() * 324; // 2248/2. Player position = This is the initial position + these values
     this.app.stage.addChild(this.playerSprite);
     this.playerSprite.play();
     this.spriteManager = spriteManager;
@@ -111,7 +111,8 @@ export default class Player {
       this.playerSprite.play();
     }
     if (!this.lastSent || Date.now() - this.lastSent > 100) {
-      this.socket.getSocket().emit("move", { x: this.worldX, y: this.worldY });
+      const move = { x: this.worldX, y: this.worldY };
+      this.socket.getSocket().emit("player:move", move);
       this.lastSent = Date.now();
     }
   }

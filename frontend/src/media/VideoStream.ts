@@ -31,11 +31,11 @@ export class VideoStream {
     return sprite;
   }
 
-  stop() {
-    if (this.stream) {
-      this.stream.getTracks().forEach(track => track.stop());
-      this.stream = undefined;
-    }
+  stop(): MediaStreamTrack[] {
+    const tracks = this.stream?.getVideoTracks() || [];
+    tracks.forEach(track => track.stop());
+    this.stream = undefined;
+    return tracks;
   }
 
   getStream(): MediaStream | undefined {

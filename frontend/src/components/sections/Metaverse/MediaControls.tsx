@@ -10,6 +10,9 @@ interface Props {
   socketClient: SocketClient;
 }
 
+interface IRemoteVideos {
+  [peerid: string]: HTMLVideoElement;
+}
 /**
  *  Entire bg-slate bar at bottom that contains media functionality
  * @param socketClient - the socket connection created in `Metaverse.tsx`
@@ -20,46 +23,40 @@ const MediaControls: React.FC<Props> = ({ socketClient }) => {
   const [isVideoActive, setIsVideoActive] = useState<boolean>(false);
   const [isAudioActive, setIsAudioActive] = useState<boolean>(false);
   const [isFullScreen, setIsFullScreen] = useState<boolean>(false);
-  const [remoteVideos, setRemoteVideos] = useState<{ [peerId: string]: HTMLVideoElement }>({});
   const [fullScreenPeerId, setFullScreenPeerId] = useState<string | null>(null);
+  const [remoteVideos, setRemoteVideos] = useState<IRemoteVideos>({});
 
   // init video and audio
   useEffect(() => {
     if (!mediaManagerRef.current) {
-      mediaManagerRef.current = new MediaManager(socketClient);
+      mediaManagerRef.current = new MediaManager(
+        socketClient,
+        (peerId: string, stream: MediaStream) => {
+          const videoElement = document.createElement("video");
+          videoElement.srcObject = stream;
+          videoElement.autoplay = true;
+          setRemoteVideos(prev => ({ ...prev, [peerId]: videoElement }));
+        },
+        (peerId: string) => {
+          setRemoteVideos(prev => {
+            const { [peerId]: _, ...rest } = prev;
+            return rest;
+          });
+        },
+      );
     }
-
-    // dont use await here
-    startVideo(mediaManagerRef, setIsVideoActive, videoRef);
-
-    // Set up callbacks for remote streams
-    mediaManagerRef.current.setOnRemoteStreamAdded((peerId, stream) => {
-      const videoElement = document.createElement("video");
-      videoElement.srcObject = stream;
-      videoElement.autoplay = true;
-      videoElement.muted = false; // Unmute for remote audio
-
-      // Append to a container instead of storing in state
-      const container = document.querySelector(".remote-video-container");
-      if (container) container.appendChild(videoElement);
-      setRemoteVideos(prev => ({ ...prev, [peerId]: videoElement }));
-    });
-
-    mediaManagerRef.current.setOnRemoteStreamRemoved(peerId => {
-      setRemoteVideos(prev => {
-        const { [peerId]: removed, ...rest } = prev;
-        return rest;
-      });
-    });
 
     return () => {
       if (!mediaManagerRef.current) return;
 
-      mediaManagerRef.current.stopAudio();
-      mediaManagerRef.current.stopVideo();
+      mediaManagerRef.current.destroy();
+      mediaManagerRef.current = null;
     };
   }, []);
 
+  useEffect(() => {
+    console.log("remoteVideos", remoteVideos);
+  }, [remoteVideos]);
   return (
     <div className="fixed bottom-0 z-1 h-23 border-t bg-slate-800">
       <div className="flex w-screen flex-col items-center">

@@ -18,13 +18,14 @@ export class AudioStream {
     }
   }
 
-  stop() {
-    if (!this.stream) return;
-
-    this.stream.getTracks().forEach(track => {
+  stop(): MediaStreamTrack[] {
+    const tracks = this.stream?.getAudioTracks() || [];
+    tracks.forEach(track => {
       track.stop();
     });
     this.stream = undefined;
+
+    return tracks;
   }
 
   getAudioStream(): MediaStream | undefined {

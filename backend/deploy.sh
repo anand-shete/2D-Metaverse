@@ -20,7 +20,7 @@ mv ~/Metaverse/backend ~/metaverse
 
 # Install dependencies
 cd metaverse
-npm ci --omit=dev
+npm ci
 mv ~/.env .
 
 
@@ -32,6 +32,7 @@ pm2 delete metaverse || true
 
 # Start new processes
 cd metaverse
+npm run build
 pm2 start npm --name "metaverse" -- start
 sudo nginx -s reload
 

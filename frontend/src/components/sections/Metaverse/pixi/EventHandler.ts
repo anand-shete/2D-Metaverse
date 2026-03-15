@@ -36,7 +36,7 @@ export default class EventHandler {
     window.addEventListener("keyup", this.handleKeyUp.bind(this));
 
     // broadcasting player movement to other connected sockets
-    this.socket.getSocket().on("update-players", (players: any) => {
+    this.socket.getSocket().on("player:update", (players: any) => {
       this.remotePlayers.updatePlayers(players, this.spriteManager.mapContainer);
     });
     window.addEventListener("beforeunload", this.cleanup.bind(this));
@@ -57,6 +57,6 @@ export default class EventHandler {
   private cleanup() {
     window.removeEventListener("keydown", this.handleKeyDown);
     window.removeEventListener("keyup", this.handleKeyUp);
-    this.socket.getSocket().off("update-players");
+    this.socket.getSocket().off("player:update");
   }
 }

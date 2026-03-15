@@ -13,7 +13,7 @@ export default class RemotePlayers {
     this.socket = socket;
   }
 
-  // called only after recieving the "update-players" socket event from setupEventListeners()
+  // called only after recieving the "player:update" socket event from setupEventListeners()
   async updatePlayers(
     players: { [id: string]: { x: number; y: number } },
     mapContainer: Container,
