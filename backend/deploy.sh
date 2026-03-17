@@ -27,7 +27,7 @@ mv ~/.env .
 # Cleanup step
 rm -rf ~/Metaverse
 pm2 delete metaverse || true
-
+rm ~/deploy.sh
 
 
 # Start new processes

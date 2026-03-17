@@ -1,7 +1,7 @@
 import { useEffect, useRef } from "react";
-import { Canvas } from "../components/sections/Metaverse/pixi";
+import { Canvas } from "../components/sections/Metaverse/engine";
 import { SocketClient } from "@/network/SocketClient";
-import { ZoomButtons, MediaControls } from "@/components/sections";
+import { MetaverseUILayer } from "@/components/sections";
 
 export default function Metaverse() {
   const pixiContainer = useRef<HTMLDivElement | null>(null);
@@ -18,11 +18,7 @@ export default function Metaverse() {
     }
 
     return () => {
-      const app = canvasInstance.current?.app;
-
-      if (app) {
-        app.destroy(true, true);
-      }
+      canvasInstance.current?.destroy();
       canvasInstance.current = null;
     };
   }, []);
@@ -30,8 +26,10 @@ export default function Metaverse() {
   return (
     <>
       <div ref={pixiContainer} className="h-full w-full"></div>
-      <ZoomButtons />
-      <MediaControls socketClient={socketClientRef.current} />
+      <MetaverseUILayer
+        socketClient={socketClientRef.current}
+        handleKeyPress={(key, pressed) => canvasInstance.current?.setMovementKey(key, pressed)}
+      />
     </>
   );
 }

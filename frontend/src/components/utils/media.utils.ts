@@ -9,7 +9,7 @@ export const startAudio = async (
     await mediaManagerRef.current?.startAudio();
     if (mediaManagerRef.current?.isAudioActive()) setIsAudioActive(true);
   } catch (error) {
-    console.error("Audio error caught in MediaControls:", error);
+    console.error("Error starting audio:", error);
   }
 };
 

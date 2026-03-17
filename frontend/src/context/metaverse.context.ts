@@ -1,0 +1,26 @@
+import { MediaManager } from "@/media/MediaManager";
+import { IRemoteVideos } from "@/types";
+import React, { createContext, SetStateAction, useContext } from "react";
+
+interface IMetaverseContext {
+  mediaManagerRef: React.RefObject<MediaManager | null>;
+  isVideoActive: boolean;
+  setIsVideoActive: React.Dispatch<React.SetStateAction<boolean>>;
+  isAudioActive: boolean;
+  setIsAudioActive: React.Dispatch<React.SetStateAction<boolean>>;
+  isFullScreen: boolean;
+  setIsFullScreen: React.Dispatch<SetStateAction<boolean>>;
+  fullScreenPeerId: string | null;
+  setFullScreenPeerId: React.Dispatch<SetStateAction<string | null>>;
+  remoteVideos: IRemoteVideos;
+  setRemoteVideos: React.Dispatch<SetStateAction<IRemoteVideos>>;
+}
+
+export const MetaverseContext = createContext<IMetaverseContext | null>(null);
+
+export const useMetaverseContext = () => {
+  const ctx = useContext(MetaverseContext);
+  if (!ctx) throw new Error("useMetaverseContext must be used inside MetaverseProvider");
+
+  return ctx;
+};

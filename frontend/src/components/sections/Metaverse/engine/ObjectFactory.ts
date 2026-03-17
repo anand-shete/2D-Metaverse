@@ -30,11 +30,10 @@ export default class ObjectFactory {
     this.app.stage.addChild(doorSprite); // or wherever you want to add it
     return doorSprite;
     /*
-        const texture = await Assets.load("/player/girl/girl-sheet.png");
-        const atlasData = await (await fetch("/player/girl/girl.json")).json();
-        const loadedSpriteSheet = new Spritesheet(texture, atlasData);
-        await loadedSpriteSheet.parse();
-        return new Player(app, socket, texture, loadedSpriteSheet, spriteManager, mapContainer);
+    const texture = await Assets.load("/player/girl/girl-sheet.png");
+    const loadedSpriteSheet = new Spritesheet(texture, atlasData);
+    await loadedSpriteSheet.parse();
+    return new Player(app, socket, texture, loadedSpriteSheet, spriteManager, mapContainer);
     */
   }
 }

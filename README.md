@@ -9,6 +9,14 @@
 
 ## Feature Implementation
 
-- Remove Joystick and replace it with arrow keys on mobile view.
-- For every new participant in audio/video, Existing users must create a new peer connection and Exchange offer/answer again
-- Treat `w` and `W` as same for player movement.
+- [x] Remove Joystick and replace it with arrow keys on mobile view.
+
+- [x] For every new participant in audio/video, Existing users must create a new peer connection and Exchange offer/answer again
+
+- [x] Treat `w` and `W` as same for player movement.
+
+- [ ] Fix audioStream not transmitting accross devices
+
+- [ ] Add RAG chain to retreive notes from S3 buckets.
+
+- [ ] One room has upload notes functionality, another one has notes retreival

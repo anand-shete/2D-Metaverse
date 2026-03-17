@@ -1,9 +1,12 @@
 import { SocketClient } from "@/network/SocketClient";
 import { Application, Assets, Container, Sprite, Texture } from "pixi.js";
+import { Players } from "@/types";
+import Player2 from "@/assets/player/player2.png";
 
 export default class RemotePlayers {
   private remotePlayers: { [id: string]: Sprite } = {};
   private texture?: Texture;
+  private texturePromise?: Promise<Texture>;
 
   constructor(
     public app: Application,
@@ -13,11 +16,21 @@ export default class RemotePlayers {
     this.socket = socket;
   }
 
+  private async getTexture(): Promise<Texture> {
+    if (this.texture) return this.texture;
+
+    if (!this.texturePromise) {
+      this.texturePromise = Assets.load(Player2).then(texture => {
+        this.texture = texture;
+        return texture;
+      });
+    }
+
+    return this.texturePromise;
+  }
+
   // called only after recieving the "player:update" socket event from setupEventListeners()
-  async updatePlayers(
-    players: { [id: string]: { x: number; y: number } },
-    mapContainer: Container,
-  ) {
+  async updatePlayers(players: Players, mapContainer: Container) {
     // console.log("total players", Object.keys(players).length);
     for (const id in this.remotePlayers) {
       if (!players[id]) {
@@ -31,8 +44,8 @@ export default class RemotePlayers {
 
       // If the received socket id is not present in client's remotePlayers object, create player and update the object
       if (!this.remotePlayers[id]) {
-        this.texture = await Assets.load("/player/player2.png");
-        const sprite = Sprite.from(this.texture);
+        const texture = await this.getTexture();
+        const sprite = Sprite.from(texture);
         this.remotePlayers[id] = sprite;
         sprite.x = this.remotePlayers[id].x;
         sprite.y = this.remotePlayers[id].y;
