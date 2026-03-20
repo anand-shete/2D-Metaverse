@@ -1,28 +1,54 @@
 import { Application } from "pixi.js";
 import { Player, RemotePlayers, SpriteManager } from ".";
 import { SocketClient } from "@/network/SocketClient";
-
-enum Keys {
-  w = "w",
-  a = "a",
-  s = "s",
-  d = "d",
-}
+import { MovementKey } from "@/types/type";
 
 export default class EventHandler {
-  private player?: Player;
+  private player!: Player;
   private remotePlayers: RemotePlayers;
-  private listenersAttached = false;
+  private listenersAttached: boolean = false;
+  private readonly keys = new Set<MovementKey>(["w", "a", "s", "d"]);
 
   constructor(
     public app: Application,
     public socket: SocketClient,
     public spriteManager: SpriteManager,
   ) {
-    this.app = app;
+    this.remotePlayers = new RemotePlayers(app, socket);
+  }
+
+  setEventHandlerForPlayer(player: Player, socket: SocketClient) {
+    this.player = player;
     this.socket = socket;
-    this.spriteManager = spriteManager;
-    this.remotePlayers = new RemotePlayers(app, this.socket);
+    this.setupEventListeners();
+  }
+
+  cleanup() {
+    if (!this.listenersAttached) return;
+    this.listenersAttached = false;
+
+    window.removeEventListener("keydown", this.handleKeyDown);
+    window.removeEventListener("keyup", this.handleKeyUp);
+    window.removeEventListener("beforeunload", this.onBeforeUnload);
+    this.socket.getSocket().off("player:update", this.onPlayerUpdate);
+  }
+
+  private setupEventListeners() {
+    if (this.listenersAttached) return;
+    this.listenersAttached = true;
+    window.addEventListener("keydown", this.handleKeyDown);
+    window.addEventListener("keyup", this.handleKeyUp);
+
+    const socket = this.socket.getSocket();
+    socket.on("player:join", () => {
+      // emit initial player position
+      const data = { x: this.player.worldX, y: this.player.worldY };
+      socket.emit("player:join", data);
+    });
+
+    socket.on("player:update", this.onPlayerUpdate);
+
+    window.addEventListener("beforeunload", this.onBeforeUnload);
   }
 
   private readonly onPlayerUpdate = (players: any) => {
@@ -33,58 +59,15 @@ export default class EventHandler {
     this.cleanup();
   };
 
-  private readonly onKeyDown = (e: KeyboardEvent) => {
-    this.handleKeyDown(e);
+  private readonly handleKeyDown = (e: KeyboardEvent) => {
+    const key = e.key.toLowerCase() as MovementKey;
+    if (!this.player || !this.keys.has(key)) return;
+    this.player.setMovementKey(key, true);
   };
 
-  private readonly onKeyUp = (e: KeyboardEvent) => {
-    this.handleKeyUp(e);
+  private readonly handleKeyUp = (e: KeyboardEvent) => {
+    const key = e.key.toLowerCase() as MovementKey;
+    if (!this.player || !this.keys.has(key)) return;
+    this.player.setMovementKey(key, false);
   };
-
-  setEventHandlerForPlayer(player: Player, socket: SocketClient) {
-    this.player = player;
-    this.socket = socket;
-    this.setupEventListeners();
-  }
-
-  private setupEventListeners() {
-    if (this.listenersAttached) return;
-    this.listenersAttached = true;
-
-    window.addEventListener("keydown", this.onKeyDown);
-    window.addEventListener("keyup", this.onKeyUp);
-
-    // broadcasting player movement to other connected sockets
-    const socket = this.socket.getSocket();
-    socket.on("player:update", this.onPlayerUpdate);
-    window.addEventListener("beforeunload", this.onBeforeUnload);
-  }
-
-  private handleKeyDown(e: KeyboardEvent) {
-    const key = e.key.toLowerCase();
-    if (this.player && Object.values(Keys).includes(key as Keys)) {
-      this.player.keys[key] = true;
-    }
-  }
-
-  private handleKeyUp(e: KeyboardEvent) {
-    const key = e.key.toLowerCase();
-    if (this.player) {
-      delete this.player.keys[key];
-    }
-  }
-
-  private cleanup() {
-    if (!this.listenersAttached) return;
-    this.listenersAttached = false;
-
-    window.removeEventListener("keydown", this.onKeyDown);
-    window.removeEventListener("keyup", this.onKeyUp);
-    window.removeEventListener("beforeunload", this.onBeforeUnload);
-    this.socket.getSocket().off("player:update", this.onPlayerUpdate);
-  }
-
-  public dispose() {
-    this.cleanup();
-  }
 }

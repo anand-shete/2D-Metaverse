@@ -4,10 +4,11 @@ import { SocketClient } from "@/network/SocketClient";
 import { MetaverseUILayer } from "@/components/sections";
 
 export default function Metaverse() {
-  const pixiContainer = useRef<HTMLDivElement | null>(null);
   const canvasInstance = useRef<Canvas | null>(null);
   const socketClientRef = useRef<SocketClient | null>(null);
+  const pixiContainer = useRef<HTMLDivElement | null>(null);
 
+  // init socket layer
   if (!socketClientRef.current) {
     socketClientRef.current = new SocketClient();
   }
@@ -20,6 +21,7 @@ export default function Metaverse() {
     return () => {
       canvasInstance.current?.destroy();
       canvasInstance.current = null;
+      socketClientRef.current?.disconnect();
     };
   }, []);
 
@@ -28,7 +30,7 @@ export default function Metaverse() {
       <div ref={pixiContainer} className="h-full w-full"></div>
       <MetaverseUILayer
         socketClient={socketClientRef.current}
-        handleKeyPress={(key, pressed) => canvasInstance.current?.setMovementKey(key, pressed)}
+        handleKeyPress={(key, pressed) => canvasInstance.current?.setKey(key, pressed)}
       />
     </>
   );

@@ -1,53 +1,72 @@
 import { Application } from "pixi.js";
 import { SpriteManager, EventHandler, Player } from ".";
 import { SocketClient } from "@/network/SocketClient";
+import { MovementKey } from "@/types/type";
 
 export default class Canvas {
   public app: Application;
   public player!: Player;
   public spriteManager!: SpriteManager;
   public eventHandler?: EventHandler;
-  private readonly tickerUpdate = () => this.updateCanvas();
+  private readonly tickerUpdate = () => this.renderFrame();
   private removeButtonListeners?: () => void;
 
   constructor(
-    divElement: HTMLDivElement,
+    divElement: HTMLDivElement, // property not stored on this instance
     public socket: SocketClient,
   ) {
     this.app = new Application();
     this.app
-      .init({ resizeTo: window })
+      .init({
+        resizeTo: window,
+        resolution: Math.min(window.devicePixelRatio, 2),
+        autoDensity: true,
+        antialias: false,
+      })
       .then(async () => {
-        this.socket = socket;
         divElement.appendChild(this.app.canvas as HTMLCanvasElement);
-        this.app.canvas.style.width = "100vw";
-        this.app.canvas.style.height = "100vh";
         this.spriteManager = new SpriteManager(this.app);
         this.eventHandler = new EventHandler(this.app, this.socket, this.spriteManager);
-        await this.init();
-        this.setup3Buttons();
+        await this.initPlayer();
+        this.setZoomBtns();
       })
-      .catch((e: any) => console.log("Error Appending canvas", e));
+      .catch((e: any) => console.log("Error initializing Pixi app", e));
   }
 
-  async init() {
-    if (this.spriteManager) await this.spriteManager.loadInitialSprites();
-    this.player = await Player.create(
+  setKey(key: MovementKey, pressed: boolean) {
+    this.player.setMovementKey(key, pressed);
+  }
+
+  destroy() {
+    this.removeButtonListeners?.();
+    this.removeButtonListeners = undefined;
+    this.app.ticker.remove(this.tickerUpdate);
+    this.eventHandler?.cleanup();
+    this.player?.destroy();
+    this.spriteManager?.cleanup();
+    this.app.destroy(true, true);
+  }
+
+  private async initPlayer() {
+    if (!this.spriteManager) return;
+    await this.spriteManager.initMap();
+    this.player = await Player.loadPlayer(
       this.app,
       this.socket,
       this.spriteManager,
       this.spriteManager.mapContainer,
     );
-    this.spriteManager.setPlayerSprite(this.player);
-    if (this.eventHandler) this.eventHandler.setEventHandlerForPlayer(this.player, this.socket);
+    this.spriteManager.setPlayer(this.player);
+    if (!this.eventHandler) return;
+    this.eventHandler.setEventHandlerForPlayer(this.player, this.socket);
     this.app.ticker.add(this.tickerUpdate);
   }
 
-  setup3Buttons() {
+  private setZoomBtns() {
     const zoomInButton = document.getElementById("zoom-in");
     const zoomOutButton = document.getElementById("zoom-out");
     if (!zoomInButton || !zoomOutButton) return;
-    
+
     const handleZoomIn = () => this.spriteManager.zoomIn();
     const handleZoomOut = () => this.spriteManager.zoomOut();
 
@@ -60,22 +79,9 @@ export default class Canvas {
     };
   }
 
-  updateCanvas() {
-    if (this.player) this.player.updatePlayer();
-    this.spriteManager.updateSprites();
-  }
-
-  setMovementKey(key: "w" | "a" | "s" | "d", pressed: boolean) {
-    this.player?.setMovementKey(key, pressed);
-  }
-
-  destroy() {
-    this.removeButtonListeners?.();
-    this.removeButtonListeners = undefined;
-    this.app.ticker.remove(this.tickerUpdate);
-    this.eventHandler?.dispose();
-    this.player?.destroy();
-    this.spriteManager?.destroyAll();
-    this.app.destroy(true, true);
+  // runs 60 times/sec
+  private renderFrame() {
+    this.player.updateMovement();
+    this.spriteManager.updateMap();
   }
 }

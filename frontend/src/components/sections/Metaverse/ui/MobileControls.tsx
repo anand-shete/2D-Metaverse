@@ -1,3 +1,4 @@
+import { MovementKey } from "@/types/type";
 import {
   SquareChevronDown,
   SquareChevronLeft,
@@ -6,11 +7,11 @@ import {
 } from "lucide-react";
 
 interface Props {
-  onKeyChange: (key: "w" | "a" | "s" | "d", pressed: boolean) => void;
+  onKeyChange: (key: MovementKey, pressed: boolean) => void;
 }
 
 const MobileControls = ({ onKeyChange }: Props) => {
-  const bind = (key: "w" | "a" | "s" | "d") => ({
+  const bind = (key: MovementKey) => ({
     onPointerDown: () => onKeyChange(key, true),
     onPointerUp: () => onKeyChange(key, false),
     onPointerLeave: () => onKeyChange(key, false),

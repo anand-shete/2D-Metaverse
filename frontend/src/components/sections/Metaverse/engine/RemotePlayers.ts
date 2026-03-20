@@ -1,7 +1,7 @@
 import { SocketClient } from "@/network/SocketClient";
 import { Application, Assets, Container, Sprite, Texture } from "pixi.js";
 import { Players } from "@/types";
-import Player2 from "@/assets/player/player2.png";
+import { player2 } from "@/assets";
 
 export default class RemotePlayers {
   private remotePlayers: { [id: string]: Sprite } = {};
@@ -11,25 +11,10 @@ export default class RemotePlayers {
   constructor(
     public app: Application,
     public socket: SocketClient,
-  ) {
-    this.app = app;
-    this.socket = socket;
-  }
+  ) {}
 
-  private async getTexture(): Promise<Texture> {
-    if (this.texture) return this.texture;
-
-    if (!this.texturePromise) {
-      this.texturePromise = Assets.load(Player2).then(texture => {
-        this.texture = texture;
-        return texture;
-      });
-    }
-
-    return this.texturePromise;
-  }
-
-  // called only after recieving the "player:update" socket event from setupEventListeners()
+  // Called when receiving "player:update" socket event
+  // FIXME handle sprite removal of disconnected sockets
   async updatePlayers(players: Players, mapContainer: Container) {
     // console.log("total players", Object.keys(players).length);
     for (const id in this.remotePlayers) {
@@ -58,5 +43,18 @@ export default class RemotePlayers {
         this.remotePlayers[id].y = players[id].y;
       }
     }
+  }
+
+  private async getTexture(): Promise<Texture> {
+    if (this.texture) return this.texture;
+
+    if (!this.texturePromise) {
+      this.texturePromise = Assets.load(player2).then(texture => {
+        this.texture = texture;
+        return texture;
+      });
+    }
+
+    return this.texturePromise;
   }
 }

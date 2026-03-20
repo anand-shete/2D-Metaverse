@@ -1,11 +1,15 @@
 import { FastifyInstance } from "fastify";
+import { playerMapValue } from "../../types";
 
 export const move = (
   id: string,
   fastify: FastifyInstance,
-  players: Map<string, { x: number; y: number }>,
+  players: Map<string, playerMapValue>,
   direction: any,
 ) => {
-  players.set(id, { x: direction.x, y: direction.y });
-  fastify.io.emit("player:update", players);
+  const check = players.get(id);
+  if (!check) return;
+
+  players.set(id, { ...check, x: direction.x, y: direction.y });
+  fastify.io.emit("player:update", Object.fromEntries(players));
 };

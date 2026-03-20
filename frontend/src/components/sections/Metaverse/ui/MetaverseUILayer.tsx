@@ -9,10 +9,11 @@ import { useRef, useEffect, useState } from "react";
 import { MediaManager } from "@/media/MediaManager";
 import { SocketClient } from "@/network/SocketClient";
 import { MetaverseContext } from "@/context/metaverse.context";
+import { MovementKey } from "@/types/type";
 
 interface Props {
   socketClient: SocketClient;
-  handleKeyPress: (key: "w" | "a" | "s" | "d", pressed: boolean) => void;
+  handleKeyPress: (key: MovementKey, pressed: boolean) => void;
 }
 
 export default function MetaverseUILayer({ socketClient, handleKeyPress }: Props) {

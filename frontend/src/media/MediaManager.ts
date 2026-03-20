@@ -105,7 +105,7 @@ export class MediaManager {
 
     const existingCall = this.connections.get(peerId);
     if (existingCall && !force) return;
-    
+
     if (existingCall && force) {
       existingCall.close();
       this.connections.delete(peerId);
@@ -122,7 +122,8 @@ export class MediaManager {
 
     // Re-announce and renegotiate when local stream becomes active for the first time.
     if (!this.peer.id) return;
-    this.socket.getSocket().emit("peer:joined", this.peer.id);
+    const socket = this.socket.getSocket();
+    socket.emit("peer:joined", this.peer.id);
     const peerIds = [...this.connections.keys()];
     peerIds.forEach(peerId => {
       this.callPeer(peerId, true);

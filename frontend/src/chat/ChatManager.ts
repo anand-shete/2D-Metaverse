@@ -8,14 +8,14 @@ export class ChatManager {
   }
 
   private setupSocketListeners() {
-    this.socketClient.getSocket().on("player:message", (data: { user: string; text: string }) => {
+    this.socketClient.getSocket().on("player:chat", (data: { user: string; text: string }) => {
       this.messages.push({ ...data, timestamp: Date.now() });
     });
   }
 
   sendMessage(user: string, text: string) {
     if (text.trim()) {
-      this.socketClient.getSocket().emit("player:message", { user, text });
+      this.socketClient.getSocket().emit("player:chat", { user, text });
     }
   }
 

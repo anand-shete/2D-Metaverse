@@ -20,3 +20,7 @@
 - [ ] Add RAG chain to retreive notes from S3 buckets.
 
 - [ ] One room has upload notes functionality, another one has notes retreival
+
+- [ ] Add proper authentication to `/metaverse` page.
+
+- [ ] To implement zoom button, zoom only the pixi layer keeping the UI layer same.

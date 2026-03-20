@@ -1,19 +1,25 @@
-// Handles the create of new Player, animating the playerSprite based on keys object
 import { AnimatedSprite, Application, Assets, Container, Spritesheet } from "pixi.js";
-import { SpriteManager } from ".";
+import { PlayerConfig, PlayerMoveAnimation } from "@/types/enum";
+import { SpriteManager, InteractionSystem } from ".";
 import { SocketClient } from "@/network/SocketClient";
-import girlSheet from "@/assets/player/girl/girl-sheet.png";
-import girlJson from "@/assets/player/girl/girl.json";
+import { player1, player1Json } from "@/assets";
+import { interactArray } from "./data/zones";
+import { MovementKey } from "@/types/type";
+import { TileBounds } from "@/types";
 
+/**Handle loading, movement, collision and interactivity of local player */
 export default class Player {
   public playerSprite: AnimatedSprite;
-  public keys: { [pressedKey: string]: boolean } = {};
   public lastSent?: number;
-  private currentAnimation: string = "idle";
+  private currentAnimation: string = PlayerMoveAnimation.IDLE;
   public worldX: number;
   public worldY: number;
-  private interactionListener?: (e: KeyboardEvent) => void;
-  private readonly INTERACT_KEY = "x";
+  private interactionSystem: InteractionSystem;
+  private movementMask = 0;
+  private static readonly KEY_W = 1 << 0;
+  private static readonly KEY_A = 1 << 1;
+  private static readonly KEY_S = 1 << 2;
+  private static readonly KEY_D = 1 << 3;
 
   constructor(
     public app: Application,
@@ -22,109 +28,75 @@ export default class Player {
     public spriteManager: SpriteManager,
     public mapContainer: Container,
   ) {
-    this.socket = socket;
-    this.mapContainer = mapContainer;
-    this.playerSprite = new AnimatedSprite(this.loadedSprite.animations["idle"]);
+    this.playerSprite = new AnimatedSprite(this.loadedSprite.animations[PlayerMoveAnimation.IDLE]);
     this.playerSprite.animationSpeed = 0.1;
-    this.playerSprite.x = app.screen.width / 2; // 515.5(1031/2) - initial position of the player sprite
-    this.playerSprite.y = app.screen.height / 2; // 351(702/2)
+    this.playerSprite.x = app.screen.width / 2;
+    this.playerSprite.y = app.screen.height / 2;
     this.playerSprite.anchor.set(0.5);
     this.playerSprite.scale.set(1);
-    this.worldX = 800 + Math.random() * 224; // 2048/2. These are world co-ordinates of the player
-    this.worldY = 800 + Math.random() * 324; // 2248/2. Player position = This is the initial position + these values
+    this.worldX = 830 + Math.random() * 270; // 830-1100
+    this.worldY = 1000 + Math.random() * 324; // 1000-1324
     this.app.stage.addChild(this.playerSprite);
     this.playerSprite.play();
-    this.spriteManager = spriteManager;
 
-    this.setupInteractionListener();
+    this.interactionSystem = new InteractionSystem(this.mapContainer, interactArray, () =>
+      this.getPlayerTileBounds(),
+    );
   }
 
-  private setupInteractionListener() {
-    this.interactionListener = (e: KeyboardEvent) => {
-      if (e.key.toLowerCase() !== this.INTERACT_KEY) return;
-
-      const tileSize = 32;
-      const playerWidth = 43;
-      const playerHeight = 96;
-
-      const left = Math.floor((this.worldX - playerWidth / 2) / tileSize);
-      const right = Math.floor((this.worldX + playerWidth / 2) / tileSize);
-      const top = Math.floor((this.worldY - playerHeight / 2) / tileSize);
-
-      if ((top === 3 || top === 4) && left >= 14 && left <= 17 && right >= 14 && right <= 18) {
-        this.openInNewTab("https://app.eraser.io/");
-      } else if (top === 28 && left > 40 && left < 48) {
-        this.openInNewTab("https://ndl.iitkgp.ac.in/");
-      } else if (top === 28 && left > 50 && left < 58) {
-        this.openInNewTab("https://open.spotify.com/");
-      }
-    };
-
-    document.addEventListener("keydown", this.interactionListener);
-  }
-
-  public setMovementKey(key: "w" | "a" | "s" | "d", pressed: boolean) {
-    if (pressed) {
-      this.keys[key] = true;
-    } else {
-      delete this.keys[key];
-    }
-  }
-
-  updatePlayer() {
+  // runs 60 times/sec
+  public updateMovement() {
     let newAnimation = this.currentAnimation;
-    const speed = 10;
+    const speed = PlayerConfig.MOVE_SPEED;
     let dx = 0;
     let dy = 0;
-    let newWorldX = this.worldX;
-    let newWorldY = this.worldY;
-    // console.log("worldX", this.worldX, "worldY", this.worldY);
-    // console.log("Initial Y (world):", this.playerSprite.y);
-    // console.log("Initial Tile X:", Math.floor(this.playerSprite.x / 64));
-    // console.log("Initial Tile Y:", Math.floor(this.playerSprite.y / 64));
-    // console.log("test ", this.app.screen.height / 2);
+    let newWorldX: number = this.worldX;
+    let newWorldY: number = this.worldY;
 
-    // we are not moving the player at all, we are animating the player and moving the entire mapContainer based on user inputs
-
-    if (this.keys["w"]) {
-      newAnimation = "front";
+    // animate the player, keeping it at center and move the mapContainer
+    if (this.movementMask & Player.KEY_W) {
+      newAnimation = PlayerMoveAnimation.FRONT;
       dy -= speed;
     }
-    if (this.keys["s"]) {
-      newAnimation = "back";
+    if (this.movementMask & Player.KEY_S) {
+      newAnimation = PlayerMoveAnimation.BACK;
       dy += speed;
     }
-    if (this.keys["a"]) {
-      newAnimation = "left";
+    if (this.movementMask & Player.KEY_A) {
+      newAnimation = PlayerMoveAnimation.LEFT;
       dx -= speed;
     }
-    if (this.keys["d"]) {
-      newAnimation = "right";
+    if (this.movementMask & Player.KEY_D) {
+      newAnimation = PlayerMoveAnimation.RIGHT;
       dx += speed;
     }
-    // Constants (adjust as needed)
-    const TILE_SIZE = 32;
-    const PLAYER_WIDTH = 43;
-    const PLAYER_HEIGHT = 96;
 
-    // We are animating the movement and updating the world coordiates of the player to showcase movement
+    const width = PlayerConfig.PLAYER_WIDTH;
+    const height = PlayerConfig.PLAYER_HEIGHT;
+    const tile_size = PlayerConfig.TILE_SIZE;
+
     newWorldX = this.worldX + dx;
-    if (!this.isColliding(newWorldX, this.worldY, PLAYER_WIDTH, PLAYER_HEIGHT, TILE_SIZE)) {
+    if (this.canPlayerMove(newWorldX, this.worldY, width, height, tile_size)) {
       this.worldX = newWorldX;
     }
 
-    // Same here
     newWorldY = this.worldY + dy;
-    if (!this.isColliding(this.worldX, newWorldY, PLAYER_WIDTH, PLAYER_HEIGHT, TILE_SIZE)) {
+    // console.log("x=", newWorldX, "y=", newWorldY);
+    if (this.canPlayerMove(this.worldX, newWorldY, width, height, tile_size)) {
       this.worldY = newWorldY;
     }
 
-    if (!Object.keys(this.keys).length) this.currentAnimation = "idle";
-    if (newAnimation !== this.currentAnimation && this.loadedSprite.animations[newAnimation]) {
+    if (this.movementMask === 0) newAnimation = PlayerMoveAnimation.IDLE;
+
+    if (newAnimation !== this.currentAnimation) {
       this.currentAnimation = newAnimation;
       this.playerSprite.textures = this.loadedSprite.animations[this.currentAnimation];
       this.playerSprite.play();
     }
+
+    this.interactionSystem.update();
+
+    // transmit local player movement over sockets (with throttling)
     if (!this.lastSent || Date.now() - this.lastSent > 100) {
       const move = { x: this.worldX, y: this.worldY };
       this.socket.getSocket().emit("player:move", move);
@@ -132,7 +104,40 @@ export default class Player {
     }
   }
 
-  private isColliding(
+  public setMovementKey(key: MovementKey, pressed: boolean) {
+    let bit = 0;
+    if (key === "w") bit = Player.KEY_W;
+    else if (key === "a") bit = Player.KEY_A;
+    else if (key === "s") bit = Player.KEY_S;
+    else if (key === "d") bit = Player.KEY_D;
+
+    if (pressed) {
+      this.movementMask |= bit;
+    } else {
+      this.movementMask &= ~bit;
+    }
+  }
+
+  public destroy() {
+    this.interactionSystem.destroy();
+    this.app.stage.removeChild(this.playerSprite);
+    this.playerSprite.destroy();
+  }
+
+  private getPlayerTileBounds(): TileBounds {
+    const width = PlayerConfig.PLAYER_WIDTH;
+    const height = PlayerConfig.PLAYER_HEIGHT;
+    const tileSize = PlayerConfig.TILE_SIZE;
+
+    return {
+      left: Math.floor((this.worldX - width / 2) / tileSize),
+      right: Math.floor((this.worldX + width / 2) / tileSize),
+      top: Math.floor((this.worldY - height / 2) / tileSize),
+      bottom: Math.floor((this.worldY + height / 2) / tileSize),
+    };
+  }
+
+  private canPlayerMove(
     x: number,
     y: number,
     playerWidth: number,
@@ -158,40 +163,23 @@ export default class Player {
             gx < this.spriteManager.collisionMap[0].length &&
             this.spriteManager.collisionMap[gy][gx] === 1)
         ) {
-          // console.log("Collision detected - worldX:", x, "worldY:", y, "gx:", gx, "gy:", gy);
-          return true;
+          return false;
         }
       }
     }
-    return false; // No collision
+
+    return true;
   }
 
-  static async create(
+  static async loadPlayer(
     app: Application,
     socket: SocketClient,
     spriteManager: SpriteManager,
     mapContainer: Container,
   ): Promise<Player> {
-    const texture = await Assets.load(girlSheet);
-    const loadedSpriteSheet = new Spritesheet(texture, girlJson);
+    const texture = await Assets.load(player1);
+    const loadedSpriteSheet = new Spritesheet(texture, player1Json);
     await loadedSpriteSheet.parse();
     return new Player(app, socket, loadedSpriteSheet, spriteManager, mapContainer);
-  }
-
-  private openInNewTab(url: string) {
-    const link = document.createElement("a");
-    link.href = url;
-    link.target = "_blank";
-    link.rel = "noopener noreferrer"; // Prevents security vulnerabilities
-    link.click();
-  }
-
-  public destroy() {
-    if (this.interactionListener) {
-      document.removeEventListener("keydown", this.interactionListener);
-      this.interactionListener = undefined;
-    }
-    this.app.stage.removeChild(this.playerSprite);
-    this.playerSprite.destroy();
   }
 }

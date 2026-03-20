@@ -1,0 +1,118 @@
+{ "frames": {
+   "small 0.ase": {
+    "frame": { "x": 0, "y": 0, "w": 32, "h": 48 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 48 },
+    "sourceSize": { "w": 32, "h": 48 },
+    "duration": 100
+   },
+   "small 1.ase": {
+    "frame": { "x": 32, "y": 0, "w": 32, "h": 48 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 48 },
+    "sourceSize": { "w": 32, "h": 48 },
+    "duration": 100
+   },
+   "small 2.ase": {
+    "frame": { "x": 64, "y": 0, "w": 32, "h": 48 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 48 },
+    "sourceSize": { "w": 32, "h": 48 },
+    "duration": 100
+   },
+   "small 3.ase": {
+    "frame": { "x": 96, "y": 0, "w": 32, "h": 48 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 48 },
+    "sourceSize": { "w": 32, "h": 48 },
+    "duration": 100
+   },
+   "small 4.ase": {
+    "frame": { "x": 128, "y": 0, "w": 32, "h": 48 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 48 },
+    "sourceSize": { "w": 32, "h": 48 },
+    "duration": 100
+   },
+   "small 5.ase": {
+    "frame": { "x": 160, "y": 0, "w": 32, "h": 48 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 48 },
+    "sourceSize": { "w": 32, "h": 48 },
+    "duration": 100
+   },
+   "small 6.ase": {
+    "frame": { "x": 192, "y": 0, "w": 32, "h": 48 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 48 },
+    "sourceSize": { "w": 32, "h": 48 },
+    "duration": 100
+   },
+   "small 7.ase": {
+    "frame": { "x": 224, "y": 0, "w": 32, "h": 48 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 48 },
+    "sourceSize": { "w": 32, "h": 48 },
+    "duration": 100
+   },
+   "small 8.ase": {
+    "frame": { "x": 256, "y": 0, "w": 32, "h": 48 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 48 },
+    "sourceSize": { "w": 32, "h": 48 },
+    "duration": 100
+   },
+   "small 9.ase": {
+    "frame": { "x": 288, "y": 0, "w": 32, "h": 48 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 48 },
+    "sourceSize": { "w": 32, "h": 48 },
+    "duration": 100
+   },
+   "small 10.ase": {
+    "frame": { "x": 320, "y": 0, "w": 32, "h": 48 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 48 },
+    "sourceSize": { "w": 32, "h": 48 },
+    "duration": 100
+   },
+   "small 11.ase": {
+    "frame": { "x": 352, "y": 0, "w": 32, "h": 48 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 48 },
+    "sourceSize": { "w": 32, "h": 48 },
+    "duration": 100
+   }
+ },
+ "meta": {
+  "app": "https://github.com/LibreSprite/LibreSprite/",
+  "version": "1.1-dev",
+  "image": "/home/anand/Desktop/Metverse-assets/player/small.png",
+  "format": "RGBA8888",
+  "size": { "w": 384, "h": 48 },
+  "scale": "1",
+  "layers": [
+   { "name": "Player", "opacity": 255, "blendMode": "normal" }
+  ]
+ },
+
+  "animations": {
+    "idle": ["small 0.ase"],
+    "front": ["small 3.ase", "small 4.ase", "small 3.ase", "small 5.ase"],
+    "back": ["small 0.ase", "small 1.ase", "small 0.ase", "small 2.ase"],
+    "left": ["small 9.ase", "small 10.ase", "small 9.ase", "small 11.ase"],
+    "right": ["small 6.ase", "small 7.ase", "small 6.ase", "small 8.ase"]
+  }
+}
