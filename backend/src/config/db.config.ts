@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 import { env } from "./env.config";
 
-const connectDB = async () => {
+export const connectDB = async () => {
   try {
     await mongoose.connect(env.MONGO_URL as string, {
       maxPoolSize: 10,
@@ -12,5 +12,3 @@ const connectDB = async () => {
     process.exit(1);
   }
 };
-
-export default connectDB;

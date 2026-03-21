@@ -32,7 +32,7 @@ const SignupSection = () => {
 
   const submit = async (data: z.infer<typeof SignupSchema>) => {
     try {
-      const res = await api.post("/signup", data);
+      const res = await api.post("/user/signup", data);
       toast.success(res.data.message);
       navigate("/login");
     } catch (error: any) {

@@ -1,5 +1,5 @@
 import { FastifyReply, FastifyRequest } from "fastify";
-import { verfiyToken } from "../helper/jwt";
+import { verifyToken } from "../utils/jwt";
 
 export const userMiddleware = async (req: FastifyRequest, res: FastifyReply) => {
   try {
@@ -7,7 +7,7 @@ export const userMiddleware = async (req: FastifyRequest, res: FastifyReply) => 
     const token = header?.split(" ")[1];
     if (!token) return res.status(401).send({ message: "UserToken not found" });
 
-    const user = (await verfiyToken(token)) as {
+    const user = (await verifyToken(token)) as {
       _id: string;
       username: string;
       avatarId: string;

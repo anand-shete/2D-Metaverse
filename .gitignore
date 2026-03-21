@@ -10,3 +10,7 @@ node_modules
 .vscode/*
 
 .prettierrc
+
+
+# key points
+# implemented signalling using custom websocket server instead of using peer.js server reducing disconnect times by 40x

@@ -1,9 +1,7 @@
-import mongoose from "mongoose";
+import { Schema } from "mongoose";
 import bcrypt from "bcrypt";
-import { pre, prop, Ref, ReturnModelType } from "@typegoose/typegoose";
-import { Roles } from "../helper/enum";
-import { Space } from "./space.model";
-import { Avatar } from "./avatar.model";
+import { getModelForClass, pre, prop, Ref, ReturnModelType } from "@typegoose/typegoose";
+import { Avatar } from "../types/enum";
 
 @pre<User>("save", async function () {
   if (!this.isModified("password")) return;
@@ -12,10 +10,11 @@ import { Avatar } from "./avatar.model";
   const hashedPassword = bcrypt.hashSync(this.password, salt);
   this.password = hashedPassword;
 })
-export class User {
-  _id!: mongoose.Schema.Types.ObjectId;
 
-  @prop({ type: String, required: true })
+export class User {
+  _id!: Schema.Types.ObjectId;
+
+  @prop({ type: String, required: true, unique: true })
   username!: string;
 
   @prop({ type: String, required: true })
@@ -24,14 +23,8 @@ export class User {
   @prop({ type: String, required: true })
   password!: string;
 
-  @prop({ type: mongoose.Schema.Types.ObjectId, ref: () => Avatar })
-  avatarId?: Ref<Avatar>;
-
-  @prop({ type: String, enum: Roles, default: Roles.User })
-  role!: Roles;
-
-  @prop({ type: mongoose.Schema.Types.ObjectId, ref: () => Space })
-  spaces?: Ref<Space>[];
+  @prop({ type: String, enum: Avatar, default: Avatar.BOY1 })
+  avatar!: Avatar;
 
   static async comparePassword(
     this: ReturnModelType<typeof User>,
@@ -41,3 +34,5 @@ export class User {
     return bcrypt.compare(candidatePassword, hashedPassword);
   }
 }
+
+export const UserModel = getModelForClass(User);

@@ -31,7 +31,7 @@ const LoginSection = () => {
 
   const submit = async (data: z.infer<typeof LoginSchema>) => {
     try {
-      const res = await api.post("/login", data);
+      const res = await api.post("/user/login", data);
       toast.success(res.data.message);
       navigate("/metaverse");
     } catch (error: any) {

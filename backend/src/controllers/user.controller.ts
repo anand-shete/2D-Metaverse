@@ -1,50 +1,71 @@
 import { FastifyRequest, FastifyReply } from "fastify";
-import { UpdateMetadataSchema } from "../schema/index";
-import { AvatarModel, UserModel as User } from "../models";
-import { Types } from "mongoose";
+import { UserModel as User } from "@models/user.model";
+import { LoginSchema, SignupSchema } from "@schema/user.schema";
+import { generateToken, setCookie, verifyToken } from "../utils/jwt";
 
-export const metadata = async (req: FastifyRequest, res: FastifyReply) => {
+export const signupUser = async (req: FastifyRequest, res: FastifyReply) => {
   try {
-    const parsedData = UpdateMetadataSchema.safeParse(req.body);
-    if (!parsedData.success) {
-      return res.status(400).send({ message: "Invalid Request. Check input fields." });
+    const parsedData = SignupSchema.safeParse(req.body);
+    if (!parsedData.success) return res.status(400).send({ message: "Parsing failed" });
+    const { username, email, password } = parsedData.data;
+
+    const check = await User.countDocuments({ email }).lean();
+    if (check) {
+      return res.status(409).send({ message: "Account aldready exists" });
     }
-    const { avatarId } = parsedData.data;
 
-    if (!Types.ObjectId.isValid(avatarId)) {
-      return res.status(400).send({ message: "Avatar ID is not valid" });
-    }
-
-    const check = await AvatarModel.countDocuments({
-      _id: new Types.ObjectId(avatarId),
-    }).lean();
-    if (!check) return res.status(404).send({ message: "Avatar not found" });
-
-    await User.updateOne({ _id: req.userId }, { avatarId: avatarId }).lean();
+    const user = await User.create({
+      email: email,
+      username: username,
+      password: password,
+    });
+    return res.status(201).send({ message: "Account created successfully", userId: user._id });
   } catch (error: any) {
     console.log(error);
-    return res.status(500).send({ message: "avatarId cannot be updated" });
+    return res.status(500).send({ message: "Failed to Create Account" });
   }
 };
 
-export const getUserMetadata = async (req: FastifyRequest, res: FastifyReply) => {
+export const loginUser = async (req: FastifyRequest, res: FastifyReply) => {
   try {
-    const query = req.query as { ids: string };
-    const userIds: Array<string> = JSON.parse(query?.ids);
+    const parsedData = LoginSchema.safeParse(req.body);
+    if (!parsedData.success) return res.status(400).send({ message: "Parsing failed" });
 
-    const metadata = await User.find({ _id: { $in: userIds } })
-      .select("avatarId")
-      .lean();
-    if (!metadata) return res.status(404).send({ message: "Avatar ID does not exists" });
+    const user = await User.findOne({
+      email: parsedData.data.email,
+    }).lean();
+    if (!user) return res.status(404).send({ message: "User doesn't exists" });
 
-    return res.status(200).send({
-      avatars: metadata.map(m => ({
-        userId: new Types.ObjectId(m._id.toString()),
-        avatarId: m.avatarId,
-      })),
-    });
+    const isValid = await User.comparePassword(parsedData.data.password, user.password);
+    if (!isValid) return res.status(401).send({ message: "Incorrect Password Entered" });
+
+    const token = await generateToken(user);
+    if (!token) return res.status(500).send({ message: "Error generating token" });
+
+    await setCookie(res, token);
+
+    return res.status(200).send({ token: token, message: "User Login success" });
   } catch (error: any) {
-    console.log(error.message);
-    return res.status(500).send({ message: "User metadata couldn't be updated" });
+    console.log(error);
+    return res.status(500).send({ message: "Failed to Sign In User" });
+  }
+};
+export const user = async (req: FastifyRequest, res: FastifyReply) => {
+  try {
+    const token = req.cookies["token"];
+    if (!token) return res.status(404).send({ message: "Token not found" });
+
+    const { username } = (await verifyToken(token)) as {
+      _id: string;
+      username: string;
+      role: string;
+      spaces: string[];
+      iat: number;
+    };
+
+    return res.status(200).send({ message: "User found", username: username });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).send({ message: "Eroror getting user data" });
   }
 };

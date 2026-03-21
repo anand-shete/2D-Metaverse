@@ -1,7 +1,6 @@
 import { Socket } from "socket.io";
 import { FastifyInstance } from "fastify";
-import { move, chat } from "./events";
-import { playerMapValue } from "../types";
+import { playerMapValue } from "../types/interface";
 
 // Store player positions
 const playersMap: Map<string, playerMapValue> = new Map();
@@ -12,16 +11,21 @@ export const handleConnection = (socket: Socket, fastify: FastifyInstance) => {
 
   // emit to new socket to get player coordinates
   fastify.io.emit("player:join", Object.fromEntries(playersMap));
+
   socket.on("player:join", data => {
     playersMap.set(id, { x: data.x, y: data.y });
   });
 
   socket.on("player:move", direction => {
-    move(id, fastify, playersMap, direction);
+    const check = playersMap.get(id);
+    if (!check) return;
+
+    playersMap.set(id, { ...check, x: direction.x, y: direction.y });
+    fastify.io.emit("player:update", Object.fromEntries(playersMap));
   });
 
   socket.on("player:chat", data => {
-    chat(fastify, data);
+    fastify.io.emit("player:chat", { user: data.user, text: data.text });
   });
 
   socket.on("peer:joined", (peerId: string) => {

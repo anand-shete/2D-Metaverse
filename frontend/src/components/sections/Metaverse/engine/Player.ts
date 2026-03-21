@@ -2,12 +2,12 @@ import { AnimatedSprite, Application, Assets, Container, Spritesheet } from "pix
 import { PlayerConfig, PlayerMoveAnimation } from "@/types/enum";
 import { SpriteManager, InteractionSystem } from ".";
 import { SocketClient } from "@/network/SocketClient";
-import { player1, player1Json } from "@/assets";
+import { girl2, girl2Json } from "@/assets";
 import { interactArray } from "./data/zones";
 import { MovementKey } from "@/types/type";
 import { TileBounds } from "@/types";
 
-/**Handle loading, movement, collision and interactivity of local player */
+/**Handle loading, movement and collision of local player */
 export default class Player {
   public playerSprite: AnimatedSprite;
   public lastSent?: number;
@@ -177,8 +177,8 @@ export default class Player {
     spriteManager: SpriteManager,
     mapContainer: Container,
   ): Promise<Player> {
-    const texture = await Assets.load(player1);
-    const loadedSpriteSheet = new Spritesheet(texture, player1Json);
+    const texture = await Assets.load(girl2);
+    const loadedSpriteSheet = new Spritesheet(texture, girl2Json);
     await loadedSpriteSheet.parse();
     return new Player(app, socket, loadedSpriteSheet, spriteManager, mapContainer);
   }
