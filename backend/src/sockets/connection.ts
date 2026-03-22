@@ -1,26 +1,29 @@
 import { Socket } from "socket.io";
 import { FastifyInstance } from "fastify";
-import { playerMapValue } from "../types/interface";
+import { PlayerMoveData } from "../types/interface";
 
 // Store player positions
-const playersMap: Map<string, playerMapValue> = new Map();
+const playersMap: Map<string, PlayerMoveData> = new Map();
 
 export const handleConnection = (socket: Socket, fastify: FastifyInstance) => {
   const { id } = socket;
-  playersMap.set(id, { x: -1000, y: -1000 });
+  playersMap.set(id, { x: -1000, y: -1000, animation: "idle" });
 
   // emit to new socket to get player coordinates
   fastify.io.emit("player:join", Object.fromEntries(playersMap));
 
   socket.on("player:join", data => {
-    playersMap.set(id, { x: data.x, y: data.y });
+    const current = playersMap.get(id);
+    if (!current) return;
+
+    playersMap.set(id, { ...current, x: data.x, y: data.y });
   });
 
-  socket.on("player:move", direction => {
+  socket.on("player:move", (data: PlayerMoveData) => {
     const check = playersMap.get(id);
     if (!check) return;
 
-    playersMap.set(id, { ...check, x: direction.x, y: direction.y });
+    playersMap.set(id, { ...check, ...data });
     fastify.io.emit("player:update", Object.fromEntries(playersMap));
   });
 

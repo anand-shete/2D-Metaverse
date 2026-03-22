@@ -4,7 +4,7 @@ import {
   RemoteMediaControl,
   ZoomButtons,
 } from "@/components/sections/index";
-import { IRemoteVideos } from "@/types";
+import { IRemoteVideos } from "@/types/interface";
 import { useRef, useEffect, useState } from "react";
 import { MediaManager } from "@/media/MediaManager";
 import { SocketClient } from "@/network/SocketClient";

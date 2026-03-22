@@ -15,20 +15,20 @@ const CTASection = () => (
       <div className="flex flex-col items-center justify-center space-y-6 sm:flex-row sm:space-y-0 sm:space-x-10">
         <Link
           to="/signup"
-          className="flex items-center *:transition-all *:duration-300 *:hover:border *:hover:bg-sky-500/30 *:hover:text-white"
+          className="flex items-center *:transition-all *:duration-300 *:hover:border *:hover:bg-sky-500/60 *:hover:text-white"
         >
           <Button size="lg" className="text-black">
             <Users />
-            Create Your Avatar
+            Choose Your Avatar
           </Button>
         </Link>
 
         <Link
           to="/login"
-          className="*:transition-all *:duration-300 *:hover:border *:hover:bg-sky-500/30 *:hover:text-white"
+          className="*:transition-all *:duration-300 *:hover:border *:hover:bg-sky-500/60 *:hover:text-white"
         >
-          <Button size="lg" className="text-black">
-            Log In To Continue
+          <Button size="lg" className="border-2 border-white bg-transparent">
+            Log In
             <LogIn />
           </Button>
         </Link>

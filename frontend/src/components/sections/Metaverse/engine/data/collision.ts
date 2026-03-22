@@ -4,10 +4,12 @@ export function createCollisionMap(): number[][] {
   // collisionMap[y][x] - collisionMap[71][63] - indices start from 0
 
   // map boundaries
+  for (let y = 0; y < 72; y++) {
+    collisionMap[y][0] = 1;
+    collisionMap[y][63] = 1;
+  }
   for (let x = 0; x < 64; x++) {
-    collisionMap[1][x] = 1;
-    collisionMap[x][0] = 1;
-    collisionMap[x][63] = 1;
+    collisionMap[0][x] = 1;
     collisionMap[71][x] = 1;
   }
 

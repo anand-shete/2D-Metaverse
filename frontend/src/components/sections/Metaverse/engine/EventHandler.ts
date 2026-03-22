@@ -2,7 +2,9 @@ import { Application } from "pixi.js";
 import { Player, RemotePlayers, SpriteManager } from ".";
 import { SocketClient } from "@/network/SocketClient";
 import { MovementKey } from "@/types/type";
+import { Players } from "@/types/interface";
 
+/** Handle new player connections, local player keyboard listeners and movement transmission*/
 export default class EventHandler {
   private player!: Player;
   private remotePlayers: RemotePlayers;
@@ -20,6 +22,7 @@ export default class EventHandler {
   setEventHandlerForPlayer(player: Player, socket: SocketClient) {
     this.player = player;
     this.socket = socket;
+    this.remotePlayers.setMapContainer(this.spriteManager.mapContainer);
     this.setupEventListeners();
   }
 
@@ -30,29 +33,33 @@ export default class EventHandler {
     window.removeEventListener("keydown", this.handleKeyDown);
     window.removeEventListener("keyup", this.handleKeyUp);
     window.removeEventListener("beforeunload", this.onBeforeUnload);
+    this.socket.getSocket().off("player:join", this.onPlayerJoin);
     this.socket.getSocket().off("player:update", this.onPlayerUpdate);
+    this.remotePlayers.cleanupRemotePlayers();
   }
 
   private setupEventListeners() {
     if (this.listenersAttached) return;
     this.listenersAttached = true;
+
     window.addEventListener("keydown", this.handleKeyDown);
     window.addEventListener("keyup", this.handleKeyUp);
+    window.addEventListener("beforeunload", this.onBeforeUnload);
 
     const socket = this.socket.getSocket();
-    socket.on("player:join", () => {
-      // emit initial player position
-      const data = { x: this.player.worldX, y: this.player.worldY };
-      socket.emit("player:join", data);
-    });
-
+    socket.on("player:join", this.onPlayerJoin);
     socket.on("player:update", this.onPlayerUpdate);
-
-    window.addEventListener("beforeunload", this.onBeforeUnload);
   }
 
-  private readonly onPlayerUpdate = (players: any) => {
-    this.remotePlayers.updatePlayers(players, this.spriteManager.mapContainer);
+  private readonly onPlayerJoin = () => {
+    const socket = this.socket.getSocket();
+    // emit initial player position
+    const data = { x: this.player.worldX, y: this.player.worldY };
+    socket.emit("player:join", data);
+  };
+
+  private readonly onPlayerUpdate = (players: Players) => {
+    this.remotePlayers.updateRemotePlayers(players);
   };
 
   private readonly onBeforeUnload = () => {

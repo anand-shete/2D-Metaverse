@@ -64,17 +64,17 @@ export default function FeaturesSection() {
                 "relative overflow-hidden rounded-lg transition-all duration-300",
                 "hover:scale-105 hover:shadow-lg",
                 "border border-white/10 backdrop-blur-md",
-                "bg-gradient-to-br from-white/5 to-white/10",
+                "bg-linear-to-br from-white/5 to-white/10",
               )}
             >
               <div className="absolute inset-0 opacity-0 transition-opacity duration-300 hover:opacity-100">
                 <div
-                  className={`absolute inset-0 bg-gradient-to-br ${feature.color} opacity-20`}
+                  className={`absolute inset-0 bg-linear-to-br ${feature.color} opacity-20`}
                 ></div>
               </div>
 
               <div className="relative p-6">
-                <div className={`inline-flex rounded-full bg-gradient-to-br p-3 ${feature.color}`}>
+                <div className={`inline-flex rounded-full bg-linear-to-br p-3 ${feature.color}`}>
                   {feature.icon}
                 </div>
 

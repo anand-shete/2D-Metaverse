@@ -17,7 +17,7 @@ const start = async () => {
   const io = new Server(fastify.server, {
     cors: {
       origin: [env.FRONTEND_URL1, env.FRONTEND_URL2],
-      methods: ["GET", "POST", "PUT", "DELETE"],
+      methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
       credentials: true,
     },
   });
@@ -27,7 +27,7 @@ const start = async () => {
 
   await fastify.register(cors, {
     origin: [env.FRONTEND_URL1, env.FRONTEND_URL2],
-    methods: ["GET", "POST", "PUT", "DELETE"],
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
     credentials: true,
   });
 

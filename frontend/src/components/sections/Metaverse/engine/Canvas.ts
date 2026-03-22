@@ -1,7 +1,7 @@
 import { Application } from "pixi.js";
 import { SpriteManager, EventHandler, Player } from ".";
 import { SocketClient } from "@/network/SocketClient";
-import { MovementKey } from "@/types/type";
+import { AvatarId, MovementKey } from "@/types/type";
 
 export default class Canvas {
   public app: Application;
@@ -14,6 +14,8 @@ export default class Canvas {
   constructor(
     divElement: HTMLDivElement, // property not stored on this instance
     public socket: SocketClient,
+    public avatar: AvatarId,
+    public username: string,
   ) {
     this.app = new Application();
     this.app
@@ -40,6 +42,8 @@ export default class Canvas {
   destroy() {
     this.removeButtonListeners?.();
     this.removeButtonListeners = undefined;
+
+    if (!this.app.ticker) return;
     this.app.ticker.remove(this.tickerUpdate);
     this.eventHandler?.cleanup();
     this.player?.destroy();
@@ -55,6 +59,8 @@ export default class Canvas {
       this.socket,
       this.spriteManager,
       this.spriteManager.mapContainer,
+      this.avatar,
+      this.username,
     );
     this.spriteManager.setPlayer(this.player);
     if (!this.eventHandler) return;
@@ -81,7 +87,7 @@ export default class Canvas {
 
   // runs 60 times/sec
   private renderFrame() {
-    this.player.updateMovement();
+    this.player.updateLocalPlayer();
     this.spriteManager.updateMap();
   }
 }

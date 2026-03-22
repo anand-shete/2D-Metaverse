@@ -1,7 +1,8 @@
 import { FastifyRequest, FastifyReply } from "fastify";
 import { UserModel as User } from "@models/user.model";
-import { LoginSchema, SignupSchema } from "@schema/user.schema";
+import { LoginSchema, SignupSchema, UpdateAvatarSchema } from "@schema/user.schema";
 import { generateToken, setCookie, verifyToken } from "../utils/jwt";
+import { Types } from "mongoose";
 
 export const signupUser = async (req: FastifyRequest, res: FastifyReply) => {
   try {
@@ -9,9 +10,14 @@ export const signupUser = async (req: FastifyRequest, res: FastifyReply) => {
     if (!parsedData.success) return res.status(400).send({ message: "Parsing failed" });
     const { username, email, password } = parsedData.data;
 
-    const check = await User.countDocuments({ email }).lean();
+    const check = await User.countDocuments({ email });
     if (check) {
       return res.status(409).send({ message: "Account aldready exists" });
+    }
+
+    const checkUsername = await User.countDocuments({ username });
+    if (checkUsername) {
+      return res.status(409).send({ message: "Username already taken" });
     }
 
     const user = await User.create({
@@ -19,6 +25,7 @@ export const signupUser = async (req: FastifyRequest, res: FastifyReply) => {
       username: username,
       password: password,
     });
+
     return res.status(201).send({ message: "Account created successfully", userId: user._id });
   } catch (error: any) {
     console.log(error);
@@ -30,13 +37,12 @@ export const loginUser = async (req: FastifyRequest, res: FastifyReply) => {
   try {
     const parsedData = LoginSchema.safeParse(req.body);
     if (!parsedData.success) return res.status(400).send({ message: "Parsing failed" });
+    const { email, password } = parsedData.data;
 
-    const user = await User.findOne({
-      email: parsedData.data.email,
-    }).lean();
+    const user = await User.findOne({ email }).lean();
     if (!user) return res.status(404).send({ message: "User doesn't exists" });
 
-    const isValid = await User.comparePassword(parsedData.data.password, user.password);
+    const isValid = await User.comparePassword(password, user.password);
     if (!isValid) return res.status(401).send({ message: "Incorrect Password Entered" });
 
     const token = await generateToken(user);
@@ -50,22 +56,24 @@ export const loginUser = async (req: FastifyRequest, res: FastifyReply) => {
     return res.status(500).send({ message: "Failed to Sign In User" });
   }
 };
-export const user = async (req: FastifyRequest, res: FastifyReply) => {
+
+export const updateUserAvatar = async (req: FastifyRequest, res: FastifyReply) => {
   try {
-    const token = req.cookies["token"];
-    if (!token) return res.status(404).send({ message: "Token not found" });
+    const parsedData = UpdateAvatarSchema.safeParse(req.body);
+    if (!parsedData.success) {
+      return res.status(400).send({ message: "Zod parsing failed" });
+    }
+    const { avatar, userId } = parsedData.data;
+    const id = new Types.ObjectId(userId);
 
-    const { username } = (await verifyToken(token)) as {
-      _id: string;
-      username: string;
-      role: string;
-      spaces: string[];
-      iat: number;
-    };
+    const user = await User.countDocuments({ _id: id });
+    if (!user) return res.status(404).send({ message: "User not found" });
 
-    return res.status(200).send({ message: "User found", username: username });
+    await User.updateOne({ _id: id }, { avatar });
+
+    return res.status(200).send({ message: "Account created successfully" });
   } catch (error) {
     console.log(error);
-    return res.status(500).send({ message: "Eroror getting user data" });
+    return res.status(500).send({ message: "Error updating avatar" });
   }
 };

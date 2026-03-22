@@ -1,19 +1,28 @@
-import { AnimatedSprite, Application, Assets, Container, Spritesheet } from "pixi.js";
+import {
+  AnimatedSprite,
+  Application,
+  Assets,
+  Container,
+  Spritesheet,
+  Text,
+  TextStyle,
+} from "pixi.js";
 import { PlayerConfig, PlayerMoveAnimation } from "@/types/enum";
 import { SpriteManager, InteractionSystem } from ".";
 import { SocketClient } from "@/network/SocketClient";
-import { girl2, girl2Json } from "@/assets";
 import { interactArray } from "./data/zones";
-import { MovementKey } from "@/types/type";
-import { TileBounds } from "@/types";
+import { AvatarId, MovementKey } from "@/types/type";
+import { PlayerMoveData, TileBounds } from "@/types/interface";
+import { AVATAR_CONFIG } from "./data/avatar";
 
 /**Handle loading, movement and collision of local player */
 export default class Player {
   public playerSprite: AnimatedSprite;
-  public lastSent?: number;
-  private currentAnimation: string = PlayerMoveAnimation.IDLE;
+  private usernameText: Text;
+  private lastPacketSent?: number;
   public worldX: number;
   public worldY: number;
+  private currentAnimation = PlayerMoveAnimation.IDLE;
   private interactionSystem: InteractionSystem;
   private movementMask = 0;
   private static readonly KEY_W = 1 << 0;
@@ -24,28 +33,46 @@ export default class Player {
   constructor(
     public app: Application,
     public socket: SocketClient,
-    public loadedSprite: Spritesheet,
+    public sheet: Spritesheet,
     public spriteManager: SpriteManager,
     public mapContainer: Container,
+    public avatar: AvatarId,
+    public username: string,
   ) {
-    this.playerSprite = new AnimatedSprite(this.loadedSprite.animations[PlayerMoveAnimation.IDLE]);
+    this.playerSprite = new AnimatedSprite(this.sheet.animations[PlayerMoveAnimation.IDLE]);
     this.playerSprite.animationSpeed = 0.1;
     this.playerSprite.x = app.screen.width / 2;
     this.playerSprite.y = app.screen.height / 2;
     this.playerSprite.anchor.set(0.5);
     this.playerSprite.scale.set(1);
-    this.worldX = 830 + Math.random() * 270; // 830-1100
-    this.worldY = 1000 + Math.random() * 324; // 1000-1324
+    this.worldX = 830 + Math.round(Math.random() * 270); // 830-1100
+    this.worldY = 1000 + Math.round(Math.random() * 324); // 1000-1324
     this.app.stage.addChild(this.playerSprite);
     this.playerSprite.play();
 
+    this.usernameText = new Text({
+      text: this.username,
+      style: new TextStyle({
+        fontSize: 10,
+        fill: 0xffffff,
+        fontWeight: "bold",
+        fontFamily: "monospace",
+        stroke: { color: "#000000", width: 2 },
+        padding: 2,
+      }),
+    });
+    this.usernameText.anchor.set(0.5);
+    this.usernameText.x = app.screen.width / 2;
+    this.usernameText.y = app.screen.height / 2 - 30;
+    this.app.stage.addChild(this.usernameText);
+
     this.interactionSystem = new InteractionSystem(this.mapContainer, interactArray, () =>
-      this.getPlayerTileBounds(),
+      this.getPlayerTileBounds(this.worldX, this.worldY),
     );
   }
 
   // runs 60 times/sec
-  public updateMovement() {
+  public updateLocalPlayer() {
     let newAnimation = this.currentAnimation;
     const speed = PlayerConfig.MOVE_SPEED;
     let dx = 0;
@@ -71,36 +98,38 @@ export default class Player {
       dx += speed;
     }
 
-    const width = PlayerConfig.PLAYER_WIDTH;
-    const height = PlayerConfig.PLAYER_HEIGHT;
-    const tile_size = PlayerConfig.TILE_SIZE;
-
     newWorldX = this.worldX + dx;
-    if (this.canPlayerMove(newWorldX, this.worldY, width, height, tile_size)) {
+    if (this.canPlayerMove(newWorldX, this.worldY)) {
       this.worldX = newWorldX;
     }
 
     newWorldY = this.worldY + dy;
-    // console.log("x=", newWorldX, "y=", newWorldY);
-    if (this.canPlayerMove(this.worldX, newWorldY, width, height, tile_size)) {
+    if (this.canPlayerMove(this.worldX, newWorldY)) {
       this.worldY = newWorldY;
     }
 
+    // console.log("x=", newWorldX, "y=", newWorldY);
     if (this.movementMask === 0) newAnimation = PlayerMoveAnimation.IDLE;
 
     if (newAnimation !== this.currentAnimation) {
       this.currentAnimation = newAnimation;
-      this.playerSprite.textures = this.loadedSprite.animations[this.currentAnimation];
+      this.playerSprite.textures = this.sheet.animations[this.currentAnimation];
       this.playerSprite.play();
     }
 
     this.interactionSystem.update();
 
+    // Send animation state immediately when direction changes, not only on periodic move packets???
     // transmit local player movement over sockets (with throttling)
-    if (!this.lastSent || Date.now() - this.lastSent > 100) {
-      const move = { x: this.worldX, y: this.worldY };
+    if (!this.lastPacketSent || Date.now() - this.lastPacketSent > 30) {
+      const move: PlayerMoveData = {
+        x: this.worldX,
+        y: this.worldY,
+        animation: newAnimation,
+        avatar: this.avatar,
+      };
       this.socket.getSocket().emit("player:move", move);
-      this.lastSent = Date.now();
+      this.lastPacketSent = Date.now();
     }
   }
 
@@ -120,49 +149,31 @@ export default class Player {
 
   public destroy() {
     this.interactionSystem.destroy();
+    this.usernameText.destroy();
     this.app.stage.removeChild(this.playerSprite);
     this.playerSprite.destroy();
   }
 
-  private getPlayerTileBounds(): TileBounds {
-    const width = PlayerConfig.PLAYER_WIDTH;
-    const height = PlayerConfig.PLAYER_HEIGHT;
-    const tileSize = PlayerConfig.TILE_SIZE;
+  private getPlayerTileBounds(x: number, y: number): TileBounds {
+    const pWidth = PlayerConfig.PLAYER_WIDTH;
+    const pHeight = PlayerConfig.PLAYER_HEIGHT;
+    const tile_size = PlayerConfig.TILE_SIZE;
 
+    // (new player coordinates - playerCenter) / size of tile (32px)
     return {
-      left: Math.floor((this.worldX - width / 2) / tileSize),
-      right: Math.floor((this.worldX + width / 2) / tileSize),
-      top: Math.floor((this.worldY - height / 2) / tileSize),
-      bottom: Math.floor((this.worldY + height / 2) / tileSize),
+      left: Math.floor((x - pWidth / 2) / tile_size),
+      right: Math.floor((x + pWidth / 2) / tile_size),
+      top: Math.floor((y - pHeight / 2) / tile_size),
+      bottom: Math.floor((y + pHeight / 2) / tile_size),
     };
   }
 
-  private canPlayerMove(
-    x: number,
-    y: number,
-    playerWidth: number,
-    playerHeight: number,
-    tileSize: number,
-  ): boolean {
-    // ((player's current world co-ordinates - player width) / 2) / size of single tile (32px)
-    // all this to calculate player's current tile to check our collision array
-    const l = Math.floor((x - playerWidth / 2) / tileSize);
-    const r = Math.floor((x + playerWidth / 2) / tileSize);
-    const t = Math.floor((y - playerHeight / 2) / tileSize);
-    const b = Math.floor((y + playerHeight / 2) / tileSize);
+  private canPlayerMove(x: number, y: number): boolean {
+    const { left, right, bottom, top } = this.getPlayerTileBounds(x, y);
 
-    // Check all the adjacent cell to the players
-    for (let gy = t; gy <= b; gy++) {
-      for (let gx = l; gx <= r; gx++) {
-        if (
-          gy < 0 ||
-          gy >= 71 ||
-          gx < 0 ||
-          gx >= 64 ||
-          (gy < this.spriteManager.collisionMap.length &&
-            gx < this.spriteManager.collisionMap[0].length &&
-            this.spriteManager.collisionMap[gy][gx] === 1)
-        ) {
+    for (let y = top; y <= bottom; y++) {
+      for (let x = left; x <= right; x++) {
+        if (this.spriteManager.collisionMap[y][x] === 1) {
           return false;
         }
       }
@@ -176,10 +187,13 @@ export default class Player {
     socket: SocketClient,
     spriteManager: SpriteManager,
     mapContainer: Container,
+    avatar: AvatarId,
+    username: string,
   ): Promise<Player> {
-    const texture = await Assets.load(girl2);
-    const loadedSpriteSheet = new Spritesheet(texture, girl2Json);
-    await loadedSpriteSheet.parse();
-    return new Player(app, socket, loadedSpriteSheet, spriteManager, mapContainer);
+    const selected = AVATAR_CONFIG[avatar];
+    const texture = await Assets.load(selected.texture);
+    const sheet = new Spritesheet(texture, selected.sheet);
+    await sheet.parse();
+    return new Player(app, socket, sheet, spriteManager, mapContainer, avatar, username);
   }
 }

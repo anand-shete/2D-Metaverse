@@ -1,12 +1,20 @@
-import { createContext, useContext } from "react";
+import React, { createContext, useContext } from "react";
 
-const userContext = createContext({
-  user: null,
-  setUser: () => {},
-});
+export interface User {
+  id: string;
+  username: string;
+  avatar: string;
+}
 
-export default userContext;
+interface IUserContext {
+  user: User | null;
+  setUser: React.Dispatch<React.SetStateAction<User | null>>;
+}
+export const UserContext = createContext<IUserContext | null>(null);
 
 export function useUserContext() {
-  return useContext(userContext);
+  const ctx = useContext(UserContext);
+  if (!ctx) throw new Error("useUserContext must be used inside UserProvider");
+
+  return ctx;
 }

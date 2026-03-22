@@ -9,7 +9,7 @@ import {
 import api from "@/api";
 import { z } from "zod";
 import { toast } from "sonner";
-import { Mail, Lock } from "lucide-react";
+import { Mail, Lock, CircleArrowRight } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -17,6 +17,7 @@ import { Link, useNavigate } from "react-router";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { LoginSchema } from "@/schema";
+
 
 const LoginSection = () => {
   const navigate = useNavigate();
@@ -35,7 +36,6 @@ const LoginSection = () => {
       toast.success(res.data.message);
       navigate("/metaverse");
     } catch (error: any) {
-      console.log("error", error.response.data);
       toast.error(error.response.data.message || "Login Failed");
     }
   };
@@ -44,8 +44,8 @@ const LoginSection = () => {
     <div className="mt-22 flex w-full flex-row items-center justify-center bg-blue-950">
       <Card className="mx-10 mt-20 mb-40 w-md rounded-2xl shadow-sm shadow-sky-300 transition-shadow hover:shadow-2xl">
         <CardHeader className="text-center">
-          <CardTitle className="text-2xl">Login</CardTitle>
-          <CardDescription>Login to the Metaverse</CardDescription>
+          <CardTitle className="text-xl md:text-2xl">Login</CardTitle>
+          <CardDescription className="md:text-md text-sm">Login to the Metaverse</CardDescription>
         </CardHeader>
         <CardContent>
           <Form {...form}>
@@ -101,6 +101,7 @@ const LoginSection = () => {
               />
               <Button type="submit" className="mt-4">
                 Login
+                <CircleArrowRight />
               </Button>
               <div className="text-center text-sm">
                 Don't have an account?{" "}

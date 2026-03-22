@@ -1,5 +1,5 @@
 import { MediaManager } from "@/media/MediaManager";
-import { IRemoteVideos } from "@/types";
+import { IRemoteVideos } from "@/types/interface";
 import React, { createContext, SetStateAction, useContext } from "react";
 
 interface IMetaverseContext {

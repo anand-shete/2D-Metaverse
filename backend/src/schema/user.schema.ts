@@ -1,12 +1,18 @@
+import { Avatar } from "../types/enum";
 import { z } from "zod";
 
-export const SignupSchema = z.object({
+export const SignupSchema = z.strictObject({
   username: z.string(),
   email: z.string(),
   password: z.string(),
 });
 
-export const LoginSchema = z.object({
+export const LoginSchema = z.strictObject({
   email: z.string(),
   password: z.string(),
+});
+
+export const UpdateAvatarSchema = z.strictObject({
+  userId: z.string(),
+  avatar: z.nativeEnum(Avatar),
 });

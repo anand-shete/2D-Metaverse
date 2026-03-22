@@ -2,6 +2,7 @@ import { Application, Sprite, Assets, Container } from "pixi.js";
 import { Player, createCollisionMap } from ".";
 import { map } from "@/assets";
 
+/** Manage the add/removal of sprites, containers and zooming on the map */
 export default class SpriteManager {
   public mapContainer!: Container;
   public collisionMap: number[][];
@@ -21,16 +22,14 @@ export default class SpriteManager {
   async initMap() {
     this.mapContainer = new Container();
     this.mapContainer.scale.set(this.zoomLevel);
-    Assets.addBundle("objects", {
-      map: map,
-    });
-
-    const assets: Record<string, any> = await Assets.loadBundle("objects");
-    this.mapSprite = Sprite.from(assets.map);
+    
+    const texture = await Assets.load(map);
+    this.mapSprite = Sprite.from(texture);
     this.mapSprite.anchor.set(0);
     this.mapSprite.scale.set(1);
     this.mapSprite.x = 0;
     this.mapSprite.y = 0;
+    
     this.mapContainer.addChild(this.mapSprite);
     this.app.stage.addChild(this.mapContainer);
   }

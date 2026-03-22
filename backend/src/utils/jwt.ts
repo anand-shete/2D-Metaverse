@@ -6,7 +6,7 @@ import { FastifyReply } from "fastify";
 
 export const generateToken = async (user: User): Promise<string> => {
   const payload: CustomJwtPayload = {
-    _id: user._id,
+    id: user._id,
     username: user.username,
     avatar: user.avatar,
   };
@@ -14,15 +14,20 @@ export const generateToken = async (user: User): Promise<string> => {
   return jwt.sign(payload, env.JWT_SECRET);
 };
 
-export const verifyToken = async (token: string) => {
-  return jwt.verify(token, env.JWT_SECRET);
+export const verifyToken = async (token: string): Promise<CustomJwtPayload | undefined> => {
+  try {
+    return jwt.verify(token, env.JWT_SECRET) as CustomJwtPayload;
+  } catch (error) {
+    return;
+  }
 };
 
 export const setCookie = async (res: FastifyReply, token: string) => {
   res.setCookie("accessToken", token, {
+    path: "/",
     httpOnly: true,
     secure: env.NODE_ENV === "production",
-    sameSite: "none",
+    sameSite: env.NODE_ENV === "production" ? "none" : "lax",
     maxAge: 60 * 60 * 24,
   });
 };

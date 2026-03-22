@@ -1,6 +1,6 @@
-import { Schema } from "mongoose";
+import { Types } from "mongoose";
 import bcrypt from "bcrypt";
-import { getModelForClass, pre, prop, Ref, ReturnModelType } from "@typegoose/typegoose";
+import { getModelForClass, pre, prop, ReturnModelType } from "@typegoose/typegoose";
 import { Avatar } from "../types/enum";
 
 @pre<User>("save", async function () {
@@ -10,9 +10,8 @@ import { Avatar } from "../types/enum";
   const hashedPassword = bcrypt.hashSync(this.password, salt);
   this.password = hashedPassword;
 })
-
 export class User {
-  _id!: Schema.Types.ObjectId;
+  _id!: Types.ObjectId;
 
   @prop({ type: String, required: true, unique: true })
   username!: string;

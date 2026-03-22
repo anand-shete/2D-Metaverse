@@ -1,5 +1,5 @@
 import { Container, Graphics, Text, TextStyle } from "pixi.js";
-import { InteractionZone, TileBounds } from "@/types";
+import { InteractionZone, TileBounds } from "@/types/interface";
 
 export default class InteractionSystem {
   private activeZone?: InteractionZone;
