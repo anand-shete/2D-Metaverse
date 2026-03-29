@@ -21,6 +21,10 @@
 
 - [ ] One room has upload notes functionality, another one has notes retreival
 
-- [ ] Add proper authentication to `/metaverse` page.
+- [X] Add proper authentication to `/metaverse` page.
+
+- [ ] Only broadcast the movement data of the specific player who moved (the delta) rather than the entire list of all players.
 
 - [ ] To implement zoom button, zoom only the pixi layer keeping the UI layer same.
+
+- [ ] Use a Socket.io middleware to verify the JWT before allowing a connection to the /metaverse namespace.

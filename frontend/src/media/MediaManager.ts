@@ -118,7 +118,7 @@ export class MediaManager {
 
   private handleLocalStreamActivated(previousTrackCount: number) {
     const currentTrackCount = this.localStream.getTracks().length;
-    if (previousTrackCount > 0 || currentTrackCount === 0) return;
+    if (currentTrackCount === previousTrackCount || currentTrackCount === 0) return;
 
     // Re-announce and renegotiate when local stream becomes active for the first time.
     if (!this.peer.id) return;
@@ -145,6 +145,7 @@ export class MediaManager {
   public async startAudio(): Promise<MediaStream | undefined> {
     if (this.isAudioActive()) return this.audioStream!.getAudioStream()!;
     const previousTrackCount = this.localStream.getTracks().length;
+
     this.audioStream = new AudioStream();
     const audioStream = await this.audioStream.requestMicAccess();
     if (!audioStream) return;
