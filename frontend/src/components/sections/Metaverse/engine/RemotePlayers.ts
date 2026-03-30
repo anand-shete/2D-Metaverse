@@ -1,16 +1,24 @@
 import { SocketClient } from "@/network/SocketClient";
-import { Application, Assets, AnimatedSprite, Container, Spritesheet, Texture } from "pixi.js";
-import { PlayerMoveData, Players } from "@/types/interface";
+import {
+  Application,
+  Assets,
+  AnimatedSprite,
+  Container,
+  Spritesheet,
+  Texture,
+  Text,
+  TextStyle,
+} from "pixi.js";
+import { PlayerMoveData, Players, RemotePlayerData } from "@/types/interface";
 import { PlayerMoveAnimation } from "@/types/enum";
 import { AvatarId } from "@/types/type";
-import { AVATAR_CONFIG } from "./data/avatar";
+import { AvatarConfig } from "./data/avatar";
 
 export default class RemotePlayers {
-  private socketIdToSpriteMap = new Map<string, AnimatedSprite>();
-  private currentAnimations = new Map<string, string>();
+  private socketIdToRemotePlayersMap = new Map<string, RemotePlayerData>();
+  private avatarSpriteSheets = new Map<AvatarId, Spritesheet>();
+  private avatarSpriteSheetPromises = new Map<AvatarId, Promise<Spritesheet>>();
   private mapContainer?: Container;
-  private spriteSheet?: Spritesheet;
-  private spriteSheetPromise?: Promise<Spritesheet>;
 
   constructor(
     public app: Application,
@@ -23,34 +31,74 @@ export default class RemotePlayers {
 
   async updateRemotePlayers(players: Players) {
     if (!this.mapContainer) return;
-    for (const id of this.socketIdToSpriteMap.keys()) {
-      if (!players[id]) {
-        this.removePlayer(id);
-      }
+
+    for (const id of this.socketIdToRemotePlayersMap.keys()) {
+      if (!players[id]) this.removePlayer(id);
     }
 
+    // for each remote player id
     for (const id of Object.keys(players)) {
       if (id === this.socket.getSocket().id) continue;
-      // store the socketId as key
       const remotePlayer: PlayerMoveData = players[id];
-
       // Create sprite once for a new remote player.
       // reduce delay between setting player coordinates and creating remote player sprite
-      let sprite = this.socketIdToSpriteMap.get(id);
-      if (!sprite) sprite = await this.createRemotePlayer(id, remotePlayer);
+      let sprite = this.socketIdToRemotePlayersMap.get(id)?.animatedSprite;
+      if (!sprite) sprite = await this.getOrCreateRemotePlayer(id, remotePlayer);
 
-      sprite.x = remotePlayer.x;
-      sprite.y = remotePlayer.y;
-      this.updateAnimation(id, sprite, remotePlayer.animation);
+      const remoteContainer = this.socketIdToRemotePlayersMap.get(id)?.container;
+      if (remoteContainer) {
+        remoteContainer.x = remotePlayer.x;
+        remoteContainer.y = remotePlayer.y;
+      }
+
+      const usernameText = this.socketIdToRemotePlayersMap.get(id)?.username;
+      if (usernameText && usernameText.text !== remotePlayer.username) {
+        usernameText.text = remotePlayer.username;
+      }
+
+      const playerSheet = this.socketIdToRemotePlayersMap.get(id)?.spritesheet;
+      if (!playerSheet) continue;
+      this.updateAnimation(id, sprite, playerSheet, remotePlayer.animation);
     }
   }
 
   cleanupRemotePlayers() {
-    for (const id of this.socketIdToSpriteMap.keys()) {
+    for (const id of this.socketIdToRemotePlayersMap.keys()) {
       this.removePlayer(id);
     }
     this.mapContainer = undefined;
-    this.currentAnimations.clear();
+    this.socketIdToRemotePlayersMap.clear();
+  }
+
+  private getOrCreateRemotePlayer(id: string, player: PlayerMoveData): Promise<AnimatedSprite> {
+    const existingSprite = this.socketIdToRemotePlayersMap.get(id)?.animatedSprite;
+    if (existingSprite) return Promise.resolve(existingSprite);
+
+    const inFlightCreation = this.socketIdToRemotePlayersMap.get(id)?.animatedSpriteCreationPromise;
+    if (inFlightCreation) return inFlightCreation;
+
+    const creationPromise = this.createRemotePlayer(id, player)
+      .then(sprite => {
+        const current = this.socketIdToRemotePlayersMap.get(id);
+        if (current) {
+          this.socketIdToRemotePlayersMap.set(id, {
+            ...current,
+            animatedSpriteCreationPromise: undefined,
+          });
+        }
+        return sprite;
+      })
+      .catch(error => {
+        this.removePlayer(id);
+        throw error;
+      });
+
+    const current = this.socketIdToRemotePlayersMap.get(id);
+    this.socketIdToRemotePlayersMap.set(id, {
+      ...current,
+      animatedSpriteCreationPromise: creationPromise,
+    });
+    return creationPromise;
   }
 
   private async createRemotePlayer(id: string, player: PlayerMoveData): Promise<AnimatedSprite> {
@@ -58,63 +106,110 @@ export default class RemotePlayers {
       throw new Error("Map container is not initialized for RemotePlayers");
     }
 
+    const remotePlayerContainer = new Container();
+    remotePlayerContainer.x = player.x;
+    remotePlayerContainer.y = player.y;
+
+    //
     const spriteSheet = await this.getSpriteSheet(player.avatar);
 
     const animation = player.animation;
     const sprite = new AnimatedSprite(spriteSheet.animations[animation]);
     sprite.animationSpeed = 0.1;
     sprite.anchor.set(0.5);
-    // this is called snapping to player position
-    sprite.x = player.x;
-    sprite.y = player.y;
+
+    // Keep child coordinates local to the remote player container.
+    sprite.x = 0;
+    sprite.y = 0;
     sprite.play();
 
-    this.socketIdToSpriteMap.set(id, sprite);
-    this.currentAnimations.set(id, animation);
-    this.mapContainer.addChild(sprite);
+    const usernameText = new Text({
+      text: player.username,
+      style: new TextStyle({
+        fontSize: 10,
+        fill: 0xffffff,
+        fontWeight: "bold",
+        fontFamily: "monospace",
+        stroke: { color: "#000000", width: 2 },
+        padding: 2,
+      }),
+    });
+
+    usernameText.anchor.set(0.5);
+    usernameText.x = 0;
+    usernameText.y = -30;
+    remotePlayerContainer.addChild(sprite);
+    remotePlayerContainer.addChild(usernameText);
+    this.mapContainer.addChild(remotePlayerContainer);
+
+    this.socketIdToRemotePlayersMap.set(id, {
+      container: remotePlayerContainer,
+      spritesheet: spriteSheet,
+      animatedSprite: sprite,
+      username: usernameText,
+      animatedSpriteCreationPromise: undefined,
+      animation,
+    });
 
     return sprite;
   }
 
   private removePlayer(id: string) {
-    const sprite = this.socketIdToSpriteMap.get(id);
-    if (!sprite) return;
+    const remoteContainer = this.socketIdToRemotePlayersMap.get(id)?.container;
+    if (!remoteContainer) return;
 
-    this.mapContainer?.removeChild(sprite);
-    sprite.destroy();
-    this.socketIdToSpriteMap.delete(id);
-    this.currentAnimations.delete(id);
+    this.mapContainer?.removeChild(remoteContainer);
+    remoteContainer.destroy({ children: true });
+
+    this.socketIdToRemotePlayersMap.delete(id);
   }
 
-  private updateAnimation(id: string, sprite: AnimatedSprite, animation?: string) {
-    const nextAnimation = this.getPlayerAnimation(animation);
-    const currentAnimation = this.currentAnimations.get(id);
+  private updateAnimation(
+    id: string,
+    sprite: AnimatedSprite,
+    spriteSheet: Spritesheet,
+    animation?: PlayerMoveAnimation,
+  ) {
+    const nextAnimation = this.getPlayerAnimation(spriteSheet, animation);
+    const currentAnimation = this.socketIdToRemotePlayersMap.get(id)?.animation;
     if (currentAnimation === nextAnimation) return;
 
-    if (!this.spriteSheet?.animations[nextAnimation]) return;
-    sprite.textures = this.spriteSheet.animations[nextAnimation];
+    if (!spriteSheet.animations[nextAnimation]) return;
+    sprite.textures = spriteSheet.animations[nextAnimation];
     sprite.play();
-    this.currentAnimations.set(id, nextAnimation);
+
+    const current = this.socketIdToRemotePlayersMap.get(id);
+    if (!current) return;
+
+    this.socketIdToRemotePlayersMap.set(id, {
+      ...current,
+      animation: nextAnimation as PlayerMoveAnimation,
+    });
   }
 
-  private getPlayerAnimation(animation?: string): string {
-    if (animation && this.spriteSheet?.animations[animation]) return animation;
+  private getPlayerAnimation(spriteSheet: Spritesheet, animation?: PlayerMoveAnimation) {
+    if (animation && spriteSheet.animations[animation]) return animation;
     return PlayerMoveAnimation.IDLE;
   }
 
   private async getSpriteSheet(avatar: AvatarId): Promise<Spritesheet> {
-    if (this.spriteSheet) return this.spriteSheet;
-    if (this.spriteSheetPromise) return this.spriteSheetPromise;
-    // console.log("avatar", avatar);
-    const selectedAvatar = AVATAR_CONFIG[avatar];
-    this.spriteSheetPromise = Assets.load(selectedAvatar.texture).then(async (texture: Texture) => {
+    const cachedSheet = this.avatarSpriteSheets.get(avatar);
+    if (cachedSheet) return cachedSheet;
+
+    const pendingSheet = this.avatarSpriteSheetPromises.get(avatar);
+    if (pendingSheet) return pendingSheet;
+
+    const selectedAvatar = AvatarConfig[avatar];
+    const nextSheetPromise = Assets.load(selectedAvatar.texture).then(async (texture: Texture) => {
       const sheet = new Spritesheet(texture, selectedAvatar.sheet);
       await sheet.parse();
-      this.spriteSheet = sheet;
+      this.avatarSpriteSheets.set(avatar, sheet);
+      this.avatarSpriteSheetPromises.delete(avatar);
       return sheet;
     });
+    this.avatarSpriteSheetPromises.set(avatar, nextSheetPromise);
 
-    return this.spriteSheetPromise;
+    return nextSheetPromise;
   }
 }
 

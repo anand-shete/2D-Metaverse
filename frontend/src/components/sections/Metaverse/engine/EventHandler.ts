@@ -33,7 +33,6 @@ export default class EventHandler {
     window.removeEventListener("keydown", this.handleKeyDown);
     window.removeEventListener("keyup", this.handleKeyUp);
     window.removeEventListener("beforeunload", this.onBeforeUnload);
-    this.socket.getSocket().off("player:join", this.onPlayerJoin);
     this.socket.getSocket().off("player:update", this.onPlayerUpdate);
     this.remotePlayers.cleanupRemotePlayers();
   }
@@ -47,16 +46,8 @@ export default class EventHandler {
     window.addEventListener("beforeunload", this.onBeforeUnload);
 
     const socket = this.socket.getSocket();
-    socket.on("player:join", this.onPlayerJoin);
     socket.on("player:update", this.onPlayerUpdate);
   }
-
-  private readonly onPlayerJoin = () => {
-    const socket = this.socket.getSocket();
-    // emit initial player position
-    const data = { x: this.player.worldX, y: this.player.worldY };
-    socket.emit("player:join", data);
-  };
 
   private readonly onPlayerUpdate = (players: Players) => {
     this.remotePlayers.updateRemotePlayers(players);

@@ -15,16 +15,12 @@
 
 - [x] Treat `w` and `W` as same for player movement.
 
-- [ ] Fix audioStream not transmitting accross devices
+- [x] Fix audioStream not transmitting accross devices
 
 - [ ] Add RAG chain to retreive notes from S3 buckets.
 
-- [ ] One room has upload notes functionality, another one has notes retreival
+- [x] Add authentication to `/metaverse` page.
 
-- [X] Add proper authentication to `/metaverse` page.
+- [x] To implement zoom button, zoom only the pixi layer keeping the UI layer same.
 
-- [ ] Only broadcast the movement data of the specific player who moved (the delta) rather than the entire list of all players.
-
-- [ ] To implement zoom button, zoom only the pixi layer keeping the UI layer same.
-
-- [ ] Use a Socket.io middleware to verify the JWT before allowing a connection to the /metaverse namespace.
+- [x] Use a Socket.io middleware to verify the JWT before allowing a connection to the /metaverse namespace.

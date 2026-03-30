@@ -1,3 +1,4 @@
+import { AnimatedSprite, Container, Spritesheet, Text } from "pixi.js";
 import { PlayerMoveAnimation } from "./enum";
 import { AvatarId } from "./type";
 
@@ -6,10 +7,20 @@ export interface PlayerMoveData {
   y: number;
   animation: PlayerMoveAnimation;
   avatar: AvatarId;
+  username: string;
 }
 
 export interface Players {
   [id: string]: PlayerMoveData;
+}
+
+export interface RemotePlayerData {
+  container?: Container;
+  animatedSprite?: AnimatedSprite;
+  animatedSpriteCreationPromise?: Promise<AnimatedSprite>;
+  username?: Text;
+  spritesheet?: Spritesheet;
+  animation?: PlayerMoveAnimation;
 }
 
 export interface IRemoteVideos {
@@ -34,9 +45,4 @@ export interface TileBounds {
   right: number;
   top: number;
   bottom: number;
-}
-
-export interface AvatarConfig {
-  texture: string;
-  sheet: any;
 }

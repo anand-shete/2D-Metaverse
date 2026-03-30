@@ -6,7 +6,12 @@ export class SocketClient {
   private socket: Socket;
 
   constructor() {
-    this.socket = io(WS_URL);
+    this.socket = io(WS_URL, { withCredentials: true });
+
+    this.socket.on("connect_error", err => {
+      if (!err.message.startsWith("Authentication error")) return;
+      this.socket.disconnect();
+    });
   }
 
   getSocket(): Socket {

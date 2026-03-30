@@ -13,7 +13,7 @@ import { SocketClient } from "@/network/SocketClient";
 import { interactArray } from "./data/zones";
 import { AvatarId, MovementKey } from "@/types/type";
 import { PlayerMoveData, TileBounds } from "@/types/interface";
-import { AVATAR_CONFIG } from "./data/avatar";
+import { AvatarConfig } from "./data/avatar";
 
 /**Handle loading, movement and collision of local player */
 export default class Player {
@@ -127,6 +127,7 @@ export default class Player {
         y: this.worldY,
         animation: newAnimation,
         avatar: this.avatar,
+        username: this.username,
       };
       this.socket.getSocket().emit("player:move", move);
       this.lastPacketSent = Date.now();
@@ -190,7 +191,7 @@ export default class Player {
     avatar: AvatarId,
     username: string,
   ): Promise<Player> {
-    const selected = AVATAR_CONFIG[avatar];
+    const selected = AvatarConfig[avatar];
     const texture = await Assets.load(selected.texture);
     const sheet = new Spritesheet(texture, selected.sheet);
     await sheet.parse();

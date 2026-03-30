@@ -22,14 +22,14 @@ export default class SpriteManager {
   async initMap() {
     this.mapContainer = new Container();
     this.mapContainer.scale.set(this.zoomLevel);
-    
+
     const texture = await Assets.load(map);
     this.mapSprite = Sprite.from(texture);
     this.mapSprite.anchor.set(0);
     this.mapSprite.scale.set(1);
     this.mapSprite.x = 0;
     this.mapSprite.y = 0;
-    
+
     this.mapContainer.addChild(this.mapSprite);
     this.app.stage.addChild(this.mapContainer);
   }
@@ -41,11 +41,13 @@ export default class SpriteManager {
   zoomIn() {
     this.zoomLevel = Math.min(this.zoomLevel + 0.5, 2.0);
     this.mapContainer.scale.set(this.zoomLevel);
+    this.player.playerSprite.scale.set(this.zoomLevel);
   }
 
   zoomOut() {
     this.zoomLevel = Math.max(this.zoomLevel - 0.5, 0.5);
     this.mapContainer.scale.set(this.zoomLevel);
+    this.player.playerSprite.scale.set(this.zoomLevel);
   }
 
   // Update camera position to center on the local player

@@ -1,4 +1,4 @@
-import { verifyToken } from "../utils/jwt";
+import { verifyToken } from "@utils/jwt";
 import { FastifyReply, FastifyRequest } from "fastify";
 
 export const healthCheck = async (req: FastifyRequest, res: FastifyReply) => {
