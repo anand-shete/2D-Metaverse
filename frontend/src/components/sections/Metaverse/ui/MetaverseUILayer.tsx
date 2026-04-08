@@ -70,8 +70,8 @@ export default function MetaverseUILayer({ socketClient, handleKeyPress }: Props
     <MetaverseContext value={value}>
       <ZoomButtons />
       <RemoteMediaControl />
-      <LocalMediaControl />
       <MobileControls onKeyChange={handleKeyPress} />
+      <LocalMediaControl />
     </MetaverseContext>
   );
 }

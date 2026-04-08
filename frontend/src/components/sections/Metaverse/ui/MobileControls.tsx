@@ -20,16 +20,16 @@ const MobileControls = ({ onKeyChange }: Props) => {
 
   return (
     <div className="relative bottom-[30vh] z-10 *:absolute *:rounded-sm *:bg-slate-600/60 *:p-1 *:transition-colors *:hover:bg-slate-500 *:active:bg-slate-700 md:hidden">
-      <button {...bind("w")} aria-label="Move up" className="bottom-2 left-11">
+      <button {...bind("w")} aria-label="Move up" className="bottom-2 left-16">
         <SquareChevronUp size={24} />
       </button>
-      <button {...bind("a")} aria-label="Move left" className="left-2">
+      <button {...bind("a")} aria-label="Move left" className="left-7">
         <SquareChevronLeft size={24} />
       </button>
-      <button {...bind("d")} aria-label="Move right" className="left-20">
+      <button {...bind("d")} aria-label="Move right" className="left-25">
         <SquareChevronRight size={24} />
       </button>
-      <button {...bind("s")} aria-label="Move down" className="top-10 left-11">
+      <button {...bind("s")} aria-label="Move down" className="top-10 left-16">
         <SquareChevronDown size={24} />
       </button>
     </div>

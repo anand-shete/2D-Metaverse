@@ -1,12 +1,26 @@
+import { Button } from "@/components/ui/button";
 import { useMetaverseContext } from "@/context/metaverse.context";
-import { Maximize2, Minimize2 } from "lucide-react";
+import { LogOut, Maximize2, Minimize2 } from "lucide-react";
+import { useNavigate } from "react-router";
 
 const RemoteMediaControl = () => {
+  const navigate = useNavigate();
   const { remoteVideos, fullScreenPeerId, isVideoActive, setFullScreenPeerId } =
     useMetaverseContext();
 
   return (
-    <div className="fixed top-0 flex h-22 w-screen flex-wrap items-center justify-center space-x-10 border-b bg-slate-800/80">
+    <div className="fixed top-0 flex h-20 min-w-full flex-wrap items-center justify-center space-x-10 border-b bg-slate-800/80">
+      <Button className="mr-[5vw] flex text-black" onClick={() => navigate("/")}>
+        <LogOut />
+        <span>Exit</span>
+      </Button>
+
+      {Object.entries(remoteVideos).length === 0 && (
+        <p className="text-center text-sm text-neutral-200 md:w-5xl xl:w-6xl">
+          Waiting for others to join...
+        </p>
+      )}
+
       {Object.entries(remoteVideos).map(([peerId, videoElement]) => (
         <div
           key={peerId}
