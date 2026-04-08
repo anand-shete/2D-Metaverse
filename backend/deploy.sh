@@ -14,8 +14,8 @@ rm -r ~/metaverse
 
 
 # Clone the repository
-git clone https://github.com/anand-shete/Metaverse
-mv ~/Metaverse/backend ~/metaverse
+git clone https://github.com/anand-shete/2D-Metaverse
+mv ~/2D-Metaverse/backend ~/metaverse
 
 
 # Install dependencies
@@ -25,7 +25,7 @@ mv ~/.env .
 
 
 # Cleanup step
-rm -rf ~/Metaverse
+rm -rf ~/2D-Metaverse
 pm2 delete metaverse || true
 rm ~/deploy.sh
 

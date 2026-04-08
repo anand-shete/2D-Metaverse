@@ -2,23 +2,23 @@ import { useMetaverseContext } from "@/context/metaverse.context";
 import { Maximize2, Minimize2 } from "lucide-react";
 
 const RemoteMediaControl = () => {
-  const { remoteVideos, fullScreenPeerId, isVideoActive, isFullScreen, setFullScreenPeerId } =
+  const { remoteVideos, fullScreenPeerId, isVideoActive, setFullScreenPeerId } =
     useMetaverseContext();
 
   return (
-    <div className="fixed top-0 flex w-screen flex-col flex-wrap items-center justify-center gap-4 bg-slate-700">
+    <div className="fixed top-0 flex h-22 w-screen flex-wrap items-center justify-center space-x-10 border-b bg-slate-800/80">
       {Object.entries(remoteVideos).map(([peerId, videoElement]) => (
         <div
           key={peerId}
-          className={`mt-1 transition-all duration-300 ${
+          className={`rounded-md border border-slate-400 transition-all duration-300 ${
             fullScreenPeerId === peerId
-              ? "fixed top-1/2 left-1/2 h-[60%] w-[40%] -translate-x-1/2 -translate-y-1/2 rounded-lg bg-slate-600/50 p-4 text-white"
-              : "relative h-18 w-28 text-black"
+              ? "fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 rounded-md bg-slate-600/50 p-4 text-white"
+              : "relative h-18 w-28 text-white"
           }`}
         >
           <video
             autoPlay
-            className="shadow-custom h-full w-full rounded"
+            className="h-full w-full rounded-md object-cover"
             ref={el => {
               if (el && videoElement.srcObject) el.srcObject = videoElement.srcObject;
             }}
@@ -26,10 +26,12 @@ const RemoteMediaControl = () => {
           <div
             className={`${
               isVideoActive ? "block" : "hidden"
-            } absolute top-1 right-1 cursor-pointer rounded-lg bg-black/40 p-1`}
-            onClick={() => setFullScreenPeerId(prev => (prev === peerId ? null : peerId))}
+            } absolute top-0 right-0 cursor-pointer rounded-md bg-black/40 p-0.5`}
+            onClick={() => {
+              setFullScreenPeerId(prev => (prev === peerId ? null : peerId));
+            }}
           >
-            {isFullScreen ? <Minimize2 className="h-5 w-5" /> : <Maximize2 />}
+            {fullScreenPeerId === peerId ? <Minimize2 size={30} /> : <Maximize2 />}
           </div>
           <span className="absolute top-1 left-1 rounded bg-black/50 px-1 text-xs text-white">
             User {peerId.slice(0, 4)}

@@ -18,7 +18,6 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { LoginSchema } from "@/schema";
 
-
 const LoginSection = () => {
   const navigate = useNavigate();
 
@@ -41,8 +40,8 @@ const LoginSection = () => {
   };
 
   return (
-    <div className="mt-22 flex w-full flex-row items-center justify-center bg-blue-950">
-      <Card className="mx-10 mt-20 mb-40 w-md rounded-2xl shadow-sm shadow-sky-300 transition-shadow hover:shadow-2xl">
+    <div className="flex w-full flex-row items-center justify-center bg-black/90">
+      <Card className="mx-10 mt-40 mb-40 w-md rounded-2xl shadow-sm shadow-sky-300 transition-shadow hover:shadow-2xl">
         <CardHeader className="text-center">
           <CardTitle className="text-xl md:text-2xl">Login</CardTitle>
           <CardDescription className="md:text-md text-sm">Login to the Metaverse</CardDescription>

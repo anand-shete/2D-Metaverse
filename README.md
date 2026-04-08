@@ -24,3 +24,19 @@
 - [x] To implement zoom button, zoom only the pixi layer keeping the UI layer same.
 
 - [x] Use a Socket.io middleware to verify the JWT before allowing a connection to the /metaverse namespace.
+
+## RAG chain workflow
+
+**S3 Upload**: User drops a PDF into your bucket.
+
+**Trigger (The Dev Part)**: An S3 Trigger kicks off an AWS Lambda (or a worker node).
+
+**Metadata Extraction**: The worker sends the text to Gemini to say `Summarize this and give me the 'Subject' and 'Document Type'`
+
+**Vectorization**: The worker then chunks the text and gets Embeddings.
+
+**Database Storage**: You store everything in your Vector DB (like Pinecone or MongoDB Atlas).
+
+```
+Record: [Vector_Data] + Metadata: { subject: "OS", type: "Notes" }.
+```

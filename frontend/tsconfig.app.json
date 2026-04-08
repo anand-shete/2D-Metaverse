@@ -7,8 +7,6 @@
     "module": "ESNext",
     "skipLibCheck": true,
 
-    /* Shad CN */
-    "baseUrl": ".",
     "paths": {
       "@/*": ["./src/*"]
     },
@@ -26,9 +24,9 @@
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true,
-    "noUncheckedSideEffectImports": true,
+    "noUncheckedSideEffectImports": true
 
-    // resolve 
+    // resolve
     // "resolveJsonModule": false
   },
   "include": ["src"]

@@ -1,21 +1,69 @@
-import { Home, LogIn, User } from "lucide-react";
+import { useUserContext } from "@/context/user.context";
+import { Home, LogIn, User, RectangleGoggles, ChevronDown } from "lucide-react";
 import { Link } from "react-router";
+import { CreditCardIcon, LogOutIcon, SettingsIcon, UserIcon } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
-const DesktopNavbar = () => (
-  <div className="hidden items-center justify-center space-x-10 *:rounded-md *:px-3 *:py-2 *:transition-all *:duration-200 *:hover:scale-110 *:hover:bg-primary md:flex">
-    <Link to="/" className="flex">
-      <Home className="mt-px mr-2" size={20} />
-      Home
-    </Link>
-    <Link to="/signup" className="flex">
-      <User className="mt-px mr-2" size={20} />
-      Sign Up
-    </Link>
-    <Link to="/login" className="flex">
-      <LogIn className="mt-px mr-2" size={20} />
-      Login
-    </Link>
-  </div>
-);
+const DesktopNavbar = () => {
+  const { user } = useUserContext();
+
+  return (
+    <div className="*:hover:bg-primary hidden items-center justify-center space-x-10 *:rounded-md *:px-3 *:py-2 *:transition-all *:duration-200 *:hover:scale-110 *:hover:text-black md:flex">
+      <Link to="/" className="flex">
+        <Home className="mt-px mr-2" size={20} />
+        Home
+      </Link>
+      <Link to="/signup" className="flex">
+        <User className="mt-px mr-2" size={20} />
+        Sign Up
+      </Link>
+      <Link to="/metaverse" className="flex">
+        <RectangleGoggles className="mt-px mr-2" size={20} />
+        Enter World
+      </Link>
+      {user === null ? (
+        <Link to="/login" className="bg-primary flex text-black">
+          <LogIn className="mt-px mr-2" size={20} />
+          Login
+        </Link>
+      ) : (
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button className="bg-primary">
+              {user.username}
+              <ChevronDown />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent>
+            <DropdownMenuItem>
+              <UserIcon />
+              Profile
+            </DropdownMenuItem>
+            <DropdownMenuItem>
+              <CreditCardIcon />
+              Billing
+            </DropdownMenuItem>
+            <DropdownMenuItem>
+              <SettingsIcon />
+              Settings
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem variant="destructive">
+              <LogOutIcon />
+              Log out
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      )}
+    </div>
+  );
+};
 
 export default DesktopNavbar;

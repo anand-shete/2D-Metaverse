@@ -148,7 +148,7 @@ const SelectAvatar = ({ isOpen, userId }: Props) => {
 
   return (
     <div
-      className={`${isOpen ? "flex" : "hidden"} h-screen min-w-full items-center justify-center bg-blue-950`}
+      className={`${isOpen ? "flex" : "hidden"} h-screen min-w-full items-center justify-center bg-black/90`}
     >
       <div className="mx-10 flex w-md flex-col items-center justify-center space-y-4 rounded-xl bg-white py-8">
         <div className="text-center">

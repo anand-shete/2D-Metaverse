@@ -8,11 +8,11 @@ export const healthCheck = async (req: FastifyRequest, res: FastifyReply) => {
 export const authCheck = async (req: FastifyRequest, res: FastifyReply) => {
   try {
     const token = req.cookies["accessToken"];
-    if (!token) return res.status(404).send({ message: "Token not found" });
+    if (!token) return res.status(401).send({ message: "Token not found" });
 
     const decode = await verifyToken(token);
-    if (!decode) return res.status(403).send({ message: "Invalid token" });
-
+    if (!decode) return res.status(401).send({ message: "Invalid token" });
+    
     const { username, avatar, id } = decode;
     return res.status(200).send({
       message: "User authentication success",

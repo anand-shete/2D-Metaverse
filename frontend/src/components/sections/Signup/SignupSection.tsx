@@ -17,6 +17,7 @@ import {
 } from "@/components/ui/form";
 import { useForm } from "react-hook-form";
 import { SignupSchema } from "@/schema";
+import signupBg from "@/assets/images/signup.png";
 
 interface Props {
   isOpen: boolean;
@@ -44,10 +45,10 @@ const SignupSection = ({ isOpen, onSignupSuccess }: Props) => {
 
   return (
     <div
-      className={`mt-10 min-h-svh w-full flex-row items-center justify-center bg-blue-950 md:p-10 ${isOpen ? "hidden" : "flex"}`}
+      className={`min-h-svh w-full flex-row items-center justify-center bg-black/90 md:p-10 ${isOpen ? "hidden" : "flex"}`}
     >
-      <div className="mx-10 w-md rounded-2xl shadow-sm shadow-sky-300 transition-shadow hover:shadow-2xl">
-        <Card>
+      <div className="mx-10 my-10 mt-25 flex items-center rounded-2xl">
+        <Card className="shadow-sm shadow-sky-300 transition-shadow hover:shadow-2xl md:w-md">
           <CardHeader className="text-center">
             <CardTitle className="text-xl md:text-2xl">Signup</CardTitle>
             <CardDescription className="md:text-md text-sm">
@@ -143,6 +144,17 @@ const SignupSection = ({ isOpen, onSignupSuccess }: Props) => {
             </Form>
           </CardContent>
         </Card>
+
+        <div className="hidden text-white lg:block">
+          <h1 className="mb-5 text-center text-2xl font-semibold tracking-tight">
+            Connect with like minded people!
+          </h1>
+          <img
+            src={signupBg}
+            alt="signup-bg"
+            className="ml-20 h-120 rounded-md mask-[linear-gradient(to_right,transparent_0%,black_30%)] shadow-white brightness-80"
+          />
+        </div>
       </div>
     </div>
   );
