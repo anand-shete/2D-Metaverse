@@ -1,12 +1,18 @@
 import { Socket } from "socket.io";
 import { FastifyInstance } from "fastify";
-import { PlayerMoveData } from "../types/interface";
+import { PlayerMoveData, socketContext } from "@utils/interface";
+import { ChatModel } from "@models/chat.model";
+import { registerChatEvents } from "./events/chat.event";
+import { registerPlayerEvents } from "./events/player.event";
+import { registerPeerEvents } from "./events/peer.event";
+import { registerDisconnectEvent } from "./events/disconnect.event";
 
 const playersMap: Map<string, PlayerMoveData> = new Map();
 
-export const handleConnection = (socket: Socket, fastify: FastifyInstance) => {
-  const { id } = socket;
-  playersMap.set(id, {
+export const handleConnection = async (socket: Socket, fastify: FastifyInstance) => {
+  const { id: socketId } = socket;
+
+  playersMap.set(socketId, {
     x: -1000,
     y: -1000,
     animation: "idle",
@@ -14,31 +20,13 @@ export const handleConnection = (socket: Socket, fastify: FastifyInstance) => {
     username: socket.data.user.username,
   });
 
-  socket.on("player:move", (data: PlayerMoveData) => {
-    const check = playersMap.get(id);
-    if (!check) return;
+  const ctx: socketContext = { socket, fastify, playersMap };
 
-    playersMap.set(id, { ...check, ...data });
-    fastify.io.emit("player:update", Object.fromEntries(playersMap));
-  });
+  registerChatEvents(ctx);
 
-  socket.on("player:chat", data => {
-    fastify.io.emit("player:chat", { user: data.user, text: data.text });
-  });
+  registerPlayerEvents(ctx);
 
-  socket.on("peer:joined", (peerId: string) => {
-    const player = playersMap.get(id);
-    if (!player) return;
+  registerPeerEvents(ctx);
 
-    playersMap.set(id, { ...player, peerId: peerId });
-    socket.broadcast.emit("peer:available", peerId);
-  });
-
-  socket.on("disconnect", () => {
-    const player = playersMap.get(id);
-    if (!player) return;
-
-    fastify.io.emit("peer:disconnect", player.peerId);
-    playersMap.delete(id);
-  });
+  registerDisconnectEvent(ctx);
 };

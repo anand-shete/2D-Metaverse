@@ -17,6 +17,6 @@ export const enum PlayerConfig {
   TILE_SIZE = 32,
   PLAYER_WIDTH = 48,
   PLAYER_HEIGHT = 48,
-  MOVE_SPEED = 8,
+  MOVE_SPEED = 6,
   SOCKET_THROTTLE_MS = 100,
 }

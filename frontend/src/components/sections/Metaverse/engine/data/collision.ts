@@ -112,15 +112,51 @@ export function createCollisionMap(): number[][] {
     collisionMap[27][x] = 1;
     collisionMap[28][x] = 1;
   }
-  // left wall
-  // for (let x=)
 
-  // library area
+  // left wall
+  for (let y = 25; y < 48; y++) collisionMap[y][23] = 1;
+
+  // right wall
+  for (let y = 25; y < 37 ; y++) collisionMap[y][35] = 1;
+
+  // bottom wall
+  for (let x = 25; x < 36; x++) {
+    collisionMap[45][x] = 1;
+    collisionMap[46][x] = 1;
+    collisionMap[47][x] = 1;
+  }
+
+  // library
+  // top wall
   for (let x = 43; x < 64; x++) {
-    // collisionMap[26][x] = 1;
+    collisionMap[26][x] = 1;
     collisionMap[27][x] = 1;
     collisionMap[28][x] = 1;
   }
+
+  // tables
+  for (let x = 46; x < 50; x++) {
+    collisionMap[37][x] = 1;
+    collisionMap[38][x] = 1;
+    collisionMap[39][x] = 1;
+    collisionMap[40][x] = 1;
+    collisionMap[41][x] = 1;
+  }
+  for (let x = 56; x < 59; x++) {
+    collisionMap[37][x] = 1;
+    collisionMap[38][x] = 1;
+    collisionMap[39][x] = 1;
+    collisionMap[40][x] = 1;
+    collisionMap[41][x] = 1;
+  }
+
+  // bottom wall
+  for (let x = 42; x < 64; x++) {
+    collisionMap[45][x] = 1;
+    collisionMap[46][x] = 1;
+    collisionMap[47][x] = 1;
+  }
+
   return collisionMap;
 }
 

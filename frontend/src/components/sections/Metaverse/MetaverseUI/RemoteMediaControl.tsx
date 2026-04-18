@@ -9,7 +9,7 @@ const RemoteMediaControl = () => {
     useMetaverseContext();
 
   return (
-    <div className="fixed top-0 flex h-20 min-w-full flex-wrap items-center justify-center space-x-10 border-b bg-slate-800/80">
+    <div className="fixed top-0 flex h-20 min-w-full items-center justify-center space-x-10 border-b bg-slate-800/80">
       <Button className="mr-[5vw] flex text-black" onClick={() => navigate("/")}>
         <LogOut />
         <span>Exit</span>

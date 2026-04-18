@@ -3,7 +3,7 @@ import { InteractionZone } from "@/types/interface";
 const spawnDocument: InteractionZone = {
   id: "spawn_doc",
   url: "https://www.notion.so/Metaverse-Rules-33ca4b810918805c8d00d618607f73d0",
-  promptText: "Press X to see Document",
+  promptText: "Press X to read Document",
   highlight: { x: 890, y: 950, height: 40, width: 34 },
   area: { yMin: 30, xMin: 24, xMax: 34, yMax: 35 },
 };

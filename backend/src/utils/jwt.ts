@@ -1,7 +1,7 @@
 import jwt from "jsonwebtoken";
 import { User } from "../models/user.model";
 import { env } from "../config/env.config";
-import { CustomJwtPayload } from "../types/interface";
+import { CustomJwtPayload } from "./interface";
 import { FastifyReply } from "fastify";
 
 export const generateToken = async (user: User): Promise<string> => {

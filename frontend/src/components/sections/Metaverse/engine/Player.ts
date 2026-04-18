@@ -69,6 +69,15 @@ export default class Player {
     this.interactionSystem = new InteractionSystem(this.mapContainer, interactArray, () =>
       this.getPlayerTileBounds(this.worldX, this.worldY),
     );
+
+    this.handleViewportResize();
+  }
+
+  public handleViewportResize() {
+    this.playerSprite.x = this.app.screen.width / 2;
+    this.playerSprite.y = this.app.screen.height / 2;
+    this.usernameText.x = this.app.screen.width / 2;
+    this.usernameText.y = this.app.screen.height / 2 - 30;
   }
 
   // runs 60 times/sec

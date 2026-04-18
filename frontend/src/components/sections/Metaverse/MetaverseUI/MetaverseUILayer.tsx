@@ -1,9 +1,4 @@
-import {
-  LocalMediaControl,
-  MobileControls,
-  RemoteMediaControl,
-  ZoomButtons,
-} from "@/components/sections/index";
+import { LocalMediaControl, MobileControls, RemoteMediaControl } from "@/components/sections/index";
 import { IRemoteVideos } from "@/types/interface";
 import { useRef, useEffect, useState } from "react";
 import { MediaManager } from "@/media/MediaManager";
@@ -67,11 +62,12 @@ export default function MetaverseUILayer({ socketClient, handleKeyPress }: Props
   };
 
   return (
-    <MetaverseContext value={value}>
-      <ZoomButtons />
-      <RemoteMediaControl />
-      <MobileControls onKeyChange={handleKeyPress} />
-      <LocalMediaControl />
-    </MetaverseContext>
+    <div className="relative">
+      <MetaverseContext value={value}>
+        <RemoteMediaControl />
+        <MobileControls onKeyChange={handleKeyPress} />
+        <LocalMediaControl socketClient={socketClient} />
+      </MetaverseContext>
+    </div>
   );
 }

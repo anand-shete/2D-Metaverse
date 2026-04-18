@@ -19,7 +19,7 @@ const MobileControls = ({ onKeyChange }: Props) => {
   });
 
   return (
-    <div className="relative bottom-[30vh] z-10 *:absolute *:rounded-sm *:bg-slate-600/60 *:p-1 *:transition-colors *:hover:bg-slate-500 *:active:bg-slate-700 md:hidden">
+    <div className="absolute bottom-[30vh] z-10 *:absolute *:rounded-sm *:bg-slate-600/60 *:p-1 *:transition-colors *:hover:bg-slate-500 *:active:bg-slate-700 md:hidden">
       <button {...bind("w")} aria-label="Move up" className="bottom-2 left-16">
         <SquareChevronUp size={24} />
       </button>

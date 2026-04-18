@@ -10,9 +10,17 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import api from "@/api";
+import { toast } from "sonner";
 
 const DesktopNavbar = () => {
-  const { user } = useUserContext();
+  const { user, setUser } = useUserContext();
+
+  const handleLogout = async () => {
+    const { data } = await api.get("/user/logout");
+    setUser(data.user);
+    toast.success(data.message);
+  };
 
   return (
     <div className="*:hover:bg-primary hidden items-center justify-center space-x-10 *:rounded-md *:px-3 *:py-2 *:transition-all *:duration-200 *:hover:scale-110 *:hover:text-black md:flex">
@@ -46,16 +54,8 @@ const DesktopNavbar = () => {
               <UserIcon />
               Profile
             </DropdownMenuItem>
-            <DropdownMenuItem>
-              <CreditCardIcon />
-              Billing
-            </DropdownMenuItem>
-            <DropdownMenuItem>
-              <SettingsIcon />
-              Settings
-            </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem variant="destructive">
+            <DropdownMenuItem variant="destructive" onClick={handleLogout}>
               <LogOutIcon />
               Log out
             </DropdownMenuItem>

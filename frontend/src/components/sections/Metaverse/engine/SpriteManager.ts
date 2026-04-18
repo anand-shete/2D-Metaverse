@@ -2,11 +2,10 @@ import { Application, Sprite, Assets, Container } from "pixi.js";
 import { Player, createCollisionMap } from ".";
 import { map } from "@/assets";
 
-/** Manage the add/removal of sprites, containers and zooming on the map */
+/** Manage the add/removal of sprites, containers on the map */
 export default class SpriteManager {
   public mapContainer!: Container;
   public collisionMap: number[][];
-  private zoomLevel: number = 1; // zoom level of mapContainer
   private player!: Player;
   private mapSprite?: Sprite;
 
@@ -21,7 +20,7 @@ export default class SpriteManager {
   */
   async initMap() {
     this.mapContainer = new Container();
-    this.mapContainer.scale.set(this.zoomLevel);
+    // this.mapContainer.scale.set(1);
 
     const texture = await Assets.load(map);
     this.mapSprite = Sprite.from(texture);
@@ -38,24 +37,12 @@ export default class SpriteManager {
     this.player = player;
   }
 
-  zoomIn() {
-    this.zoomLevel = Math.min(this.zoomLevel + 0.5, 2.0);
-    this.mapContainer.scale.set(this.zoomLevel);
-    this.player.playerSprite.scale.set(this.zoomLevel);
-  }
-
-  zoomOut() {
-    this.zoomLevel = Math.max(this.zoomLevel - 0.5, 0.5);
-    this.mapContainer.scale.set(this.zoomLevel);
-    this.player.playerSprite.scale.set(this.zoomLevel);
-  }
-
   // Update camera position to center on the local player
   updateMap() {
     if (!this.player) return;
 
-    this.mapContainer.x = this.app.screen.width / 2 - this.player.worldX * this.zoomLevel;
-    this.mapContainer.y = this.app.screen.height / 2 - this.player.worldY * this.zoomLevel;
+    this.mapContainer.x = this.app.screen.width / 2 - this.player.worldX;
+    this.mapContainer.y = this.app.screen.height / 2 - this.player.worldY;
   }
 
   cleanup() {

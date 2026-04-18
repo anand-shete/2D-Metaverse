@@ -8,6 +8,8 @@ export default class Canvas {
   public player!: Player;
   public spriteManager!: SpriteManager;
   public eventHandler?: EventHandler;
+  private readonly container: HTMLDivElement;
+  private resizeObserver?: ResizeObserver;
   private readonly tickerUpdate = () => this.renderFrame();
   private removeButtonListeners?: () => void;
 
@@ -17,22 +19,25 @@ export default class Canvas {
     public avatar: AvatarId,
     public username: string,
   ) {
+    this.container = divElement;
     this.app = new Application();
     this.app
       .init({
-        resizeTo: window,
+        resizeTo: divElement,
         resolution: Math.min(window.devicePixelRatio, 2),
         autoDensity: true,
         antialias: false,
       })
       .then(async () => {
         divElement.appendChild(this.app.canvas as HTMLCanvasElement);
+        this.setupResizeObserver();
         this.spriteManager = new SpriteManager(this.app);
         this.eventHandler = new EventHandler(this.app, this.socket, this.spriteManager);
         await this.initPlayer();
-        this.setZoomBtns();
       })
-      .catch((e: any) => console.log("Error initializing Pixi app", e));
+      .catch((e: any) => {
+        console.log("Error initializing Pixi app", e);
+      });
   }
 
   setKey(key: MovementKey, pressed: boolean) {
@@ -40,6 +45,9 @@ export default class Canvas {
   }
 
   destroy() {
+    this.resizeObserver?.disconnect();
+    this.resizeObserver = undefined;
+
     this.removeButtonListeners?.();
     this.removeButtonListeners = undefined;
 
@@ -49,6 +57,23 @@ export default class Canvas {
     this.player?.destroy();
     this.spriteManager?.cleanup();
     this.app.destroy(true, true);
+  }
+
+  private setupResizeObserver() {
+    if (typeof ResizeObserver === "undefined") return;
+
+    const handleResize = () => {
+      const width = this.container.clientWidth;
+      const height = this.container.clientHeight;
+      if (!width || !height) return;
+
+      this.app.renderer.resize(width, height);
+      this.player?.handleViewportResize();
+    };
+
+    this.resizeObserver = new ResizeObserver(handleResize);
+    this.resizeObserver.observe(this.container);
+    handleResize();
   }
 
   private async initPlayer() {
@@ -66,23 +91,6 @@ export default class Canvas {
     if (!this.eventHandler) return;
     this.eventHandler.setEventHandlerForPlayer(this.player, this.socket);
     this.app.ticker.add(this.tickerUpdate);
-  }
-
-  private setZoomBtns() {
-    const zoomInButton = document.getElementById("zoom-in");
-    const zoomOutButton = document.getElementById("zoom-out");
-    if (!zoomInButton || !zoomOutButton) return;
-
-    const handleZoomIn = () => this.spriteManager.zoomIn();
-    const handleZoomOut = () => this.spriteManager.zoomOut();
-
-    zoomInButton.addEventListener("click", handleZoomIn);
-    zoomOutButton.addEventListener("click", handleZoomOut);
-
-    this.removeButtonListeners = () => {
-      zoomInButton.removeEventListener("click", handleZoomIn);
-      zoomOutButton.removeEventListener("click", handleZoomOut);
-    };
   }
 
   // runs 60 times/sec

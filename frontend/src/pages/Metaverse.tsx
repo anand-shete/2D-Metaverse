@@ -1,16 +1,18 @@
 import api from "@/api";
-import { useEffect, useRef } from "react";
+import { toast } from "sonner";
+import { useEffect, useRef, useState } from "react";
+import { useNavigate } from "react-router";
 import { Canvas } from "../components/sections/Metaverse/engine";
 import { SocketClient } from "@/network/SocketClient";
 import { MetaverseUILayer } from "@/components/sections";
-import { useNavigate } from "react-router";
-import { toast } from "sonner";
+import { MetaverseLoader } from "@/components/common";
 import { useUserContext } from "@/context/user.context";
 
 export default function Metaverse() {
   const canvasInstance = useRef<Canvas | null>(null);
   const socketClientRef = useRef<SocketClient | null>(null);
   const pixiContainer = useRef<HTMLDivElement | null>(null);
+  const [isCanvasLoading, setIsCanvasLoading] = useState(true);
   const navigate = useNavigate();
   const { setUser } = useUserContext();
 
@@ -42,20 +44,29 @@ export default function Metaverse() {
 
     checkAuth();
 
+    const timeoutId = setTimeout(() => setIsCanvasLoading(false), 1000);
+
     return () => {
       canvasInstance.current?.destroy();
       canvasInstance.current = null;
       socketClientRef.current?.disconnect();
+      clearTimeout(timeoutId);
     };
   }, []);
 
   return (
     <>
-      <div ref={pixiContainer} className="h-full w-full"></div>
-      <MetaverseUILayer
-        socketClient={socketClientRef.current}
-        handleKeyPress={(key, pressed) => canvasInstance.current?.setKey(key, pressed)}
+      {isCanvasLoading && <MetaverseLoader />}
+      <div
+        ref={pixiContainer}
+        className={`h-dvh w-screen ${isCanvasLoading ? "hidden" : "block"}`}
       />
+      {!isCanvasLoading && (
+        <MetaverseUILayer
+          socketClient={socketClientRef.current!}
+          handleKeyPress={(key, pressed) => canvasInstance.current?.setKey(key, pressed)}
+        />
+      )}
     </>
   );
 }

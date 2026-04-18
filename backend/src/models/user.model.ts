@@ -1,7 +1,7 @@
-import { Types } from "mongoose";
 import bcrypt from "bcrypt";
+import { Types } from "mongoose";
 import { getModelForClass, pre, prop, ReturnModelType } from "@typegoose/typegoose";
-import { Avatar } from "../types/enum";
+import { Avatar } from "../utils/enum";
 
 @pre<User>("save", async function () {
   if (!this.isModified("password")) return;

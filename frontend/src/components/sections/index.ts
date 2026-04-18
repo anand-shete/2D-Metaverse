@@ -5,9 +5,8 @@ export { default as LoginSection } from "./Login/LoginSection";
 export { default as SignupSection } from "./Signup/SignupSection";
 export { default as SelectAvatar } from "./Signup/SelectAvatar";
 
-export { default as ChatBox } from "./ChatBox";
-export { default as MetaverseUILayer } from "./Metaverse/ui/MetaverseUILayer";
-export { default as ZoomButtons } from "./Metaverse/ui/ZoomButtons";
-export { default as MobileControls } from "./Metaverse/ui/MobileControls";
-export { default as LocalMediaControl } from "./Metaverse/ui/LocalMediaControl";
-export { default as RemoteMediaControl } from "./Metaverse/ui/RemoteMediaControl";
+export { default as ChatBox } from "./Metaverse/MetaverseUI/ChatBox";
+export { default as MetaverseUILayer } from "./Metaverse/MetaverseUI/MetaverseUILayer";
+export { default as MobileControls } from "./Metaverse/MetaverseUI/MobileControls";
+export { default as LocalMediaControl } from "./Metaverse/MetaverseUI/LocalMediaControl";
+export { default as RemoteMediaControl } from "./Metaverse/MetaverseUI/RemoteMediaControl";

@@ -57,6 +57,10 @@ export const loginUser = async (req: FastifyRequest, res: FastifyReply) => {
   }
 };
 
+export const logoutUser = (req: FastifyRequest, res: FastifyReply) => {
+  res.clearCookie("accessToken").send({ message: "Logout successful", user: null });
+};
+
 export const updateUserAvatar = async (req: FastifyRequest, res: FastifyReply) => {
   try {
     const parsedData = UpdateAvatarSchema.safeParse(req.body);
