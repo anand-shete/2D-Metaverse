@@ -110,7 +110,7 @@ export default function ChatBox({ isOpen, onClose, socket }: ChatBoxProps) {
               ref={inputBoxRef}
               onChange={e => setMessage(e.target.value)}
               onKeyDown={handleKeyDownInChatbox}
-              placeholder="Hey @metabot, fetch notes for AI"
+              placeholder="Hey metabot, fetch notes for AI"
               className="flex-1 rounded border border-gray-300 px-3 py-2 text-sm focus:border-slate-700 focus:ring-1 focus:ring-slate-700 focus:outline-none"
             />
             <Button

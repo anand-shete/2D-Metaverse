@@ -1,11 +1,11 @@
 import "dotenv/config";
 import cors from "@fastify/cors";
-import * as Routes from "@routes/index";
+import * as Routes from "@routes/index.routes";
 import fastifyCookie from "@fastify/cookie";
 import Formbody from "@fastify/formbody";
 import { Server } from "socket.io";
 import { initSockets } from "@sockets/init";
-import { env, connectDB } from "@config/index";
+import { env, connectDB } from "@config/index.config";
 
 import Fastify, { FastifyReply, FastifyRequest } from "fastify";
 const fastify = Fastify({ logger: false });

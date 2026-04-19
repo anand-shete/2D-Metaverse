@@ -1,7 +1,9 @@
 import { ChatModel } from "@models/chat.model";
-import { PopulatedChat, socketContext } from "@utils/interface";
+import { triggerMetabotService } from "@service/metabot.service";
+import { ChatUserType } from "@utils/enum";
+import { PopulatedChat, SocketContent } from "@utils/interface";
 
-export const registerChatEvents = (ctx: socketContext) => {
+export const registerChatEvents = (ctx: SocketContent) => {
   const { socket, fastify } = ctx;
 
   socket.on("chat:history:request", async () => {
@@ -9,12 +11,12 @@ export const registerChatEvents = (ctx: socketContext) => {
       .sort({ createdAt: -1 })
       .limit(10)
       .populate<{ userId: { username: string } }>("userId", "username -_id")
-      .select("message userId createdAt -_id")
+      .select("message sender userId createdAt -_id")
       .lean<PopulatedChat[]>();
 
     const result = chats.map(chat => ({
       message: chat.message,
-      username: chat.userId.username,
+      username: chat.sender === ChatUserType.USER ? chat.userId?.username : "Metabot",
       timestamp: new Date(chat.createdAt).getTime(),
     }));
 
@@ -23,8 +25,23 @@ export const registerChatEvents = (ctx: socketContext) => {
 
   socket.on("chat:send", async (message: string) => {
     const { id: userId, username } = socket.data.user;
-    const chat = await ChatModel.create({ message, userId });
 
-    fastify.io.emit("chat:message", { username, message, timestamp: chat.createdAt });
+    const userChat = await ChatModel.create({ message, userId });
+    fastify.io.emit("chat:message", { username, message, timestamp: userChat.createdAt.getTime() });
+
+    const hasMetabot = message.toLowerCase().includes("metabot");
+    if (!hasMetabot) return;
+
+    const metabotResponse = await triggerMetabotService(message);
+    const botChat = await ChatModel.create({
+      message: metabotResponse,
+      sender: ChatUserType.METABOT,
+    });
+
+    fastify.io.emit("chat:message", {
+      username: "Metabot",
+      message: metabotResponse,
+      timestamp: botChat.createdAt.getTime(),
+    });
   });
 };

@@ -1,6 +1,6 @@
-import { socketContext } from "@utils/interface";
+import { SocketContent } from "@utils/interface";
 
-export const registerPeerEvents = (ctx: socketContext) => {
+export const registerPeerEvents = (ctx: SocketContent) => {
   const { socket, playersMap } = ctx;
 
   socket.on("peer:joined", (peerId: string) => {

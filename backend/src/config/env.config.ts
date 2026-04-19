@@ -8,6 +8,7 @@ const envSchema = z.object({
   FRONTEND_URL1: z.string(),
   FRONTEND_URL2: z.string(),
   JWT_SECRET: z.string(),
+  GROQ_API_KEY: z.string(),
 });
 
 const validate = envSchema.safeParse(process.env);

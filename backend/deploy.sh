@@ -1,39 +1,37 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
+set -euo pipefail
 
 export NVM_DIR="$HOME/.nvm"
-[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
-[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
+[ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
+
+APP_DIR="$HOME/metaverse"
+
 
 echo "=== Deployment Started ==="
 
-# Preserve .env file
-cd ~
-mv ~/metaverse/.env ~
-rm -r ~/metaverse
+if [[ ! -d "$APP_DIR" ]]; then
+	echo "App directory not found: $APP_DIR"
+	exit 1
+fi
 
+cd "$APP_DIR"
 
-# Clone the repository
-git clone https://github.com/anand-shete/2D-Metaverse
-mv ~/2D-Metaverse/backend ~/metaverse
+if [[ ! -f "package.json" ]]; then
+	echo "package.json not found in $APP_DIR"
+	exit 1
+fi
 
+# change to `src/server.js` if not using typescript, 
+# check rootDir and outDir in tsconfig.json
+if [[ ! -f "dist/server.js" ]]; then
+	echo "Build artifact missing: dist/server.js"
+	exit 1
+fi
 
-# Install dependencies
-cd metaverse
-npm ci
-mv ~/.env .
+npm ci --omit=dev
 
+pm2 reload metaverse --update-env || pm2 start dist/server.js --name "metaverse"
+pm2 save
 
-# Cleanup step
-rm -rf ~/2D-Metaverse
-pm2 delete metaverse || true
-rm ~/deploy.sh
-
-
-# Start new processes
-cd metaverse
-npm run build
-pm2 start npm --name "metaverse" -- start
-sudo nginx -s reload
-
-echo "=== Deployment Finished 🎉 ==="
+echo "=== Deployment Finished ==="

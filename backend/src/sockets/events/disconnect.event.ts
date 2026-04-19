@@ -1,6 +1,6 @@
-import { socketContext } from "@utils/interface";
+import { SocketContent } from "@utils/interface";
 
-export const registerDisconnectEvent = (ctx: socketContext) => {
+export const registerDisconnectEvent = (ctx: SocketContent) => {
   const { socket, playersMap, fastify } = ctx;
 
   socket.on("disconnect", () => {

@@ -1,5 +1,3 @@
-import { Dispatch, SetStateAction } from "react";
-
 export const pressX = () => {
   const event = new KeyboardEvent("keydown", {
     key: "x",

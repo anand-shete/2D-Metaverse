@@ -12,7 +12,7 @@ export const authCheck = async (req: FastifyRequest, res: FastifyReply) => {
 
     const decode = await verifyToken(token);
     if (!decode) return res.status(401).send({ message: "Invalid token" });
-    
+
     const { username, avatar, id } = decode;
     return res.status(200).send({
       message: "User authentication success",

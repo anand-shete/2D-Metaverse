@@ -1,7 +1,7 @@
 import { useUserContext } from "@/context/user.context";
 import { Home, LogIn, User, RectangleGoggles, ChevronDown } from "lucide-react";
 import { Link } from "react-router";
-import { CreditCardIcon, LogOutIcon, SettingsIcon, UserIcon } from "lucide-react";
+import {  LogOutIcon,  UserIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,

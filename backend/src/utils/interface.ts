@@ -2,8 +2,9 @@ import { FastifyInstance } from "fastify";
 import { JwtPayload } from "jsonwebtoken";
 import { Types } from "mongoose";
 import { Socket } from "socket.io";
+import { ChatUserType } from "./enum";
 
-export interface socketContext {
+export interface SocketContent {
   socket: Socket;
   fastify: FastifyInstance;
   playersMap: Map<string, PlayerMoveData>;
@@ -26,6 +27,12 @@ export interface CustomJwtPayload extends JwtPayload {
 
 export interface PopulatedChat {
   message: string;
-  userId: { username: string };
+  sender: ChatUserType;
+  userId?: { username: string };
   createdAt: Date;
+}
+
+export interface IUserIntent {
+  intent: "retrieve" | "info";
+  confidence: number;
 }

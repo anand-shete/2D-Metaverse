@@ -1,6 +1,6 @@
 import { FastifyRequest, FastifyReply } from "fastify";
 import { UserModel as User } from "@models/user.model";
-import { LoginSchema, SignupSchema, UpdateAvatarSchema } from "@schema/user.schema";
+import { LoginSchema, SignupSchema, UpdateAvatarSchema } from "@schema/zod.schema";
 import { generateToken, setCookie, verifyToken } from "@utils/jwt";
 import { Types } from "mongoose";
 

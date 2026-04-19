@@ -1,6 +1,6 @@
 import { Socket } from "socket.io";
 import { FastifyInstance } from "fastify";
-import { PlayerMoveData, socketContext } from "@utils/interface";
+import { PlayerMoveData, SocketContent } from "@utils/interface";
 import { ChatModel } from "@models/chat.model";
 import { registerChatEvents } from "./events/chat.event";
 import { registerPlayerEvents } from "./events/player.event";
@@ -20,7 +20,7 @@ export const handleConnection = async (socket: Socket, fastify: FastifyInstance)
     username: socket.data.user.username,
   });
 
-  const ctx: socketContext = { socket, fastify, playersMap };
+  const ctx: SocketContent = { socket, fastify, playersMap };
 
   registerChatEvents(ctx);
 

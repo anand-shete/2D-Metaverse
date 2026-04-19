@@ -1,6 +1,6 @@
-import { PlayerMoveData, socketContext } from "@utils/interface";
+import { PlayerMoveData, SocketContent } from "@utils/interface";
 
-export const registerPlayerEvents = (ctx: socketContext) => {
+export const registerPlayerEvents = (ctx: SocketContent) => {
   const { socket, fastify, playersMap } = ctx;
 
   socket.on("player:move", (data: PlayerMoveData) => {
