@@ -18,7 +18,7 @@ export class MediaManager {
     private onRemoteStreamAdded?: (peerId: string, stream: MediaStream) => void,
     private onRemoteStreamRemoved?: (peerId: string) => void,
   ) {
-    this.peer = new Peer();
+    this.peer = new Peer({ secure: true });
     this.setupPeerListeners();
     this.setupSocketListeners();
   }

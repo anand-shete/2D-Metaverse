@@ -18,10 +18,7 @@ const Layout = () => {
         const res = await api.get("/auth");
         const payload = res.data.payload;
         setUser(payload);
-      } catch (error) {
-        console.log(error);
-        // catch error promises
-      }
+      } catch (error) {}
     };
 
     checkAuth();

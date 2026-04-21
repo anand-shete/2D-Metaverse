@@ -35,6 +35,7 @@ export default function MetaverseUILayer({ socketClient, handleKeyPress }: Props
         socketClient,
         (peerId: string, username: string) => {
           setRemotePeerUsernames(prev => ({ ...prev, [peerId]: username }));
+          console.log("lists", remotePeerUsernames);
         },
         (peerId: string, stream: MediaStream) => {
           const videoElement: HTMLVideoElement = document.createElement("video");
