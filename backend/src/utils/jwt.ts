@@ -22,13 +22,13 @@ export const verifyToken = async (token: string): Promise<CustomJwtPayload | und
   }
 };
 
-export const setCookie = async (res: FastifyReply, token: string) => {
+export const setToken = async (res: FastifyReply, token: string) => {
   res.setCookie("accessToken", token, {
     path: "/",
     httpOnly: true,
     secure: env.NODE_ENV === "production",
     sameSite: env.NODE_ENV === "production" ? "none" : "lax",
     maxAge: 60 * 60 * 24,
-    domain: ".metaverse.anandshete.dev",
+    domain: (env.NODE_ENV === "production" ? ".metaverse.anandshete.dev" : undefined) as any,
   });
 };

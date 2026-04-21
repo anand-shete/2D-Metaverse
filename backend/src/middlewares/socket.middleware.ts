@@ -17,19 +17,23 @@ export const verifySocketUserMiddleware = async (
 ) => {
   try {
     const cookieHeader = socket.request.headers.cookie;
-    console.log(cookieHeader);
+    console.log("cookieHeader", cookieHeader);
     if (!cookieHeader) {
       const error = new Error("Authentication error: No cookies found");
       return next(error);
     }
 
     const token = cookieHeader.split("=")[1];
+    console.log("token", token);
+
     if (!token) {
       const error = new Error("Authentication error: Missing access token");
       return next(error);
     }
 
     const decoded = await verifyToken(token);
+    console.log("decoded",decoded);
+    
     if (!decoded) {
       const error = new Error("Authentication error: Invalid token");
       return next(error);

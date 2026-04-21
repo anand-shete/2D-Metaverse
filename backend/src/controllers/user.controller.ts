@@ -4,7 +4,7 @@ import { UserModel } from "@models/user.model";
 import { ListObjectsV2Command, PutObjectCommand } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { s3client, env } from "@config/index.config";
-import { generateToken, setCookie } from "@utils/jwt";
+import { generateToken, setToken } from "@utils/jwt";
 import {
   LoginSchema,
   SignupSchema,
@@ -57,7 +57,7 @@ export const loginUser = async (req: FastifyRequest, res: FastifyReply) => {
     const token = await generateToken(user);
     if (!token) return res.status(500).send({ message: "Error generating token" });
 
-    await setCookie(res, token);
+    await setToken(res, token);
 
     return res.status(200).send({ token: token, message: "User Login success" });
   } catch (error: any) {
