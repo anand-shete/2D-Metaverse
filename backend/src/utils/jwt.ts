@@ -29,5 +29,6 @@ export const setCookie = async (res: FastifyReply, token: string) => {
     secure: env.NODE_ENV === "production",
     sameSite: env.NODE_ENV === "production" ? "none" : "lax",
     maxAge: 60 * 60 * 24,
+    domain: ".metaverse.anandshete.dev",
   });
 };
