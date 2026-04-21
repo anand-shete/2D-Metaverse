@@ -29,6 +29,5 @@ export const setToken = async (res: FastifyReply, token: string) => {
     secure: env.NODE_ENV === "production",
     sameSite: env.NODE_ENV === "production" ? "none" : "lax",
     maxAge: 60 * 60 * 24,
-    domain: (env.NODE_ENV === "production" ? ".metaverse.anandshete.dev" : undefined) as any,
   });
 };

@@ -33,6 +33,7 @@ export class MediaManager {
     const socket = this.socket.getSocket();
     socket.on("peer:available", this.handlePeerAvailable);
     socket.on("peer:disconnect", this.handlePeerDisconnect);
+    socket.on("peer:username", this.handleSetRemoteUsernames);
   }
 
   private readonly handlePeerOpen = (peerId: string) => {
@@ -51,9 +52,12 @@ export class MediaManager {
     console.error("PeerJS server error:", err);
   };
 
-  private readonly handlePeerAvailable = (data: { peerId: string; username: string }) => {
+  private readonly handlePeerAvailable = (peerId: string) => {
+    this.callPeer(peerId);
+  };
+
+  private readonly handleSetRemoteUsernames = (data: { peerId: string; username: string }) => {
     this.onRemotePeerAvailable?.(data.peerId, data.username);
-    this.callPeer(data.peerId);
   };
 
   private readonly handlePeerDisconnect = (peerId: string) => {
@@ -197,6 +201,7 @@ export class MediaManager {
     const socket = this.socket.getSocket();
     socket.off("peer:available", this.handlePeerAvailable);
     socket.off("peer:disconnect", this.handlePeerDisconnect);
+    socket.off("peer:username", this.handleSetRemoteUsernames);
 
     this.peer.off("open", this.handlePeerOpen);
     this.peer.off("call", this.handleIncomingCall);
