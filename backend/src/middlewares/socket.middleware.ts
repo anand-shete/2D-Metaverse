@@ -17,6 +17,7 @@ export const verifySocketUserMiddleware = async (
 ) => {
   try {
     const cookieHeader = socket.request.headers.cookie;
+    console.log(cookieHeader);
     if (!cookieHeader) {
       const error = new Error("Authentication error: No cookies found");
       return next(error);
