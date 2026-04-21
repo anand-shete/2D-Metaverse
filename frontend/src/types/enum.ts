@@ -20,3 +20,4 @@ export const enum PlayerConfig {
   MOVE_SPEED = 6,
   SOCKET_THROTTLE_MS = 100,
 }
+

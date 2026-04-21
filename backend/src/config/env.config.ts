@@ -9,6 +9,9 @@ const envSchema = z.object({
   FRONTEND_URL2: z.string(),
   JWT_SECRET: z.string(),
   GROQ_API_KEY: z.string(),
+  AWS_ACCESS_KEY_ID: z.string(),
+  AWS_SECRET_ACCESS_KEY: z.string(),
+  AWS_BUCKET_NAME: z.string(),
 });
 
 const validate = envSchema.safeParse(process.env);

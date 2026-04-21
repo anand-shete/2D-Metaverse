@@ -1,4 +1,10 @@
-import { LocalMediaControl, MobileControls, RemoteMediaControl } from "@/components/sections/index";
+import {
+  LocalMediaControl,
+  MobileControls,
+  RemoteMediaControl,
+  UploadFiles,
+  ViewArchives,
+} from "@/components/sections/index";
 import { IRemoteVideos } from "@/types/interface";
 import { useRef, useEffect, useState } from "react";
 import { MediaManager } from "@/media/MediaManager";
@@ -15,9 +21,11 @@ export default function MetaverseUILayer({ socketClient, handleKeyPress }: Props
   const mediaManagerRef = useRef<MediaManager | null>(null);
   const [isVideoActive, setIsVideoActive] = useState<boolean>(false);
   const [isAudioActive, setIsAudioActive] = useState<boolean>(false);
-  const [isFullScreen, setIsFullScreen] = useState<boolean>(false);
-  const [fullScreenPeerId, setFullScreenPeerId] = useState<string | null>(null);
+  const [isFullScreen, setIsFullScreen] = useState<boolean>(false); // local user
+  const [fullScreenPeerId, setFullScreenPeerId] = useState<string | null>(null); //remote user
   const [remoteVideos, setRemoteVideos] = useState<IRemoteVideos>({});
+  const [isUploadOpen, setIsUploadOpen] = useState(false);
+  const [isArchivesOpen, setIsArchivesOpen] = useState(false);
 
   // mediaManger ref manages both local and incoming A/V streams
   useEffect(() => {
@@ -47,6 +55,19 @@ export default function MetaverseUILayer({ socketClient, handleKeyPress }: Props
     };
   }, []);
 
+  useEffect(() => {
+    const openTerminalOverlay = () => setIsUploadOpen(true);
+    const openViewArchives = () => setIsArchivesOpen(true);
+
+    window.addEventListener("metaverse:upload-open", openTerminalOverlay);
+    window.addEventListener("metaverse:view-archives", openViewArchives);
+
+    return () => {
+      window.removeEventListener("metaverse:upload-open", openTerminalOverlay);
+      window.addEventListener("metaverse:view-archives", openViewArchives);
+    };
+  }, []);
+
   const value = {
     mediaManagerRef,
     isVideoActive,
@@ -62,12 +83,14 @@ export default function MetaverseUILayer({ socketClient, handleKeyPress }: Props
   };
 
   return (
-    <div className="relative">
+    <>
       <MetaverseContext value={value}>
         <RemoteMediaControl />
         <MobileControls onKeyChange={handleKeyPress} />
         <LocalMediaControl socketClient={socketClient} />
+        <UploadFiles isOpen={isUploadOpen} onClose={() => setIsUploadOpen(false)} />
+        <ViewArchives isOpen={isArchivesOpen} onClose={() => setIsArchivesOpen(false)} />
       </MetaverseContext>
-    </div>
+    </>
   );
 }

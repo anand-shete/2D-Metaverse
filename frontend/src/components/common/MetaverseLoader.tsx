@@ -3,7 +3,7 @@ import TextType from "@/components/ui/TextType";
 const MetaverseLoader = () => {
   return (
     <>
-      <div className="text-md flex h-screen min-w-full items-center justify-center bg-black/90 font-semibold tracking-tight text-white md:text-3xl">
+      <div className="text-md flex h-screen min-w-full items-center justify-center bg-black/90 pb-20 font-semibold tracking-tight text-white md:text-3xl">
         <TextType
           text={[
             "Initializing Virtual Environment...",

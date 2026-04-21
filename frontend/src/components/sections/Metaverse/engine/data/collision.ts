@@ -4,13 +4,13 @@ export function createCollisionMap(): number[][] {
   // collisionMap[y][x] - collisionMap[71][63] - indices start from 0
 
   // map boundaries
-  for (let y = 0; y < 72; y++) {
+  for (let y = 0; y < 71; y++) {
     collisionMap[y][0] = 1;
     collisionMap[y][63] = 1;
   }
-  for (let x = 0; x < 64; x++) {
+  for (let x = 0; x < 63; x++) {
     collisionMap[0][x] = 1;
-    collisionMap[71][x] = 1;
+    collisionMap[70][x] = 1;
   }
 
   // console.log("collisionMap", collisionMap);
@@ -117,7 +117,7 @@ export function createCollisionMap(): number[][] {
   for (let y = 25; y < 48; y++) collisionMap[y][23] = 1;
 
   // right wall
-  for (let y = 25; y < 37 ; y++) collisionMap[y][35] = 1;
+  for (let y = 25; y < 37; y++) collisionMap[y][35] = 1;
 
   // bottom wall
   for (let x = 25; x < 36; x++) {
@@ -126,7 +126,7 @@ export function createCollisionMap(): number[][] {
     collisionMap[47][x] = 1;
   }
 
-  // library
+  // Room 6 - library
   // top wall
   for (let x = 43; x < 64; x++) {
     collisionMap[26][x] = 1;
@@ -151,17 +151,60 @@ export function createCollisionMap(): number[][] {
   }
 
   // bottom wall
-  for (let x = 42; x < 64; x++) {
+  for (let x = 43; x < 64; x++) {
     collisionMap[45][x] = 1;
     collisionMap[46][x] = 1;
     collisionMap[47][x] = 1;
   }
 
+  // Room 7 - Game room
+  // top wall
+  for (let x = 0; x < 16; x++) {
+    collisionMap[56][x] = 1;
+    collisionMap[57][x] = 1;
+    collisionMap[58][x] = 1;
+  }
+  for (let x = 22; x < 38; x++) {
+    collisionMap[56][x] = 1;
+    collisionMap[57][x] = 1;
+    collisionMap[58][x] = 1;
+  }
+
+  // left wall
+  for (let y = 58; y < 71; y++) {
+    collisionMap[y][0] = 1;
+    collisionMap[y][1] = 1;
+  }
+
+  // right wall
+  for (let y = 58; y < 71; y++) {
+    collisionMap[y][31] = 1;
+    collisionMap[y][32] = 1;
+  }
+
+  // Room 8
+  // top wall
+  for (let x = 43; x < 63; x++) {
+    collisionMap[56][x] = 1;
+    collisionMap[57][x] = 1;
+    collisionMap[58][x] = 1;
+  }
+  // table 1
+  for (let x = 41; x < 44; x++) {
+    collisionMap[63][x] = 1;
+    collisionMap[64][x] = 1;
+    collisionMap[65][x] = 1;
+    collisionMap[66][x] = 1;
+  }
+  // table 2
+  for (let x = 52; x < 55; x++) {
+    collisionMap[63][x] = 1;
+    collisionMap[64][x] = 1;
+    collisionMap[65][x] = 1;
+    collisionMap[66][x] = 1;
+  }
+
   return collisionMap;
 }
 
-// (45, 584) to (604, 584)
-// Example: A wall at map position (128, 64) to (192, 64)
-//   for (let x = 4; x < 6; x++) {
-//     collisionMap[2][x] = 1; // x=128=4*32 to 192=6*32,  y=64=2*32
-//   }
+// collisionMap[y][x] - collisionMap[71][63] - indices start from 0

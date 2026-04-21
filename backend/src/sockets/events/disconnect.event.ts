@@ -9,5 +9,7 @@ export const registerDisconnectEvent = (ctx: SocketContent) => {
 
     fastify.io.emit("peer:disconnect", player.peerId);
     playersMap.delete(socket.id);
+
+    fastify.io.emit("player:online", playersMap.size);
   });
 };

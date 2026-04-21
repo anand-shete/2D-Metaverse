@@ -37,6 +37,7 @@ export const verifySocketUserMiddleware = async (
     socket.data.user = decoded;
     next();
   } catch (error) {
+    console.log("errored");
     return next(new Error("Authentication error"));
   }
 };

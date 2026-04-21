@@ -39,16 +39,17 @@ export class ChatManager {
 
   private setupSocketListeners() {
     const socket = this.socketClient.getSocket();
-    socket.on("chat:message", (data: ChatMessage) => {
-      this.messages = [...this.messages, data];
-      this.notifyListeners();
-    });
+
+    socket.emit("chat:history:request");
 
     socket.on("chat:history", (data: ChatMessageHistory) => {
       this.messages = data;
       this.notifyListeners();
     });
 
-    socket.emit("chat:history:request");
+    socket.on("chat:message", (data: ChatMessage) => {
+      this.messages = [...this.messages, data];
+      this.notifyListeners();
+    });
   }
 }

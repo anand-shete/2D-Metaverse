@@ -3,7 +3,7 @@ import { useState, useEffect, useRef, KeyboardEventHandler } from "react";
 import { ChatManager } from "@/chat/ChatManager";
 import { Button } from "@/components/ui/button";
 import { SocketClient } from "@/network/SocketClient";
-import { ChatMessageHistory } from "@/types/type";
+import { BlockKeysArr, ChatMessageHistory } from "@/types/type";
 import { useUserContext } from "@/context/user.context";
 import { Input } from "@/components/ui/input";
 
@@ -25,6 +25,7 @@ export default function ChatBox({ isOpen, onClose, socket }: ChatBoxProps) {
     const chatManager = new ChatManager(socket);
     chatManagerRef.current = chatManager;
 
+    // listener is being set internally by Chatmanager
     const unsubscribe = chatManager.onMessagesChange(setMessages);
 
     return () => {
@@ -51,14 +52,22 @@ export default function ChatBox({ isOpen, onClose, socket }: ChatBoxProps) {
   };
 
   const handleKeyDownInChatbox: KeyboardEventHandler<HTMLInputElement> = e => {
-    const movementKeys = ["w", "a", "s", "d", "x"];
-    if (movementKeys.includes(e.key.toLowerCase())) {
+    if (BlockKeysArr.includes(e.key.toLowerCase())) {
       e.stopPropagation();
     }
 
     if (e.key === "Enter") handleSend();
   };
 
+  const returnBgColor = (username: string) => {
+    if (username === "Metabot") {
+      return `bg-blue-100 text-blue-900 border-blue-400`;
+    } else if (username === user?.username) {
+      return `bg-emerald-100 text-emerald-900 border-emerald-400 `;
+    } else {
+      return `bg-slate-100 text-slate-900 border-slate-400`;
+    }
+  };
   return (
     <div>
       {/* Background Overlay */}
@@ -90,13 +99,30 @@ export default function ChatBox({ isOpen, onClose, socket }: ChatBoxProps) {
             {messages.map((msg, i) => (
               <div
                 key={i}
-                className={`flex flex-col wrap-break-word ${msg.username === user?.username ? "ml-9" : "ml-0"}`}
+                className={`flex flex-col wrap-break-word ${user?.username === msg.username ? "ml-9" : "ml-0"}`}
               >
                 <p className="text-xs font-semibold text-gray-500">{msg.username}</p>
                 <p
-                  className={`${msg.username === user?.username ? "bg-slate-200" : "bg-white"} rounded border-l-2 border-slate-700 p-2 text-sm text-gray-800`}
+                  className={`${returnBgColor(msg.username)} rounded border-l-2 p-2 text-sm text-gray-800`}
                 >
                   {msg.message}
+                  {msg.username === "Metabot" &&
+                    Array.isArray(msg.notes) &&
+                    msg.notes.length > 0 && (
+                      <span className="mt-2 space-y-1">
+                        {msg.notes.map((n, i) => (
+                          <a
+                            key={i}
+                            href={n.fileUrl}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="block text-blue-600 underline"
+                          >
+                            {n.fileName}
+                          </a>
+                        ))}
+                      </span>
+                    )}
                 </p>
               </div>
             ))}

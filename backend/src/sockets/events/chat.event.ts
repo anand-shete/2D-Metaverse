@@ -11,13 +11,14 @@ export const registerChatEvents = (ctx: SocketContent) => {
       .sort({ createdAt: -1 })
       .limit(10)
       .populate<{ userId: { username: string } }>("userId", "username -_id")
-      .select("message sender userId createdAt -_id")
+      .select("message notes sender userId createdAt -_id")
       .lean<PopulatedChat[]>();
 
     const result = chats.map(chat => ({
       message: chat.message,
       username: chat.sender === ChatUserType.USER ? chat.userId?.username : "Metabot",
       timestamp: new Date(chat.createdAt).getTime(),
+      notes: chat.notes,
     }));
 
     socket.emit("chat:history", result.reverse());
@@ -32,16 +33,31 @@ export const registerChatEvents = (ctx: SocketContent) => {
     const hasMetabot = message.toLowerCase().includes("metabot");
     if (!hasMetabot) return;
 
+    // FIXME RATE LIMIT METABOT SERVICE
     const metabotResponse = await triggerMetabotService(message);
+    if (!metabotResponse.success) {
+      console.log(metabotResponse.message);
+      fastify.io.emit("chat:message", {
+        username: "Metabot",
+        message:
+          "Oops! I hit a snag while scanning the Metaverse archives. I couldn't process that request right now—please try rephrasing your search or check your connection!",
+        timestamp: Date.now(),
+      });
+
+      return;
+    }
+
     const botChat = await ChatModel.create({
-      message: metabotResponse,
+      message: metabotResponse.message,
       sender: ChatUserType.METABOT,
+      notes: metabotResponse.notes ?? [],
     });
 
     fastify.io.emit("chat:message", {
       username: "Metabot",
-      message: metabotResponse,
+      message: metabotResponse.message,
       timestamp: botChat.createdAt.getTime(),
+      notes: metabotResponse.notes,
     });
   });
 };

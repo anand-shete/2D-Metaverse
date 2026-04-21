@@ -29,10 +29,29 @@ export interface PopulatedChat {
   message: string;
   sender: ChatUserType;
   userId?: { username: string };
+  notes?: { fileName: string; fileUrl: string }[];
   createdAt: Date;
 }
 
 export interface IUserIntent {
-  intent: "retrieve" | "info";
-  confidence: number;
+  success: boolean;
+  intent?: "retrieve" | "info";
+  confidence?: number;
+}
+
+export interface IFilterResponse {
+  success: boolean;
+  filter: IFilter;
+}
+
+export interface IFilter {
+  subject?: "PM" | "RL" | "AAI" | "SMA" | "OS" | "DBMS";
+  chapter?: number;
+  noteType?: "notes" | "question_paper" | "syllabus";
+}
+
+export interface IMetabotServiceResponse {
+  success: boolean;
+  message: string;
+  notes?: { fileName: string; fileUrl: string }[];
 }

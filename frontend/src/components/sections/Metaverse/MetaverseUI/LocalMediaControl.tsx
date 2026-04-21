@@ -3,17 +3,17 @@ import { Button } from "@/components/ui/button";
 import { Maximize2, MessagesSquare, Mic, MicOff, Minimize2, Video, VideoOff } from "lucide-react";
 import { startAudio, startVideo, stopAudio, stopVideo } from "@/components/utils/media.utils";
 import { useMetaverseContext } from "@/context/metaverse.context";
-import { pressX } from "@/components/utils/user.utils";
+import { pressX } from "@/components/utils/event.utils";
 import { SocketClient } from "@/network/SocketClient";
 import { ChatBox } from "@/components/sections";
 import { useUserContext } from "@/context/user.context";
 
 const LocalMediaActions = ({ socketClient }: { socketClient: SocketClient }) => {
+  const { user } = useUserContext();
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const [isChatBoxOpen, setIsChatBoxOpen] = useState(false);
   const [width, setWidth] = useState<number>(window.innerWidth);
-
-  const { user } = useUserContext();
+  const [onlineCount, setOnlineCount] = useState(1);
 
   const {
     isFullScreen,
@@ -26,6 +26,11 @@ const LocalMediaActions = ({ socketClient }: { socketClient: SocketClient }) => 
   } = useMetaverseContext();
 
   useEffect(() => {
+    const socket = socketClient.getSocket();
+    const handleOnline = (data: number) => setOnlineCount(data);
+    socket.emit("player:online:request");
+    socket.on("player:online", handleOnline);
+
     const pressC = (e: KeyboardEvent) => {
       if (e.key.toLowerCase() === "c") setIsChatBoxOpen(true);
       if (e.key.toLowerCase() === "escape") setIsChatBoxOpen(false);
@@ -34,6 +39,7 @@ const LocalMediaActions = ({ socketClient }: { socketClient: SocketClient }) => 
     document.addEventListener("keydown", pressC);
 
     return () => {
+      socket.off("player:online", handleOnline);
       document.removeEventListener("keydown", pressC);
     };
   }, []);
@@ -126,6 +132,12 @@ const LocalMediaActions = ({ socketClient }: { socketClient: SocketClient }) => 
         onClose={() => setIsChatBoxOpen(false)}
         socket={socketClient}
       />
+
+      <div className="mr-10 hidden items-center space-x-2 rounded-md bg-black/50 p-2 text-sm text-white md:flex">
+        <div className="h-2 w-2 animate-pulse rounded-full bg-green-500"></div>
+        <span>{onlineCount}</span>
+        <span className="">Online users</span>
+      </div>
     </div>
   );
 };

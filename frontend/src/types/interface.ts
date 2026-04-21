@@ -31,7 +31,7 @@ export interface InteractionZone {
   id: string;
   url?: string;
   promptText?: string;
-  area: {
+  triggerArea: {
     yMin: number;
     yMax: number;
     xMin: number;

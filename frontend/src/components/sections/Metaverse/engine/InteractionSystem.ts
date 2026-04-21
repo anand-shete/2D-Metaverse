@@ -78,7 +78,7 @@ export default class InteractionSystem {
     this.graphics.clear();
     this.graphics
       .rect(x, y, width, height)
-      .stroke({ color: 0xffff00, width: 4, alpha: 0.9 }).visible = true;
+      .stroke({ color: 0xffff00, width: 2, alpha: 0.8 }).visible = true;
 
     const promptText = this.activeZone.promptText ?? "Press X to interact";
     this.layoutPrompt(promptText);
@@ -145,12 +145,24 @@ export default class InteractionSystem {
   }
 
   private readonly onKeyDown = (e: KeyboardEvent) => {
-    if (e.key.toLowerCase() !== this.INTERACT_KEY || !this.activeZone?.url) return;
+    if (e.key.toLowerCase() !== this.INTERACT_KEY || !this.activeZone) return;
+
+    if (this.activeZone.id === "uploadNotes") {
+      window.dispatchEvent(new CustomEvent("metaverse:upload-open"));
+      return;
+    }
+
+    if (this.activeZone.id === "viewArchives") {
+      window.dispatchEvent(new CustomEvent("metaverse:view-archives"));
+      return;
+    }
+
+    if (!this.activeZone.url) return;
     window.open(this.activeZone.url, "_blank", "noopener,noreferrer");
   };
 
   private isPlayerInZone(bounds: TileBounds, zone: InteractionZone): boolean {
-    const { xMin, xMax, yMin, yMax } = zone.area;
+    const { xMin, xMax, yMin, yMax } = zone.triggerArea;
     return (
       bounds.left <= xMax && bounds.right >= xMin && bounds.top <= yMax && bounds.bottom >= yMin
     );

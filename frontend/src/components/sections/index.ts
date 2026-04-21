@@ -10,3 +10,5 @@ export { default as MetaverseUILayer } from "./Metaverse/MetaverseUI/MetaverseUI
 export { default as MobileControls } from "./Metaverse/MetaverseUI/MobileControls";
 export { default as LocalMediaControl } from "./Metaverse/MetaverseUI/LocalMediaControl";
 export { default as RemoteMediaControl } from "./Metaverse/MetaverseUI/RemoteMediaControl";
+export { default as UploadFiles } from "./Metaverse/MetaverseUI/UploadFiles";
+export { default as ViewArchives } from "./Metaverse/MetaverseUI/ViewArchives";
