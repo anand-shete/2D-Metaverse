@@ -1,7 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { useMetaverseContext } from "@/context/metaverse.context";
 import { LogOut, Maximize2, Minimize2 } from "lucide-react";
-import { useEffect } from "react";
 import { useNavigate } from "react-router";
 
 const RemoteMediaControl = () => {
