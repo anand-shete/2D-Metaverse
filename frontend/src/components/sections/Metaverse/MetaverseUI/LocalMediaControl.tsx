@@ -8,7 +8,10 @@ import { SocketClient } from "@/network/SocketClient";
 import { ChatBox } from "@/components/sections";
 import { useUserContext } from "@/context/user.context";
 
-const LocalMediaActions = ({ socketClient }: { socketClient: SocketClient }) => {
+interface Props {
+  socketClient: SocketClient;
+}
+const LocalMediaActions = ({ socketClient }: Props) => {
   const { user } = useUserContext();
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const [isChatBoxOpen, setIsChatBoxOpen] = useState(false);

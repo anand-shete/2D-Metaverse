@@ -5,7 +5,7 @@ import {
   UploadFiles,
   ViewArchives,
 } from "@/components/sections/index";
-import { IRemoteVideos } from "@/types/interface";
+import { IRemotePeerUsernames, IRemoteVideos } from "@/types/interface";
 import { useRef, useEffect, useState } from "react";
 import { MediaManager } from "@/media/MediaManager";
 import { SocketClient } from "@/network/SocketClient";
@@ -22,8 +22,9 @@ export default function MetaverseUILayer({ socketClient, handleKeyPress }: Props
   const [isVideoActive, setIsVideoActive] = useState<boolean>(false);
   const [isAudioActive, setIsAudioActive] = useState<boolean>(false);
   const [isFullScreen, setIsFullScreen] = useState<boolean>(false); // local user
-  const [fullScreenPeerId, setFullScreenPeerId] = useState<string | null>(null); //remote user
+  const [fullScreenRemoteUser, setFullScreenRemoteUser] = useState<string | null>(null); //remote user
   const [remoteVideos, setRemoteVideos] = useState<IRemoteVideos>({});
+  const [remotePeerUsernames, setRemotePeerUsernames] = useState<IRemotePeerUsernames>({});
   const [isUploadOpen, setIsUploadOpen] = useState(false);
   const [isArchivesOpen, setIsArchivesOpen] = useState(false);
 
@@ -32,6 +33,9 @@ export default function MetaverseUILayer({ socketClient, handleKeyPress }: Props
     if (!mediaManagerRef.current) {
       mediaManagerRef.current = new MediaManager(
         socketClient,
+        (peerId: string, username: string) => {
+          setRemotePeerUsernames(prev => ({ ...prev, [peerId]: username }));
+        },
         (peerId: string, stream: MediaStream) => {
           const videoElement: HTMLVideoElement = document.createElement("video");
           videoElement.srcObject = stream;
@@ -43,19 +47,13 @@ export default function MetaverseUILayer({ socketClient, handleKeyPress }: Props
             const { [peerId]: _, ...rest } = prev;
             return rest;
           });
+          setRemotePeerUsernames(prev => {
+            const { [peerId]: _, ...rest } = prev;
+            return rest;
+          });
         },
       );
     }
-
-    return () => {
-      if (!mediaManagerRef.current) return;
-
-      mediaManagerRef.current.destroy();
-      mediaManagerRef.current = null;
-    };
-  }, []);
-
-  useEffect(() => {
     const openTerminalOverlay = () => setIsUploadOpen(true);
     const openViewArchives = () => setIsArchivesOpen(true);
 
@@ -65,6 +63,11 @@ export default function MetaverseUILayer({ socketClient, handleKeyPress }: Props
     return () => {
       window.removeEventListener("metaverse:upload-open", openTerminalOverlay);
       window.addEventListener("metaverse:view-archives", openViewArchives);
+
+      if (!mediaManagerRef.current) return;
+
+      mediaManagerRef.current.destroy();
+      mediaManagerRef.current = null;
     };
   }, []);
 
@@ -76,10 +79,12 @@ export default function MetaverseUILayer({ socketClient, handleKeyPress }: Props
     setIsAudioActive,
     isFullScreen,
     setIsFullScreen,
-    fullScreenPeerId,
-    setFullScreenPeerId,
+    fullScreenRemoteUser,
+    setFullScreenRemoteUser,
     remoteVideos,
     setRemoteVideos,
+    remotePeerUsernames,
+    setRemotePeerUsernames,
   };
 
   return (

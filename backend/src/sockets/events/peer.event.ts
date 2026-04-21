@@ -8,6 +8,9 @@ export const registerPeerEvents = (ctx: SocketContent) => {
     if (!player) return;
 
     playersMap.set(socket.id, { ...player, peerId: peerId });
-    socket.broadcast.emit("peer:available", peerId);
+    socket.broadcast.emit("peer:available", {
+      peerId,
+      username: player.username,
+    });
   });
 };

@@ -14,6 +14,7 @@ export class MediaManager {
 
   constructor(
     private socket: SocketClient,
+    private onRemotePeerAvailable?: (peerId: string, username: string) => void,
     private onRemoteStreamAdded?: (peerId: string, stream: MediaStream) => void,
     private onRemoteStreamRemoved?: (peerId: string) => void,
   ) {
@@ -50,8 +51,9 @@ export class MediaManager {
     console.error("PeerJS server error:", err);
   };
 
-  private readonly handlePeerAvailable = (peerId: string) => {
-    this.callPeer(peerId);
+  private readonly handlePeerAvailable = (data: { peerId: string; username: string }) => {
+    this.onRemotePeerAvailable?.(data.peerId, data.username);
+    this.callPeer(data.peerId);
   };
 
   private readonly handlePeerDisconnect = (peerId: string) => {
@@ -202,6 +204,7 @@ export class MediaManager {
     this.peer.destroy();
 
     this.onRemoteStreamAdded = undefined;
+    this.onRemotePeerAvailable = undefined;
     this.onRemoteStreamRemoved = undefined;
   }
 

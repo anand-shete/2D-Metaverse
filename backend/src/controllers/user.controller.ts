@@ -49,7 +49,7 @@ export const loginUser = async (req: FastifyRequest, res: FastifyReply) => {
     const { email, password } = parsedData.data;
 
     const user = await UserModel.findOne({ email }).lean();
-    if (!user) return res.status(404).send({ message: "UserModel doesn't exists" });
+    if (!user) return res.status(404).send({ message: "User doesn't exists" });
 
     const isValid = await UserModel.comparePassword(password, user.password);
     if (!isValid) return res.status(401).send({ message: "Incorrect Password Entered" });
@@ -59,10 +59,10 @@ export const loginUser = async (req: FastifyRequest, res: FastifyReply) => {
 
     await setCookie(res, token);
 
-    return res.status(200).send({ token: token, message: "UserModel Login success" });
+    return res.status(200).send({ token: token, message: "User Login success" });
   } catch (error: any) {
     console.log(error);
-    return res.status(500).send({ message: "Failed to Sign In UserModel" });
+    return res.status(500).send({ message: "Failed to Sign In User" });
   }
 };
 
@@ -80,7 +80,7 @@ export const updateUserAvatar = async (req: FastifyRequest, res: FastifyReply) =
     const id = new Types.ObjectId(userId);
 
     const user = await UserModel.countDocuments({ _id: id });
-    if (!user) return res.status(404).send({ message: "UserModel not found" });
+    if (!user) return res.status(404).send({ message: "User not found" });
 
     await UserModel.updateOne({ _id: id }, { avatar });
 

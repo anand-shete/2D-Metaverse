@@ -1,5 +1,5 @@
 import { MediaManager } from "@/media/MediaManager";
-import { IRemoteVideos } from "@/types/interface";
+import { IRemotePeerUsernames, IRemoteVideos } from "@/types/interface";
 import React, { createContext, SetStateAction, useContext } from "react";
 
 interface IMetaverseContext {
@@ -10,10 +10,12 @@ interface IMetaverseContext {
   setIsAudioActive: React.Dispatch<React.SetStateAction<boolean>>;
   isFullScreen: boolean;
   setIsFullScreen: React.Dispatch<SetStateAction<boolean>>;
-  fullScreenPeerId: string | null;
-  setFullScreenPeerId: React.Dispatch<SetStateAction<string | null>>;
+  fullScreenRemoteUser: string | null;
+  setFullScreenRemoteUser: React.Dispatch<SetStateAction<string | null>>;
   remoteVideos: IRemoteVideos;
   setRemoteVideos: React.Dispatch<SetStateAction<IRemoteVideos>>;
+  remotePeerUsernames: IRemotePeerUsernames;
+  setRemotePeerUsernames: React.Dispatch<SetStateAction<IRemotePeerUsernames>>;
 }
 
 export const MetaverseContext = createContext<IMetaverseContext | null>(null);

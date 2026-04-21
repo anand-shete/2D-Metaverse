@@ -24,7 +24,11 @@ export interface RemotePlayerData {
 }
 
 export interface IRemoteVideos {
-  [peerid: string]: HTMLVideoElement;
+  [peerId: string]: HTMLVideoElement;
+}
+
+export interface IRemotePeerUsernames {
+  [peerId: string]: string;
 }
 
 export interface InteractionZone {
