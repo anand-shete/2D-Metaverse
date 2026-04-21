@@ -10,6 +10,14 @@ export const registerPeerEvents = (ctx: SocketContent) => {
     playersMap.set(socket.id, { ...player, peerId: peerId });
     socket.broadcast.emit("peer:available", peerId);
 
+    for (const [id, existingPlayer] of playersMap.entries()) {
+      if (id === socket.id || !existingPlayer.peerId) continue;
+      socket.emit("peer:username", {
+        peerId: existingPlayer.peerId,
+        username: existingPlayer.username,
+      });
+    }
+
     fastify.io.emit("peer:username", { peerId, username: player.username });
   });
 };

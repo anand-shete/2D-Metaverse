@@ -1,4 +1,5 @@
 import {
+  ChatBox,
   LocalMediaControl,
   MobileControls,
   RemoteMediaControl,
@@ -25,6 +26,7 @@ export default function MetaverseUILayer({ socketClient, handleKeyPress }: Props
   const [fullScreenRemoteUser, setFullScreenRemoteUser] = useState<string | null>(null); //remote user
   const [remoteVideos, setRemoteVideos] = useState<IRemoteVideos>({});
   const [remotePeerUsernames, setRemotePeerUsernames] = useState<IRemotePeerUsernames>({});
+  const [isChatBoxOpen, setIsChatBoxOpen] = useState(false);
   const [isUploadOpen, setIsUploadOpen] = useState(false);
   const [isArchivesOpen, setIsArchivesOpen] = useState(false);
 
@@ -54,13 +56,21 @@ export default function MetaverseUILayer({ socketClient, handleKeyPress }: Props
         },
       );
     }
+
+    const pressC = (e: KeyboardEvent) => {
+      if (e.key.toLowerCase() === "c") setIsChatBoxOpen(true);
+      if (e.key.toLowerCase() === "escape") setIsChatBoxOpen(false);
+    };
+
     const openTerminalOverlay = () => setIsUploadOpen(true);
     const openViewArchives = () => setIsArchivesOpen(true);
 
+    document.addEventListener("keydown", pressC);
     window.addEventListener("metaverse:upload-open", openTerminalOverlay);
     window.addEventListener("metaverse:view-archives", openViewArchives);
 
     return () => {
+      document.removeEventListener("keydown", pressC);
       window.removeEventListener("metaverse:upload-open", openTerminalOverlay);
       window.addEventListener("metaverse:view-archives", openViewArchives);
 
@@ -92,7 +102,16 @@ export default function MetaverseUILayer({ socketClient, handleKeyPress }: Props
       <MetaverseContext value={value}>
         <RemoteMediaControl />
         <MobileControls onKeyChange={handleKeyPress} />
-        <LocalMediaControl socketClient={socketClient} />
+        <LocalMediaControl
+          socketClient={socketClient}
+          setIsChatBoxOpen={setIsChatBoxOpen}
+          isChatBoxOpen={isChatBoxOpen}
+        />
+        <ChatBox
+          isOpen={isChatBoxOpen}
+          onClose={() => setIsChatBoxOpen(false)}
+          socket={socketClient}
+        />
         <UploadFiles isOpen={isUploadOpen} onClose={() => setIsUploadOpen(false)} />
         <ViewArchives isOpen={isArchivesOpen} onClose={() => setIsArchivesOpen(false)} />
       </MetaverseContext>

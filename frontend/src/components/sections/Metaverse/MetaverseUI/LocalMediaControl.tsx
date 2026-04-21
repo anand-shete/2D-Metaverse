@@ -5,16 +5,16 @@ import { startAudio, startVideo, stopAudio, stopVideo } from "@/components/utils
 import { useMetaverseContext } from "@/context/metaverse.context";
 import { pressX } from "@/components/utils/event.utils";
 import { SocketClient } from "@/network/SocketClient";
-import { ChatBox } from "@/components/sections";
 import { useUserContext } from "@/context/user.context";
 
 interface Props {
   socketClient: SocketClient;
+  setIsChatBoxOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  isChatBoxOpen: boolean;
 }
-const LocalMediaActions = ({ socketClient }: Props) => {
+const LocalMediaActions = ({ socketClient, setIsChatBoxOpen, isChatBoxOpen }: Props) => {
   const { user } = useUserContext();
   const videoRef = useRef<HTMLVideoElement | null>(null);
-  const [isChatBoxOpen, setIsChatBoxOpen] = useState(false);
   const [width, setWidth] = useState<number>(window.innerWidth);
   const [onlineCount, setOnlineCount] = useState(1);
 
@@ -34,16 +34,8 @@ const LocalMediaActions = ({ socketClient }: Props) => {
     socket.emit("player:online:request");
     socket.on("player:online", handleOnline);
 
-    const pressC = (e: KeyboardEvent) => {
-      if (e.key.toLowerCase() === "c") setIsChatBoxOpen(true);
-      if (e.key.toLowerCase() === "escape") setIsChatBoxOpen(false);
-    };
-
-    document.addEventListener("keydown", pressC);
-
     return () => {
       socket.off("player:online", handleOnline);
-      document.removeEventListener("keydown", pressC);
     };
   }, []);
 
@@ -129,12 +121,6 @@ const LocalMediaActions = ({ socketClient }: Props) => {
         <MessagesSquare />
         <span className="hidden text-slate-200 md:inline">World Chat</span>
       </Button>
-
-      <ChatBox
-        isOpen={isChatBoxOpen}
-        onClose={() => setIsChatBoxOpen(false)}
-        socket={socketClient}
-      />
 
       <div className="mr-10 hidden items-center space-x-2 rounded-md bg-black/50 p-2 text-sm text-white md:flex">
         <div className="h-2 w-2 animate-pulse rounded-full bg-green-500"></div>

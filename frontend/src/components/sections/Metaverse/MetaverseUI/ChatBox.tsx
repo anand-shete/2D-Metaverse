@@ -73,14 +73,14 @@ export default function ChatBox({ isOpen, onClose, socket }: ChatBoxProps) {
       {/* Background Overlay */}
       {isOpen && (
         <div
-          className="fixed inset-0 z-1 bg-black/50 transition-opacity duration-300"
+          className="fixed inset-0 z-50 bg-black/50 transition-opacity duration-300"
           onClick={onClose}
         />
       )}
 
       {/* Chatbox modal */}
       <div
-        className={`md:s-10 fixed right-6 bottom-24 z-40 w-96 rounded-lg bg-white shadow-2xl transition-all duration-300 ease-out md:bottom-32 ${isOpen ? "translate-y-0 opacity-100" : "pointer-events-none translate-y-12 opacity-0"}`}
+        className={`fixed right-2 bottom-24 left-2 z-60 w-auto rounded-lg bg-white shadow-2xl transition-all duration-300 ease-out md:right-6 md:bottom-32 md:left-auto md:w-96 ${isOpen ? "translate-y-0 opacity-100" : "pointer-events-none translate-y-12 opacity-0"}`}
       >
         <div className="flex items-center justify-between rounded-t-lg border-b border-gray-200 bg-slate-700 p-4 text-white">
           <h2 className="mx-auto text-lg font-semibold">World Chat</h2>

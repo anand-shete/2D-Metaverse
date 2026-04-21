@@ -62,10 +62,11 @@ export class MediaManager {
 
   private readonly handlePeerDisconnect = (peerId: string) => {
     const call = this.connections.get(peerId);
-    if (!call) return;
+    if (call) {
+      call.close();
+      this.connections.delete(peerId);
+    }
 
-    call.close();
-    this.connections.delete(peerId);
     this.onRemoteStreamRemoved?.(peerId);
   };
 
