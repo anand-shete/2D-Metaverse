@@ -1,7 +1,6 @@
 import { AvatarId } from "@/types/type";
 import { boy1, boy1Json, girl2, girl2Json } from "@/assets";
 
-// FIXME add character sprites
 export const AvatarConfig: Record<
   AvatarId,
   {

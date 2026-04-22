@@ -21,5 +21,3 @@ export const registerPeerEvents = (ctx: SocketContent) => {
     fastify.io.emit("peer:username", { peerId, username: player.username });
   });
 };
-
-// FIXME FIX CHATBOX ISSUE ON MOBILE AND REMOVE LOGS
