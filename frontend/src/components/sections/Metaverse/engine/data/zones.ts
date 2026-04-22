@@ -80,6 +80,7 @@ const solitaire: InteractionZone = {
 //   triggerArea: { yMin: 63, xMin: 20, xMax: 40, yMax: 68 },
 // };
 
+// FIXME ADD AVATARS AND REMOVE LOGS
 export const interactArray = [
   spawnDocument,
   whiteBoard,

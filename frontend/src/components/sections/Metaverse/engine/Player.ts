@@ -117,7 +117,7 @@ export default class Player {
       this.worldY = newWorldY;
     }
 
-    console.log("x=", newWorldX, "y=", newWorldY);
+    // console.log("x=", newWorldX, "y=", newWorldY);
     if (this.movementMask === 0) newAnimation = PlayerMoveAnimation.IDLE;
 
     if (newAnimation !== this.currentAnimation) {
