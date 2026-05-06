@@ -50,7 +50,7 @@ export default function ChatBox({ isOpen, onClose, socket }: ChatBoxProps) {
     chatManagerRef.current.sendMessage(message);
     setMessage("");
   };
-
+  // fixme replace blue with sky
   const handleKeyDownInChatbox: KeyboardEventHandler<HTMLInputElement> = e => {
     if (BlockKeysArr.includes(e.key.toLowerCase())) {
       e.stopPropagation();

@@ -1,4 +1,4 @@
-import "dotenv/config";
+import dotenv from "dotenv";
 import cors from "@fastify/cors";
 import * as Routes from "@routes/index.routes";
 import fastifyCookie from "@fastify/cookie";
@@ -6,8 +6,9 @@ import Formbody from "@fastify/formbody";
 import { Server } from "socket.io";
 import { initSockets } from "@sockets/init";
 import { env, connectDB } from "@config/index.config";
+import Fastify from "fastify";
 
-import Fastify, { FastifyReply, FastifyRequest } from "fastify";
+dotenv.config({ path: env.NODE_ENV === "development" ? ".env" : ".env.production" });
 const fastify = Fastify({ logger: false });
 const PORT = Number(env.PORT) || 3000;
 
@@ -16,8 +17,8 @@ const start = async () => {
 
   const io = new Server(fastify.server, {
     cors: {
-      origin: [env.FRONTEND_URL1, env.FRONTEND_URL2],
-      methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
+      origin: ["http://localhost:5173", "http://localhost:4173"],
+      methods: ["GET", "POST", "PATCH", "DELETE"],
       credentials: true,
     },
   });
@@ -26,8 +27,8 @@ const start = async () => {
   fastify.decorate("io", io);
 
   await fastify.register(cors, {
-    origin: [env.FRONTEND_URL1, env.FRONTEND_URL2],
-    methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
+    origin: ["http://localhost:5173", "http://localhost:4173"],
+    methods: ["GET", "POST", "PATCH", "DELETE"],
     credentials: true,
   });
 

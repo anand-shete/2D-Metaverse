@@ -22,13 +22,13 @@ export const verifySocketUserMiddleware = async (
       return next(error);
     }
 
-    const token = cookieHeader.split("=")[1];
-    if (!token) {
+    const accessToken = Object.fromEntries(cookieHeader.split("; ").map(c => c.split("=")))["accessToken"];
+    if (!accessToken) {
       const error = new Error("Authentication error: Missing access token");
       return next(error);
     }
 
-    const decoded = await verifyToken(token);
+    const decoded = await verifyToken(accessToken);
     if (!decoded) {
       const error = new Error("Authentication error: Invalid token");
       return next(error);
@@ -37,7 +37,7 @@ export const verifySocketUserMiddleware = async (
     socket.data.user = decoded;
     next();
   } catch (error) {
-    console.log("Socket middleware errored");
+    console.log("Socket middleware errored", error);
     return next(new Error("Authentication error"));
   }
 };

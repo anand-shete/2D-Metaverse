@@ -52,7 +52,7 @@ const LocalMediaActions = ({ socketClient, setIsChatBoxOpen, isChatBoxOpen }: Pr
         className={`text-white transition-transform duration-300 ${
           isFullScreen
             ? "fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 rounded-md bg-slate-600/50 p-4"
-            : "relative h-18 w-28 rounded-md border border-neutral-400"
+            : "relative h-18 w-28 rounded-md border border-slate-400"
         }`}
       >
         <video ref={videoRef} autoPlay muted className="h-full w-full rounded-md object-cover" />
@@ -125,7 +125,7 @@ const LocalMediaActions = ({ socketClient, setIsChatBoxOpen, isChatBoxOpen }: Pr
       <div className="mr-10 hidden items-center space-x-2 rounded-md bg-black/50 p-2 text-sm text-white md:flex">
         <div className="h-2 w-2 animate-pulse rounded-full bg-green-500"></div>
         <span>{onlineCount}</span>
-        <span className="">Online users</span>
+        <span className="">Online</span>
       </div>
     </div>
   );

@@ -37,6 +37,7 @@ export default function Metaverse() {
           );
         }
       } catch (err) {
+        console.log(err);
         toast.error("Login to continue");
         navigate("/login");
       }
@@ -44,7 +45,7 @@ export default function Metaverse() {
 
     checkAuth();
 
-    const timeoutId = setTimeout(() => setIsCanvasLoading(false), 1000);
+    const timeoutId = setTimeout(() => setIsCanvasLoading(false), 8000);
 
     return () => {
       canvasInstance.current?.destroy();

@@ -29,8 +29,6 @@ if [[ ! -f "dist/server.js" ]]; then
 	exit 1
 fi
 
-npm ci --omit=dev
-
 pm2 reload metaverse --update-env || pm2 start dist/server.js --name "metaverse"
 pm2 save
 

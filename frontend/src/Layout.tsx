@@ -26,11 +26,17 @@ const Layout = () => {
 
   return (
     <UserContext.Provider value={{ user, setUser }}>
-      <Suspense key={key} fallback={pathname !== "/metaverse" ? <Loader /> : <></>}>
-        {pathname !== "/metaverse" && <Navbar />}
-        <Outlet />
-        {pathname !== "/metaverse" && <Footer />}
-      </Suspense>
+      {pathname === "/metaverse" ? (
+        <Suspense key={key}>
+          <Outlet />
+        </Suspense>
+      ) : (
+        <Suspense key={key} fallback={<Loader />}>
+          <Navbar />
+          <Outlet />
+          <Footer />
+        </Suspense>
+      )}
     </UserContext.Provider>
   );
 };

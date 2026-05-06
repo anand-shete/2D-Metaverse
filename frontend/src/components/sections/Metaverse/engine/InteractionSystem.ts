@@ -78,7 +78,7 @@ export default class InteractionSystem {
     this.graphics.clear();
     this.graphics
       .rect(x, y, width, height)
-      .stroke({ color: 0xffff00, width: 2, alpha: 0.8 }).visible = true;
+      .stroke({ color: 0xffff00, width: 0, alpha: 0.8 }).visible = true;
 
     const promptText = this.activeZone.promptText ?? "Press X to interact";
     this.layoutPrompt(promptText);

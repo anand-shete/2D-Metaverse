@@ -8,7 +8,7 @@ export default function HeroSection() {
   const navigate = useNavigate();
   return (
     <>
-      <div className="fixed top-0 left-0 -z-1 flex h-screen min-w-full flex-col items-center justify-center rounded-md bg-neutral-900">
+      <div className="fixed top-0 left-0 -z-1 flex h-screen min-w-full flex-col items-center justify-center rounded-md bg-black/90">
         <ShootingStars starWidth={30} maxDelay={3000} />
         <StarsBackground twinkleProbability={0.7} maxTwinkleSpeed={0.8} />
       </div>
@@ -17,7 +17,7 @@ export default function HeroSection() {
         <h1 className="mb-5 text-center text-4xl font-semibold tracking-tight md:text-5xl lg:text-6xl">
           Welcome to the Metaverse!
         </h1>
-        <p className="text-center text-neutral-300 md:text-xl lg:text-2xl">
+        <p className="text-center text-slate-300 md:text-xl lg:text-2xl">
           Connect, play, and build your digital legacy.
         </p>
         <Button
@@ -26,7 +26,7 @@ export default function HeroSection() {
           onClick={() => navigate("/signup")}
         >
           Create Avatar
-          <LogIn className="text-neutral-800" />
+          <LogIn />
         </Button>
       </div>
     </>

@@ -5,8 +5,6 @@ const envSchema = z.object({
   PORT: z.coerce.number(),
   NODE_ENV: z.enum(["development", "production"]),
   MONGO_URL: z.string(),
-  FRONTEND_URL1: z.string(),
-  FRONTEND_URL2: z.string(),
   JWT_SECRET: z.string(),
   GROQ_API_KEY: z.string(),
   AWS_ACCESS_KEY_ID: z.string(),

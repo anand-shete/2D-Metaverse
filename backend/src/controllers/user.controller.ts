@@ -49,17 +49,16 @@ export const loginUser = async (req: FastifyRequest, res: FastifyReply) => {
     const { email, password } = parsedData.data;
 
     const user = await UserModel.findOne({ email }).lean();
-    if (!user) return res.status(404).send({ message: "User doesn't exists" });
+    if (!user) return res.status(404).send({ message: "Account does not exists" });
 
     const isValid = await UserModel.comparePassword(password, user.password);
     if (!isValid) return res.status(401).send({ message: "Incorrect Password Entered" });
 
-    const token = await generateToken(user);
-    if (!token) return res.status(500).send({ message: "Error generating token" });
+    const accessToken = await generateToken(user);
+    if (!accessToken) return res.status(500).send({ message: "Error generating token" });
 
-    await setToken(res, token);
-
-    return res.status(200).send({ token: token, message: "User Login success" });
+    await setToken(res, accessToken);
+    return res.status(200).send({ token: accessToken, message: "User Login success" });
   } catch (error: any) {
     console.log(error);
     return res.status(500).send({ message: "Failed to Sign In User" });

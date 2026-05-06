@@ -2,7 +2,7 @@ name: Continuous Deployment to AWS EC2
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
 
 jobs:
   build-and-deploy:
@@ -17,11 +17,12 @@ jobs:
         with:
           node-version: "24"
 
-      - name: Build TypeScript
+      - name: Build TypeScript and zip
         run: |
           cd ./backend
-          npm install
+          npm ci --omit=dev
           npm run build
+          zip -r ../deploy.zip .
 
       - name: Deploy to EC2 via SSH
         uses: easingthemes/ssh-deploy@main
@@ -30,17 +31,18 @@ jobs:
           REMOTE_HOST: ${{ secrets.EC2_HOST }}
           REMOTE_USER: ${{ secrets.EC2_USER }}
           ARGS: "-rlgoDzvc -i"
-          SOURCE: "./backend/"
-          TARGET: "/home/${{ secrets.EC2_USER }}/metaverse/"
-          EXCLUDE: "node_modules/, .git/, *.env, *.log"
-          SCRIPT_BEFORE: mkdir -p /home/${{ secrets.EC2_USER }}/metaverse
+          SOURCE: "./deploy.zip"
+          TARGET: "/home/${{ secrets.EC2_USER }}/metaverse_tmp/"
 
-      - name: Run deploy script on EC2
+      - name: Unzip and execute deploy script on EC2
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
+            mkdir -p /home/${{ secrets.EC2_USER }}/metaverse
+            unzip -o /home/${{ secrets.EC2_USER }}/metaverse_tmp/deploy.zip -d /home/${{ secrets.EC2_USER }}/metaverse
+            rm -rf /home/${{ secrets.EC2_USER }}/metaverse_tmp
             chmod +x /home/${{ secrets.EC2_USER }}/metaverse/deploy.sh
             /home/${{ secrets.EC2_USER }}/metaverse/deploy.sh

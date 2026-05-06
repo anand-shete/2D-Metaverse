@@ -4,9 +4,9 @@
     "main": "index.js",
     "scripts": {
         "build": "tsc && tsc-alias",
-        "start": "node dist/src/server.js",
+        "start": "NODE_ENV=production node dist/server.js",
         "format": "prettier --write .",
-        "dev": "tsx --watch --no-deprecation ./src/server.ts"
+        "dev": "NODE_ENV=development tsx --watch --no-deprecation ./src/server.ts"
     },
     "keywords": [],
     "author": "",

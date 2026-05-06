@@ -25,7 +25,7 @@ const RemoteMediaControl = () => {
 
       <div className="flex h-full w-full items-center justify-center gap-10 px-20">
         {Object.entries(remoteVideos).length === 0 && (
-          <p className="text-center text-sm text-neutral-200 md:w-5xl xl:w-6xl">
+          <p className="text-center text-sm text-slate-200 md:w-5xl xl:w-6xl">
             Waiting for others to join...
           </p>
         )}

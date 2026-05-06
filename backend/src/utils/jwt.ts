@@ -18,16 +18,17 @@ export const verifyToken = async (token: string): Promise<CustomJwtPayload | und
   try {
     return jwt.verify(token, env.JWT_SECRET) as CustomJwtPayload;
   } catch (error) {
+    console.log("Error verifying token", error);
     return;
   }
 };
 
 export const setToken = async (res: FastifyReply, token: string) => {
-  res.setCookie("accessToken", token, {
-    path: "/",
+  res.cookie("accessToken", token, {
+    path: "/", // important for backend hosted at /api/v1 on same domain
     httpOnly: true,
     secure: env.NODE_ENV === "production",
-    sameSite: env.NODE_ENV === "production" ? "none" : "lax",
-    maxAge: 60 * 60 * 24,
+    sameSite: "lax",
+    maxAge: 60 * 60 * 24, // @fastify/cookie uses maxAge in seconds instead of ms
   });
 };
