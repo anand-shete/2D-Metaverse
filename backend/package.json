@@ -1,7 +1,7 @@
 {
     "name": "backend",
     "version": "1.0.0",
-    "main": "index.js",
+    "main": "server.js",
     "scripts": {
         "build": "tsc && tsc-alias",
         "start": "NODE_ENV=production node -r dotenv/config dist/server.js dotenv_config_path=.env.production",

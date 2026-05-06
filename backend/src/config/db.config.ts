@@ -3,7 +3,7 @@ import { env } from "./env.config";
 
 export const connectDB = async () => {
   try {
-    await mongoose.connect(env.MONGO_URL, {
+    await mongoose.connect(env.MONGO_URI, {
       appName: "metaverse",
       minPoolSize: 2,
       maxPoolSize: 15,

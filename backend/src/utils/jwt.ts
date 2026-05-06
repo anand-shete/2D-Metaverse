@@ -28,7 +28,7 @@ export const setToken = async (res: FastifyReply, token: string) => {
     path: "/", // important for backend hosted at /api/v1 on same domain
     httpOnly: true,
     secure: env.NODE_ENV === "production",
-    sameSite: "lax",
+    sameSite: env.NODE_ENV === "production" ? "none" : "lax",
     maxAge: 60 * 60 * 24, // @fastify/cookie uses maxAge in seconds instead of ms
   });
 };
