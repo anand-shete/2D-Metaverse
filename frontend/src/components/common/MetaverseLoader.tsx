@@ -8,8 +8,8 @@ const MetaverseLoader = () => {
         <ClimbingBoxLoader color="#ffffff" size={14} />
         <TextType
           text={[
-            "Initializing Virtual Environment...",
-            "Configuring Physics Engine...",
+            "Initializing Virtual World...",
+            "Configuring Physics...",
             "Loading Avatars...",
           ]}
           typingSpeed={50}

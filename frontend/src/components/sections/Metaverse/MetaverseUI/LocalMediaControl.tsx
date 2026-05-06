@@ -116,7 +116,7 @@ const LocalMediaActions = ({ socketClient, setIsChatBoxOpen, isChatBoxOpen }: Pr
       <Button
         onClick={() => setIsChatBoxOpen(!isChatBoxOpen)}
         size={width >= 768 ? "default" : "icon"}
-        className="mx-auto bg-blue-500/70 text-white hover:bg-blue-600/70"
+        className="mx-auto bg-blue-500/70 hover:bg-blue-600/70"
       >
         <MessagesSquare />
         <span className="hidden text-slate-200 md:inline">World Chat</span>

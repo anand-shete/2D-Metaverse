@@ -37,7 +37,7 @@ export default function Metaverse() {
           );
         }
       } catch (err) {
-        console.log(err);
+        // console.log(err);
         toast.error("Login to continue");
         navigate("/login");
       }

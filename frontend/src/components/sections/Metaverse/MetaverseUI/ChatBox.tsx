@@ -50,7 +50,6 @@ export default function ChatBox({ isOpen, onClose, socket }: ChatBoxProps) {
     chatManagerRef.current.sendMessage(message);
     setMessage("");
   };
-  // fixme replace blue with sky
   const handleKeyDownInChatbox: KeyboardEventHandler<HTMLInputElement> = e => {
     if (BlockKeysArr.includes(e.key.toLowerCase())) {
       e.stopPropagation();
@@ -102,9 +101,7 @@ export default function ChatBox({ isOpen, onClose, socket }: ChatBoxProps) {
                 className={`flex flex-col wrap-break-word ${user?.username === msg.username ? "ml-9" : "ml-0"}`}
               >
                 <p className="text-xs font-semibold text-gray-500">{msg.username}</p>
-                <p
-                  className={`${returnBgColor(msg.username)} rounded border-l-2 p-2 text-sm text-gray-800`}
-                >
+                <p className={`${returnBgColor(msg.username)} rounded border-l-2 p-2 text-sm`}>
                   {msg.message}
                   {msg.username === "Metabot" &&
                     Array.isArray(msg.notes) &&
