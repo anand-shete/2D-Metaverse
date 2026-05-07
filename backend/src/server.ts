@@ -14,7 +14,9 @@ const PORT = Number(env.PORT) || 3000;
 
 const start = async () => {
   await connectDB();
-
+  // todo try to make peerjs connection ending instant
+  // add system design diagram
+  // add ss on landing page
   const io = new Server(fastify.server, {
     cors: {
       origin: [env.FRONTEND_URI1, env.FRONTEND_URI2],

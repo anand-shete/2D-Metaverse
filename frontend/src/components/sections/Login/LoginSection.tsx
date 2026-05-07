@@ -40,78 +40,90 @@ const LoginSection = () => {
   };
 
   return (
-    <div className="flex w-full flex-row items-center justify-center bg-black/90">
-      <Card className="mx-10 mt-40 mb-40 w-md rounded-2xl shadow-sm shadow-sky-300 transition-shadow hover:shadow-2xl">
-        <CardHeader className="text-center">
-          <CardTitle className="text-xl md:text-2xl">Login</CardTitle>
-          <CardDescription className="md:text-md text-sm">Login to the Metaverse</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(submit)} className="flex flex-col space-y-6">
-              <FormField
-                control={form.control}
-                name="email"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel htmlFor="email" className="ml-1">
-                      Email
-                    </FormLabel>
-                    <FormControl>
-                      <div className="relative">
-                        <Mail className="absolute top-1/2 left-3 h-4 -translate-y-1/2" />
-                        <Input
-                          id="email"
-                          placeholder="exmaple@gmail.com"
-                          type="email"
-                          autoComplete="text"
-                          className="border-3 pl-10"
-                          {...field}
-                        />
-                      </div>
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="password"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel htmlFor="password" className="ml-1">
-                      Password
-                    </FormLabel>
-                    <FormControl>
-                      <div className="relative">
-                        <Lock className="absolute top-1/2 left-3 h-4 -translate-y-1/2" />
-                        <Input
-                          id="password"
-                          placeholder="••••••"
-                          type="password"
-                          {...field}
-                          className="border-3 pl-10"
-                        />
-                      </div>
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <Button type="submit" className="mt-4">
-                Login
-                <CircleArrowRight />
-              </Button>
-              <div className="text-center text-sm">
-                Don't have an account?{" "}
-                <Link to="/signup" className="underline underline-offset-4">
-                  Signup
-                </Link>
-              </div>
-            </form>
-          </Form>
-        </CardContent>
-      </Card>
+    <div className="flex min-h-svh items-center justify-center overflow-hidden bg-black/90">
+      <div className="mt-10 w-full max-w-lg rounded-3xl border border-slate-500 bg-white/5 p-10 shadow-2xl">
+        <div className="mb-8 text-center">
+          <h1 className="text-2xl font-bold tracking-tight text-white md:text-3xl">
+            Welcome Back.
+          </h1>
+          <p className="mt-2 text-sm text-slate-400">Continue your metaverse journey.</p>
+        </div>
+
+        <div className="rounded-3xl">
+          <div className="pt-6 text-white">
+            <Form {...form}>
+              <form onSubmit={form.handleSubmit(submit)} className="space-y-5">
+                <FormField
+                  control={form.control}
+                  name="email"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel htmlFor="email">Email</FormLabel>
+                      <FormControl>
+                        <div className="relative">
+                          <Mail className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-slate-400" />
+
+                          <Input
+                            id="email"
+                            type="email"
+                            placeholder="example@gmail.com"
+                            autoComplete="email"
+                            className="focus-visible:ring-primary h-11 border-white/10 pl-10 text-white"
+                            {...field}
+                          />
+                        </div>
+                      </FormControl>
+
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="password"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel htmlFor="password">Password</FormLabel>
+
+                      <FormControl>
+                        <div className="relative">
+                          <Lock className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-slate-400" />
+
+                          <Input
+                            id="password"
+                            type="password"
+                            placeholder="••••••••"
+                            className="focus-visible:ring-primary h-11 border-white/10 pl-10 text-white"
+                            {...field}
+                          />
+                        </div>
+                      </FormControl>
+
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <Button type="submit" className="mt-2 h-11 w-full text-base font-semibold">
+                  Login
+                  <CircleArrowRight className="ml-2 h-4 w-4" />
+                </Button>
+
+                <div className="text-center text-sm text-slate-400">
+                  Don&apos;t have an account?{" "}
+                  <Link
+                    to="/signup"
+                    className="font-medium text-white underline underline-offset-4"
+                  >
+                    Signup
+                  </Link>
+                </div>
+              </form>
+            </Form>
+          </div>
+        </div>
+      </div>
     </div>
   );
 };

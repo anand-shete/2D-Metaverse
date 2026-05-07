@@ -3,33 +3,34 @@ import { LogIn, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 const CTASection = () => (
-  <section className="border-t py-40 text-white">
-    <div className="relative mx-10 text-center">
-      <h2 className="mb-6 text-2xl font-bold md:text-4xl">Ready to Enter the Metaverse?</h2>
-      <p className="mb-10 text-gray-300">
-        Join thousands of explorers already creating, connecting, and playing in our vibrant 2D{" "}
-        <br className="hidden md:block" />
-        metaverse. Your digital adventure begins now!
+  <section className="relative overflow-hidden border-t border-slate-400 py-32 text-white">
+    <div className="relative mx-auto flex max-w-5xl flex-col items-center px-6 text-center">
+      <h2 className="max-w-3xl text-4xl font-bold tracking-tight md:text-5xl">
+        Step into a shared virtual campus built for collaboration.
+      </h2>
+      <p className="mt-6 max-w-2xl text-lg leading-8 text-slate-400">
+        Create your avatar, interact with students in real time, explore multiplayer spaces and
+        experience a modern 2D metaverse designed for connection and learning.
       </p>
-
-      <div className="flex flex-col items-center justify-center space-y-6 sm:flex-row sm:space-y-0 sm:space-x-10">
-        <Link
-          to="/signup"
-          className="flex items-center *:transition-all *:duration-300 *:hover:border *:hover:bg-sky-500/60 *:hover:text-white"
-        >
-          <Button size="lg" className="text-black">
-            <Users />
-            Choose Your Avatar
+      <div className="mt-12 flex flex-col gap-4 sm:flex-row">
+        <Link to="/signup">
+          <Button
+            size="lg"
+            className="group h-12 rounded-xl px-7 text-base font-semibold shadow-lg transition-all duration-300 hover:scale-[1.03]"
+          >
+            <Users className="mr-2 h-4 w-4" />
+            Create Avatar
           </Button>
         </Link>
 
-        <Link
-          to="/login"
-          className="*:transition-all *:duration-300 *:hover:border *:hover:bg-sky-500/60 *:hover:text-white"
-        >
-          <Button size="lg" className="border-2 border-white bg-transparent">
+        <Link to="/login">
+          <Button
+            variant="secondary"
+            size="lg"
+            className="h-12 rounded-xl border border-white/10 bg-white/5 px-7 text-base text-white backdrop-blur transition-all duration-300 hover:bg-white/10"
+          >
             Log In
-            <LogIn />
+            <LogIn className="ml-2 h-4 w-4" />
           </Button>
         </Link>
       </div>

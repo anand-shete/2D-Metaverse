@@ -1,7 +1,7 @@
 import { useUserContext } from "@/context/user.context";
 import { Home, LogIn, User, RectangleGoggles, ChevronDown } from "lucide-react";
 import { Link } from "react-router";
-import {  LogOutIcon,  UserIcon } from "lucide-react";
+import { LogOutIcon, UserIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -23,7 +23,7 @@ const DesktopNavbar = () => {
   };
 
   return (
-    <div className="*:hover:bg-primary hidden items-center justify-center space-x-10 *:rounded-md *:px-3 *:py-2 *:transition-all *:duration-200 *:hover:scale-110 *:hover:text-black md:flex">
+    <div className="[&_a]:hover:bg-primary hidden items-center justify-center space-x-10 md:flex [&_a]:rounded-md [&_a]:px-3 [&_a]:py-2 [&_a]:transition-all [&_a]:duration-200 [&_a]:hover:scale-110 [&_a]:hover:text-black">
       <Link to="/" className="flex">
         <Home className="mt-px mr-2" size={20} />
         Home
@@ -44,7 +44,7 @@ const DesktopNavbar = () => {
       ) : (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button className="bg-primary">
+            <Button className="text-black">
               {user.username}
               <ChevronDown />
             </Button>

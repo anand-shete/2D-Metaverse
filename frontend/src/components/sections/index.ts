@@ -1,6 +1,8 @@
 export { default as FeaturesSection } from "./Landing/FeaturesSection";
 export { default as CTASection } from "./Landing/CTASection";
 export { default as HeroSection } from "./Landing/HeroSection";
+export { default as SocialSection } from "./Landing/SocialSection";
+export { default as LiveVideoSection } from "./Landing/LiveVideoSection";
 export { default as LoginSection } from "./Login/LoginSection";
 export { default as SignupSection } from "./Signup/SignupSection";
 export { default as SelectAvatar } from "./Signup/SelectAvatar";

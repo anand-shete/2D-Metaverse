@@ -1,6 +1,7 @@
 @import url("https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap");
 @import "tailwindcss";
 @plugin "tailwindcss-animate";
+
 @custom-variant dark (&:is(.dark *));
 
 :root {
@@ -111,6 +112,14 @@
   --color-sidebar-ring: var(--sidebar-ring);
 }
 
+@utility no-scrollbar {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
 @theme {
   --shadow-custom: 0 5px 40px 0;
   --font-inter: Inter, "sans-serif";
@@ -119,6 +128,7 @@
 @layer base {
   * {
     @apply border-border outline-ring/50 m-0 p-0;
+    @apply no-scrollbar;
   }
 }
 
