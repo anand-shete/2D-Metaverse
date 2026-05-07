@@ -5,6 +5,17 @@ import path from "path";
 
 // https://vite.dev/config/
 export default defineConfig({
+    build: {
+      rollupOptions: {
+        output: {
+          manualChunks: {
+            pixi: ["pixi.js"],
+            socket: ["socket.io-client"],
+            router: ["react-router"],
+          },
+        },
+      },
+    },
   define: {
     global: {},
   },

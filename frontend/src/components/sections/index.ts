@@ -5,7 +5,6 @@ export { default as SocialSection } from "./Landing/SocialSection";
 export { default as LiveVideoSection } from "./Landing/LiveVideoSection";
 export { default as LoginSection } from "./Login/LoginSection";
 export { default as SignupSection } from "./Signup/SignupSection";
-export { default as SelectAvatar } from "./Signup/SelectAvatar";
 
 export { default as ChatBox } from "./Metaverse/MetaverseUI/ChatBox";
 export { default as MetaverseUILayer } from "./Metaverse/MetaverseUI/MetaverseUILayer";

@@ -1,4 +1,6 @@
 import dotenv from "dotenv";
+dotenv.config({ path: process.env.NODE_ENV === "development" ? ".env" : ".env.production" });
+
 import cors from "@fastify/cors";
 import * as Routes from "@routes/index.routes";
 import fastifyCookie from "@fastify/cookie";
@@ -8,7 +10,6 @@ import { initSockets } from "@sockets/init";
 import { env, connectDB } from "@config/index.config";
 import Fastify from "fastify";
 
-dotenv.config({ path: env.NODE_ENV === "development" ? ".env" : ".env.production" });
 const fastify = Fastify({ logger: false });
 const PORT = Number(env.PORT) || 3000;
 

@@ -1,8 +1,11 @@
-import { Suspense, useEffect, useState } from "react";
+import { lazy, Suspense, useEffect, useState } from "react";
 import { Outlet, useLocation } from "react-router";
-import { Loader, Navbar, Footer } from "./components/common";
+import { Loader } from "./components/common";
 import { User, UserContext } from "./context/user.context";
 import api from "./api";
+
+const Navbar = lazy(() => import("@/components/common/Navbar"));
+const Footer = lazy(() => import("@/components/common/Footer"));
 
 const Layout = () => {
   const { pathname, key } = useLocation();

@@ -1,5 +1,7 @@
-import { SignupSection, SelectAvatar } from "@/components/sections";
-import { useState } from "react";
+import { SignupSection } from "@/components/sections";
+import { lazy, useState } from "react";
+
+const SelectAvatar = lazy(() => import("@/components/sections/Signup/SelectAvatar"));
 
 const Signup = () => {
   const [isSelectAvatar, setIsSelectAvatar] = useState(false);

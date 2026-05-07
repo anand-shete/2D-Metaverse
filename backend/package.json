@@ -4,7 +4,7 @@
     "main": "server.js",
     "scripts": {
         "build": "tsc && tsc-alias",
-        "start": "NODE_ENV=production node -r dotenv/config dist/server.js dotenv_config_path=.env.production",
+        "start": "NODE_ENV=production node dist/server.js",
         "format": "prettier --write .",
         "dev": "NODE_ENV=development tsx --watch --no-deprecation ./src/server.ts"
     },
