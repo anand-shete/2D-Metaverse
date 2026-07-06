@@ -1,0 +1,30 @@
+{
+  "name": "2D-Metaverse",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "turbo run dev",
+    "build": "turbo run build",
+    "check-types": "turbo run check-types",
+    "lint": "turbo run lint",
+    "test": "turbo run test",
+    "format": "turbo run format",
+    "dev:web": "turbo run dev --filter=./apps/web",
+    "dev:api": "turbo run dev --filter=./apps/api",
+    "build:web": "turbo run build --filter=./apps/web",
+    "build:api": "turbo run build --filter=./apps/api",
+    "start:web": "turbo run start --filter=./apps/web",
+    "start:api": "turbo run start --filter=./apps/api"
+  },
+  "devEngines": {
+    "packageManager": {
+      "name": "pnpm",
+      "version": "11.9.0",
+      "onFail": "download"
+    }
+  },
+  "devDependencies": {
+    "turbo": "^2.10.3"
+  }
+}

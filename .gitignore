@@ -12,5 +12,9 @@ node_modules
 .vscode/*
 
 .prettierrc
+.prettierignore
 
 *.txt
+.cursor
+
+.turbo
