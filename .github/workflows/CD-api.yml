@@ -27,7 +27,7 @@ jobs:
     uses: ./.github/workflows/CI-api.yml
 
   deploy:
-    name: Build, push ECR, deploy EC2
+    name: Build, Push ECR and Deploy EC2
     needs: ci
     runs-on: ubuntu-latest
     env:
@@ -37,10 +37,10 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v5
+        uses: actions/checkout@v7
 
       - name: Configure AWS credentials (OIDC)
-        uses: aws-actions/configure-aws-credentials@v5
+        uses: aws-actions/configure-aws-credentials@v6
         with:
           role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
           aws-region: ${{ env.AWS_REGION }}
@@ -63,7 +63,7 @@ jobs:
           docker push "${IMAGE_URI}:latest"
 
       - name: Copy compose and deploy script to EC2
-        uses: appleboy/scp-action@v0.1.7
+        uses: appleboy/scp-action@v1
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USER }}
