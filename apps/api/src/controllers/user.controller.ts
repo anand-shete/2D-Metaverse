@@ -65,7 +65,7 @@ export const loginUser = async (req: FastifyRequest, res: FastifyReply) => {
   }
 };
 
-export const logoutUser = (req: FastifyRequest, res: FastifyReply) => {
+export const logoutUser = (_: FastifyRequest, res: FastifyReply) => {
   res.clearCookie("accessToken").send({ message: "Logout successful", user: null });
 };
 

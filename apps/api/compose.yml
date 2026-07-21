@@ -10,7 +10,6 @@ services:
     environment:
       NODE_ENV: production
     volumes:
-      # App loads `.env.production` via dotenv when NODE_ENV=production
       - ./.env.production:/app/apps/api/.env.production:ro
     depends_on:
       redis:

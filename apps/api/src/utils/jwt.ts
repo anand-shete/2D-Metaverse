@@ -26,6 +26,7 @@ export const verifyToken = async (token: string): Promise<CustomJwtPayload | und
 export const setToken = async (res: FastifyReply, token: string) => {
   res.cookie("accessToken", token, {
     httpOnly: true,
+    path: "/",
     secure: env.NODE_ENV === "production",
     sameSite: env.NODE_ENV === "production" ? "none" : "lax",
     maxAge: 60 * 60 * 24, // @fastify/cookie uses maxAge in seconds instead of ms
