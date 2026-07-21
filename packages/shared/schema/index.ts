@@ -1,4 +1,4 @@
-import { Avatar, DocType } from "../types/enum";
+import { Avatar, DocType } from "../types/enum.js";
 import { z } from "zod";
 
 export const SignupSchema = z.strictObject({

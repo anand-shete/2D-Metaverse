@@ -1,4 +1,4 @@
-import { ChatUserType } from "./enum";
+import { ChatUserType } from "./enum.js";
 
 export enum NoteType {
   NOTES = "notes",

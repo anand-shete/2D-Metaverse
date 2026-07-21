@@ -37,8 +37,21 @@ const SignupSection = ({ isOpen, onSignupSuccess }: Props) => {
     try {
       const res = await api.post("/user/signup", data);
       onSignupSuccess(res.data.userId);
-    } catch (error: any) {
-      toast.error(error.response.data.message || "Account creation failed");
+    } catch (error: unknown) {
+      const message =
+        error &&
+        typeof error === "object" &&
+        "response" in error &&
+        error.response &&
+        typeof error.response === "object" &&
+        "data" in error.response &&
+        error.response.data &&
+        typeof error.response.data === "object" &&
+        "message" in error.response.data &&
+        typeof error.response.data.message === "string"
+          ? error.response.data.message
+          : "Account creation failed";
+      toast.error(message);
     }
   };
 

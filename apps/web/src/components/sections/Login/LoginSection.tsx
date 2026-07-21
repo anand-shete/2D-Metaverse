@@ -33,8 +33,21 @@ const LoginSection = () => {
       const res = await api.post("/user/login", data);
       toast.success(res.data.message);
       navigate("/metaverse");
-    } catch (error: any) {
-      toast.error(error.response.data.message || "Login Failed");
+    } catch (error: unknown) {
+      const message =
+        error &&
+        typeof error === "object" &&
+        "response" in error &&
+        error.response &&
+        typeof error.response === "object" &&
+        "data" in error.response &&
+        error.response.data &&
+        typeof error.response.data === "object" &&
+        "message" in error.response.data &&
+        typeof error.response.data.message === "string"
+          ? error.response.data.message
+          : "Login Failed";
+      toast.error(message);
     }
   };
 

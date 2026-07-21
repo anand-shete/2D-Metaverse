@@ -21,7 +21,9 @@ const Layout = () => {
         const res = await api.get("/auth");
         const payload = res.data.payload;
         setUser(payload);
-      } catch (error) {}
+      } catch {
+        // unauthenticated
+      }
     };
 
     checkAuth();

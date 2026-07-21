@@ -6,8 +6,9 @@
     "outDir": "./dist",
     // Environment Settings
     // See also https://aka.ms/tsconfig/module
-    "module": "commonjs",
-    "moduleResolution": "node",
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "esModuleInterop": true,
     "target": "esnext",
     // For nodejs:
     "lib": ["esnext"],

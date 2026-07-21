@@ -13,10 +13,10 @@ export const enum PlayerMoveAnimation {
   RIGHT = "right",
 }
 
-export const enum PlayerConfig {
-  TILE_SIZE = 32,
-  PLAYER_WIDTH = 48,
-  PLAYER_HEIGHT = 48,
-  MOVE_SPEED = 6,
-  SOCKET_THROTTLE_MS = 100,
-}
+export const PlayerConfig = {
+  TILE_SIZE: 32,
+  PLAYER_WIDTH: 48,
+  PLAYER_HEIGHT: 48,
+  MOVE_SPEED: 6,
+  SOCKET_THROTTLE_MS: 100,
+} as const;

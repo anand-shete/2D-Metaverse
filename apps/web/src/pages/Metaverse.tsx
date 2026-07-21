@@ -36,7 +36,7 @@ export default function Metaverse() {
             payload.username,
           );
         }
-      } catch (err) {
+      } catch {
         toast.error("Login to continue");
         navigate("/login");
       }

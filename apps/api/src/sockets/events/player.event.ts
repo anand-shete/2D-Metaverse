@@ -1,5 +1,5 @@
 import { SocketContent } from "@utils/interface";
-import { PlayerMoveData } from "@metaverse/shared/types/interface";
+import { PlayerMoveData } from "@metaverse/shared/interface";
 
 export const registerPlayerEvents = (ctx: SocketContent) => {
   const { socket, fastify, playersMap } = ctx;

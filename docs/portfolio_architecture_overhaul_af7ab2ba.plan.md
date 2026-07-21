@@ -1,0 +1,500 @@
+---
+name: Portfolio Architecture Overhaul
+overview: Transform 2D-Metaverse from a functional demo into a portfolio-grade system by replacing mesh WebRTC with an SFU, migrating the game engine to Phaser 3 with a Tiled JSON map, introducing scalable real-time state management, hardening auth/security, and adding engineering discipline (monorepo, CI, tests, docs) — while keeping the app intentionally simple as a single shared map.
+todos:
+  - id: monorepo-shared
+    content: Set up pnpm workspace + Turborepo with packages/shared for typed socket events, API contracts, and Zod schemas
+    status: pending
+  - id: ci-docker
+    content: Add CI workflow (lint, typecheck, test, build), Docker Compose (MongoDB, Redis, backend), rewrite stale test suite
+    status: pending
+  - id: auth-security
+    content: Add Fastify auth middleware, protect all routes, JWT expiry, rate limiting, remove token from login body
+    status: pending
+  - id: redis-scaling
+    content: Replace in-memory playersMap with Redis, add Socket.IO Redis adapter for horizontal scaling (single global map)
+    status: pending
+  - id: mediasoup-sfu
+    content: Replace PeerJS with mediasoup SFU server + client, new media:* socket signaling protocol (global A/V for all connected users)
+    status: pending
+  - id: phaser-migration
+    content: Migrate Pixi.js to Phaser 3 with Tiled JSON tilemap, player sprites, remote interpolation, zones, and EventBus bridge
+    status: pending
+  - id: frontend-modernize.git
+    content: Adopt React Query for server state, add route guards, clean up auth flow and lifecycle bugs
+    status: pending
+  - id: docs-portfolio
+    content: Replace README placeholders with architecture diagrams, add ADRs, docs/, LICENSE, and demo GIFs
+    status: pending
+isProject: false
+---
+
+# Portfolio Architecture Transformation Plan
+
+## Design Principles (Scope Constraints)
+
+This overhaul intentionally keeps the app **simple**:
+
+- **One global map** — all connected users share the same world; no spaces, rooms, admin roles, or member management
+- **Global player visibility** — every `player:move` is visible to everyone on the map (no spatial culling for movement)
+- **Global A/V** — anyone connected can interact with anyone (SFU replaces mesh topology, but does not add proximity gating)
+- **Metabot RAG unchanged** — the S3 → Lambda → MongoDB ingestion pipeline already runs in AWS; no in-repo RAG rework
+
+---
+
+## Current State (Baseline)
+
+Your project already has strong bones: a live demo, Pixi.js game engine with collision/zones, Socket.IO multiplayer, PeerJS A/V, Groq-powered Metabot RAG (with AWS ingestion), and production deployment (Vercel + EC2). The gaps holding it back from "senior engineer portfolio" quality are architectural — not feature count.
+
+```mermaid
+flowchart TB
+  subgraph current [Current Architecture]
+    React[React SPA]
+    Pixi[Pixi.js Engine]
+    PeerJS[PeerJS Mesh P2P]
+    SocketIO[Socket.IO]
+    Fastify[Fastify Monolith]
+    Memory[In-Memory playersMap]
+    Mongo[(MongoDB)]
+    S3[(S3)]
+    Groq[Groq API]
+    Lambda[AWS Lambda - ingestion]
+
+    React --> Pixi
+    React --> PeerJS
+    React --> SocketIO
+    Pixi --> SocketIO
+    PeerJS --> SocketIO
+    SocketIO --> Fastify
+    Fastify --> Memory
+    Fastify --> Mongo
+    Fastify --> S3
+    Fastify --> Groq
+    S3 --> Lambda
+    Lambda --> Mongo
+  end
+```
+
+**Key weaknesses to address:**
+
+- Mesh P2P ([`frontend/src/media/MediaManager.ts`](frontend/src/media/MediaManager.ts)) scales O(n²) — every user calls every other user
+- In-memory `playersMap` in [`backend/src/sockets/connection.ts`](backend/src/sockets/connection.ts) — no horizontal scaling, lost on restart
+- Unauthenticated HTTP routes (`upload-url`, `archives`, `update-avatar`)
+- Stale test suite in [`tests/`](tests/) that doesn't match current API
+- README has placeholder diagrams
+- Map is a single LibreSprite PNG with hand-coded collision arrays — should be a proper Tiled JSON tilemap
+
+**Not weaknesses (keeping as-is):**
+
+- Global `player:update` broadcast to all clients — correct for a single shared map where everyone must see everyone
+- Metabot RAG pipeline — already functional via AWS Lambda (external to repo)
+
+---
+
+## Target Architecture
+
+```mermaid
+flowchart TB
+  subgraph target [Target Architecture]
+    ReactUI[React Shell + Overlays]
+    Phaser[Phaser 3 + Tiled JSON Map]
+    SFUClient[mediasoup Client]
+    SocketClient[Socket.IO Client]
+
+    ReactUI --> Phaser
+    ReactUI --> SFUClient
+    Phaser --> SocketClient
+    SFUClient --> SocketClient
+
+    subgraph backend [Backend Services]
+      API[Fastify API Layer]
+      WS[Socket.IO + Redis Adapter]
+      SFUServer[mediasoup SFU]
+    end
+
+    Redis[(Redis)]
+    Mongo[(MongoDB)]
+    S3[(S3)]
+
+    SocketClient --> WS
+    SFUClient --> SFUServer
+    WS --> Redis
+    WS --> API
+    SFUServer --> WS
+    API --> Mongo
+    API --> S3
+  end
+```
+
+---
+
+## Phase 1: Engineering Foundation (Do First)
+
+Before major rewrites, establish the quality bar that makes architectural changes reviewable.
+
+### 1.1 Monorepo with Shared Contracts
+
+Convert the informal multi-package layout into a **pnpm workspace + Turborepo** monorepo:
+
+```
+2D-Metaverse/
+├── apps/
+│   ├── frontend/
+│   └── backend/
+├── packages/
+│   └── shared/          # Socket events, API types, Zod schemas
+├── docker-compose.yml
+├── turbo.json
+└── package.json         # root scripts: dev, build, test, lint
+```
+
+**Why:** Portfolio reviewers love typed cross-boundary contracts. Today socket events are stringly-typed on both sides ([`backend/src/sockets/events/`](backend/src/sockets/events/) vs [`frontend/src/network/SocketClient.ts`](frontend/src/network/SocketClient.ts)).
+
+**Shared package exports:**
+
+- `SocketEvents` enum + payload types (`player:move`, `chat:send`, `media:join`, etc.)
+- REST request/response types
+- Zod schemas reused by frontend forms and backend controllers
+
+### 1.2 CI Pipeline (Replace Deploy-Only CD)
+
+Add [`.github/workflows/CI.yml`](.github/workflows/CD.yml) alongside existing CD:
+
+| Step      | Frontend       | Backend                   |
+| --------- | -------------- | ------------------------- |
+| Install   | `pnpm install` | same                      |
+| Lint      | ESLint         | ESLint (add)              |
+| Typecheck | `tsc -b`       | `tsc`                     |
+| Test      | Vitest unit    | Vitest unit + integration |
+| Build     | `vite build`   | `tsc`                     |
+
+Pin GitHub Actions to commit SHAs (current CD uses `@main` — supply-chain risk).
+
+### 1.3 Docker Compose for Local Dev
+
+Single command: `docker compose up` spins up MongoDB, Redis, backend, and optionally the SFU service. Removes the "clone and pray" onboarding problem for recruiters.
+
+### 1.4 Rewrite Test Suite
+
+Delete or fully rewrite [`tests/index.test.ts`](tests/index.test.ts) (targets removed `/api/v1/space/*` endpoints). New tests should cover:
+
+- Auth flow (signup → login → cookie → `/auth`)
+- Socket auth rejection without cookie
+- `player:move` → `player:update` round-trip (broadcast to all clients)
+- Protected route 401 behavior (after Phase 2)
+
+---
+
+## Phase 2: Backend Hardening + Scalable Real-Time
+
+### 2.1 Auth Middleware + Security
+
+Add a reusable Fastify `preHandler` auth hook used on all protected routes:
+
+| Route                       | Current | Target                 |
+| --------------------------- | ------- | ---------------------- |
+| `PATCH /user/update-avatar` | Open    | Auth + ownership check |
+| `POST /user/upload-url`     | Open    | Auth required          |
+| `GET /user/archives`        | Open    | Auth required          |
+
+Additional hardening in [`backend/src/utils/jwt.ts`](backend/src/utils/jwt.ts):
+
+- Add `expiresIn: '24h'` to JWT signing (currently no crypto expiry)
+- Remove token from login JSON body (httpOnly cookie only)
+- Add rate limiting (`@fastify/rate-limit`) on auth endpoints
+
+### 2.2 Redis-Backed Player State (Single Global Map)
+
+Replace module-level `playersMap` in [`connection.ts`](backend/src/sockets/connection.ts):
+
+```
+players  → Hash of socketId → { x, y, avatar, username, animation }
+presence:{socketId} → TTL key for heartbeat
+```
+
+Use **Socket.IO Redis Adapter** (`@socket.io/redis-adapter`) so multiple backend instances share state. All instances serve the same single map — no space/room partitioning needed.
+
+**Player movement broadcast (unchanged semantics, better infrastructure):**
+
+- On `player:move`, update Redis hash entry
+- Broadcast `player:update` to **all connected sockets** (global visibility)
+- Optional optimization later: send delta updates (single player) instead of full map — but still to everyone
+
+### 2.3 Structured Logging + Observability
+
+Replace `console.log` + `logger: false` in [`server.ts`](backend/src/server.ts) with **Pino** (Fastify's native logger). Add:
+
+- Request ID tracing
+- Socket event logging at `debug` level
+- `/health` endpoint that checks MongoDB + Redis connectivity
+
+---
+
+## Phase 3: SFU Media Architecture (Replace PeerJS)
+
+**Decision: Use [mediasoup](https://mediasoup.org/)** (self-hosted SFU on your EC2) rather than LiveKit Cloud. mediasoup demonstrates deeper WebRTC knowledge — routing, transports, producers/consumers — which is exactly what portfolio reviewers in real-time roles want to see.
+
+### 3.1 Why Replace PeerJS
+
+Current flow in [`MediaManager.ts`](frontend/src/media/MediaManager.ts):
+
+- `new Peer({ secure: true })` → PeerJS public cloud broker
+- Full mesh: N users = N×(N-1) WebRTC connections
+- No simulcast/SVC — bandwidth waste
+- Relies on third-party PeerJS cloud for signaling
+
+### 3.2 New Media Architecture (Global A/V)
+
+All connected users on the single map can hear/see each other — same interaction model as today, but routed through an SFU instead of mesh P2P.
+
+```mermaid
+sequenceDiagram
+  participant Client
+  participant SocketIO as Socket.IO
+  participant SFU as mediasoup Worker
+  participant Others as Other Clients
+
+  Client->>SocketIO: media:join { rtpCapabilities }
+  SocketIO->>SFU: createTransport
+  SFU-->>Client: transport params
+  Client->>SFU: connect + produce audio/video
+  SFU->>SocketIO: media:producerAvailable
+  SocketIO->>Others: media:newProducer
+  Others->>SFU: consume producer
+```
+
+**New backend service:** `apps/backend/src/media/` (or separate `apps/sfu/` process)
+
+- mediasoup Worker pool (1 worker per CPU core)
+- Single Router for the global map (no per-space or per-zone routers)
+- Signaling over existing Socket.IO (replace `peer:*` events with `media:*`)
+
+**New frontend:** Replace [`frontend/src/media/`](frontend/src/media/) with mediasoup-client
+
+- `MediaManager` → `SFUManager` using `Device`, `Transport`, `Producer`, `Consumer`
+- Remove `peerjs` dependency entirely
+- On join: consume all existing producers; on new producer event: create consumer
+
+**Infrastructure:** Run mediasoup alongside Fastify on EC2 (UDP ports 40000-49999). Document TURN server setup (coturn) for NAT traversal — even a basic coturn config in repo shows production awareness.
+
+---
+
+## Phase 4: Phaser 3 Migration + Tiled JSON Map
+
+**Decision: Migrate to Phaser 3** with a **Tiled JSON tilemap** as the primary map asset. This replaces both the Pixi.js engine and the current LibreSprite PNG + hand-coded collision approach.
+
+### 4.1 Tiled Map Pipeline (Primary Map Asset)
+
+**Current:** Single PNG map image + manual collision grid in [`collision.ts`](frontend/src/components/sections/Metaverse/engine/data/collision.ts) + zone definitions in [`zones.ts`](frontend/src/components/sections/Metaverse/engine/data/zones.ts).
+
+**Target:** Tiled editor → JSON export consumed by Phaser:
+
+```
+frontend/src/assets/map/
+├── campus.json          # Tiled JSON export (tile layers + object layers)
+├── tileset.png          # Tileset image(s) referenced by JSON
+└── README.md            # Layer naming conventions
+```
+
+**Tiled layer conventions:**
+| Layer name | Purpose |
+|------------|---------|
+| `ground` | Base walkable tiles (render only) |
+| `walls` | Collision layer (`collides: true` on tiles) |
+| `decor` | Non-colliding decoration above ground |
+| `zones` | Object layer for interaction triggers (upload, archives, external links) |
+
+Phaser loads via:
+
+```ts
+this.load.tilemapTiledJSON("campus", "assets/map/campus.json");
+this.load.image("tileset", "assets/map/tileset.png");
+```
+
+Collision handled by Phaser's built-in tilemap collision (replaces [`collision.ts`](frontend/src/components/sections/Metaverse/engine/data/collision.ts)). Zone interactions read from Tiled object layer properties (replaces much of [`zones.ts`](frontend/src/components/sections/Metaverse/engine/data/zones.ts)).
+
+### 4.2 Migration Strategy (Incremental, Not Big-Bang)
+
+Map current Pixi classes to Phaser scenes/systems:
+
+| Current (Pixi)                                                                                   | Target (Phaser)                             |
+| ------------------------------------------------------------------------------------------------ | ------------------------------------------- |
+| [`Canvas.ts`](frontend/src/components/sections/Metaverse/engine/Canvas.ts)                       | `MetaverseScene` extends `Phaser.Scene`     |
+| [`SpriteManager.ts`](frontend/src/components/sections/Metaverse/engine/SpriteManager.ts)         | Tiled tilemap layers + camera follow        |
+| [`Player.ts`](frontend/src/components/sections/Metaverse/engine/Player.ts)                       | `LocalPlayer` sprite + Arcade physics body  |
+| [`RemotePlayers.ts`](frontend/src/components/sections/Metaverse/engine/RemotePlayers.ts)         | `RemotePlayerManager` with interpolation    |
+| [`EventHandler.ts`](frontend/src/components/sections/Metaverse/engine/EventHandler.ts)           | Phaser input plugin                         |
+| [`InteractionSystem.ts`](frontend/src/components/sections/Metaverse/engine/InteractionSystem.ts) | Tiled object layer overlap detection        |
+| [`collision.ts`](frontend/src/components/sections/Metaverse/engine/data/collision.ts)            | **Removed** — Phaser tilemap collision      |
+| [`zones.ts`](frontend/src/components/sections/Metaverse/engine/data/zones.ts)                    | **Removed** — Tiled object layer properties |
+
+**Player sprites:** Keep LibreSprite character sprite sheets for avatars; only the **map** moves from PNG to Tiled JSON.
+
+### 4.3 React + Phaser Integration Pattern
+
+Use the **DOM container pattern** (proven in your current code):
+
+```tsx
+// Metaverse.tsx
+const gameRef = useRef<Phaser.Game>();
+useEffect(() => {
+  gameRef.current = new Phaser.Game({
+    parent: containerRef.current,
+    scene: [BootScene, WorldScene],
+    // ...
+  });
+  return () => gameRef.current?.destroy(true);
+}, []);
+```
+
+Bridge Phaser ↔ React via a typed **EventBus** (replace `window.CustomEvent` hack in [`MetaverseUILayer.tsx`](frontend/src/components/sections/Metaverse/MetaverseUI/MetaverseUILayer.tsx)):
+
+- `EventBus.emit('zone:upload', payload)` → React opens `UploadFiles` modal
+- Cleaner than DOM events, testable, typed via shared package
+
+### 4.4 Game Feel Improvements (While Migrating)
+
+- **Remote player interpolation** (lerp between network updates) — currently snaps instantly
+- **Fixed movement tick rate** — align client prediction with server authoritative position
+- **Proper sprite animations** via Phaser animation manager (replace manual frame cycling)
+
+---
+
+## Phase 5: Frontend Architecture Modernization
+
+### 5.1 React Query for Server State
+
+You already have `@tanstack/react-query` installed but unused. Migrate:
+
+- Auth check (`GET /auth`) → `useAuth()` hook with query
+- Archives listing → `useArchives()`
+- Upload presigned URL → `useMutation`
+- Fix login flow: currently doesn't update `UserContext` after login
+
+### 5.2 Route Guards
+
+Add a `ProtectedRoute` wrapper:
+
+- `/metaverse` requires authenticated user (redirect to `/login`)
+- Eliminates duplicate `/auth` calls in [`Layout.tsx`](frontend/src/Layout.tsx) and [`Metaverse.tsx`](frontend/src/pages/Metaverse.tsx)
+
+### 5.3 State Architecture Cleanup
+
+| Concern     | Owner                                                        |
+| ----------- | ------------------------------------------------------------ |
+| Auth user   | React Query + Context                                        |
+| Game state  | Phaser Scene (authoritative locally, reconciled with server) |
+| Media state | `SFUManager` class + Context for UI bindings                 |
+| Chat        | `ChatManager` class (keep — works well)                      |
+| UI modals   | React local state                                            |
+
+---
+
+## Phase 6: Documentation + Portfolio Presentation
+
+### 6.1 Replace README Placeholders
+
+Fill `[Diagram 1]`, `[Diagram 2]`, `[Diagram 3]` with Mermaid diagrams covering:
+
+1. Infrastructure (Vercel + EC2 + Redis + MongoDB + S3 + mediasoup)
+2. Real-time multiplayer flow (global player broadcast + SFU signaling)
+3. Metabot RAG flow (existing AWS pipeline: S3 upload → Lambda → MongoDB → Groq retrieval)
+
+### 6.2 Add Supporting Docs
+
+| Doc                     | Purpose                                  |
+| ----------------------- | ---------------------------------------- |
+| `docs/architecture.md`  | Deep-dive with diagrams                  |
+| `docs/socket-events.md` | Generated from shared package types      |
+| `docs/local-dev.md`     | Docker compose guide                     |
+| `docs/map-authoring.md` | Tiled layer conventions and export steps |
+| `docs/adr/`             | Architecture Decision Records            |
+
+ADRs: `adr/001-sfu-over-mesh.md`, `adr/002-phaser-over-pixi.md`, `adr/003-tiled-json-map.md`, `adr/004-redis-socket-adapter.md`.
+
+### 6.3 Demo Assets
+
+- GIF/video of multiplayer movement on the Tiled map
+- Screenshot of Metabot in world chat
+- Architecture diagram in README hero section
+
+### 6.4 LICENSE
+
+Add MIT or Apache 2.0 — recruiters often skip repos without one.
+
+---
+
+## Explicitly Out of Scope
+
+| Item                             | Reason                                |
+| -------------------------------- | ------------------------------------- |
+| Multi-space / room system        | Keep single global map                |
+| Admin roles / member management  | Unnecessary complexity                |
+| Proximity-based movement culling | Everyone must see everyone on the map |
+| Proximity-based A/V              | Global interaction model              |
+| Metabot RAG pipeline changes     | Already functional via AWS Lambda     |
+| Vector DB / embedding upgrade    | Not needed                            |
+
+---
+
+## Recommended Execution Order
+
+```mermaid
+gantt
+  title Implementation Phases
+  dateFormat YYYY-MM-DD
+  section Foundation
+    Monorepo + shared types     :p1a, 2026-07-03, 5d
+    CI + Docker Compose         :p1b, after p1a, 4d
+    Rewrite tests               :p1c, after p1b, 3d
+  section Backend
+    Auth hardening              :p2a, after p1c, 4d
+    Redis state + socket adapter:p2b, after p2a, 5d
+    Structured logging          :p2c, after p2b, 2d
+  section Media
+    mediasoup SFU server        :p3a, after p2b, 7d
+    SFU client global A/V       :p3b, after p3a, 5d
+  section GameEngine
+    Tiled map + Phaser scaffold :p4a, after p1c, 5d
+    Player + remote interpolation:p4b, after p4a, 5d
+    Zones + React EventBus      :p4c, after p4b, 4d
+  section Polish
+    React Query + route guards  :p5a, after p4c, 4d
+    Docs + ADRs + demo assets   :p6a, after p3b, 5d
+```
+
+**Parallelizable work:**
+
+- Phase 4 (Phaser + Tiled) can start after Phase 1 — independent of SFU
+- Phase 3 (SFU) can run parallel to Phase 4 after Phase 2.2 (Redis)
+
+---
+
+## What NOT to Change
+
+Keep these — they're already good choices:
+
+- **Fastify** over Express (faster, better TypeScript support, schema validation)
+- **Socket.IO** for game/chat signaling (works well with Redis adapter)
+- **Typegoose** for MongoDB models
+- **Zod** for validation
+- **Vercel + EC2** deployment split (sensible for SPA + WebSocket server)
+- **React + Tailwind + shadcn** for UI shell
+- **Class-based service pattern** for ChatManager, media managers (appropriate for real-time code)
+- **Metabot RAG pipeline** — Groq intent + MongoDB filter + AWS Lambda ingestion (external)
+- **Global player broadcast** — correct behavior for single shared map
+
+---
+
+## Portfolio Narrative (What You'll Be Able to Say)
+
+After these changes, your project demonstrates:
+
+1. **Distributed real-time systems** — Redis-backed Socket.IO, horizontal scaling, global state sync
+2. **WebRTC at scale** — SFU architecture with mediasoup, self-hosted signaling, TURN setup
+3. **Game engine architecture** — Phaser 3 scenes, Tiled JSON tilemap pipeline, client-side interpolation
+4. **AI integration** — Metabot in-world assistant with AWS-powered document ingestion (existing)
+5. **Production engineering** — monorepo, CI/CD, Docker, ADRs, typed contracts, test coverage
+6. **Security awareness** — auth middleware, rate limiting, JWT hardening
+
+This moves the project from "impressive student project" to "engineer who understands systems design" — without over-engineering it into a Gather.town clone.

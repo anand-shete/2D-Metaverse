@@ -52,7 +52,7 @@ const SelectAvatar = ({ isOpen, userId }: Props) => {
 
     if (!sheet) {
       const texture = await Assets.load<Texture>(avatar.texture);
-      sheet = new Spritesheet(texture, avatar.sheetData as any);
+      sheet = new Spritesheet(texture, avatar.sheetData as never);
       await sheet.parse();
       sheetsRef.current.set(avatar.id, sheet);
     }
@@ -148,8 +148,21 @@ const SelectAvatar = ({ isOpen, userId }: Props) => {
       const res = await api.patch("/user/update-avatar", data);
       toast.success(res.data.message);
       navigate("/login");
-    } catch (error: any) {
-      toast.error(error.response.data.message);
+    } catch (error: unknown) {
+      const message =
+        error &&
+        typeof error === "object" &&
+        "response" in error &&
+        error.response &&
+        typeof error.response === "object" &&
+        "data" in error.response &&
+        error.response.data &&
+        typeof error.response.data === "object" &&
+        "message" in error.response.data &&
+        typeof error.response.data.message === "string"
+          ? error.response.data.message
+          : "Avatar update failed";
+      toast.error(message);
     }
   };
 

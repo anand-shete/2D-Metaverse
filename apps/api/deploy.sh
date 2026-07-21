@@ -2,13 +2,14 @@
 
 set -euo pipefail
 
-export NVM_DIR="$HOME/.nvm"
-[ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
-
-APP_DIR="$HOME/metaverse"
-
+APP_DIR="${APP_DIR:-$HOME/metaverse}"
+AWS_REGION="${AWS_REGION:-ap-south-1}"
+IMAGE_TAG="${IMAGE_TAG:-latest}"
 
 echo "=== Deployment Started ==="
+echo "APP_DIR=${APP_DIR}"
+echo "IMAGE_TAG=${IMAGE_TAG}"
+echo "AWS_REGION=${AWS_REGION}"
 
 if [[ ! -d "$APP_DIR" ]]; then
 	echo "App directory not found: $APP_DIR"
@@ -17,15 +18,34 @@ fi
 
 cd "$APP_DIR"
 
-
-# change to `src/server.js` if not using typescript, 
-# check rootDir and outDir in tsconfig.json
-if [[ ! -f "dist/server.js" ]]; then
-	echo "Build artifact missing: dist/server.js"
+if [[ ! -f compose.yml ]]; then
+	echo "Missing compose.yml in $APP_DIR"
 	exit 1
 fi
 
-pm2 reload metaverse --update-env || pm2 start npm --name "metaverse" -- start
-pm2 save
+if [[ ! -f .env.production ]]; then
+	echo "Missing .env.production in $APP_DIR"
+	echo "Copy apps/api/.env.production to the server once before deploying."
+	exit 1
+fi
+
+if [[ -z "${ECR_REGISTRY:-}" ]]; then
+	AWS_ACCOUNT_ID="$(aws sts get-caller-identity --query Account --output text)"
+	ECR_REGISTRY="${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com"
+fi
+
+export ECR_REGISTRY IMAGE_TAG AWS_REGION
+
+echo "Logging into ECR: ${ECR_REGISTRY}"
+aws ecr get-login-password --region "$AWS_REGION" \
+	| docker login --username AWS --password-stdin "$ECR_REGISTRY"
+
+echo "Pulling and starting containers..."
+docker compose pull api
+docker compose up -d --remove-orphans
+
+echo "Cleaning unused images..."
+docker image prune -f
 
 echo "=== Deployment Finished ==="
+docker compose ps

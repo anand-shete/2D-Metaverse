@@ -39,7 +39,7 @@ export default class Canvas {
         );
         await this.initPlayer();
       })
-      .catch((e: any) => {
+      .catch((e: unknown) => {
         console.log("Error initializing Pixi app", e);
       });
   }

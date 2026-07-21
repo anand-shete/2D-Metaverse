@@ -37,7 +37,11 @@ export default function ChatBox({ isOpen, onClose, socket }: ChatBoxProps) {
 
   useEffect(() => {
     setMessage("");
-    isOpen ? inputBoxRef.current?.focus() : inputBoxRef.current?.blur();
+    if (isOpen) {
+      inputBoxRef.current?.focus();
+    } else {
+      inputBoxRef.current?.blur();
+    }
   }, [isOpen]);
 
   useEffect(() => {

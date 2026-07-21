@@ -53,11 +53,13 @@ export default function MetaverseUILayer({
         },
         (peerId: string) => {
           setRemoteVideos((prev) => {
-            const { [peerId]: _, ...rest } = prev;
+            const rest = { ...prev };
+            delete rest[peerId];
             return rest;
           });
           setRemotePeerUsernames((prev) => {
-            const { [peerId]: _, ...rest } = prev;
+            const rest = { ...prev };
+            delete rest[peerId];
             return rest;
           });
         },

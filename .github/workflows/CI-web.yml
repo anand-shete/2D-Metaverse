@@ -1,1 +1,60 @@
-#asasd
+name: Continuous Integration Frontend
+
+on:
+  pull_request:
+    paths:
+      - "apps/web/**"
+      - "packages/shared/**"
+      - "pnpm-lock.yaml"
+      - "pnpm-workspace.yaml"
+      - "package.json"
+      - "turbo.json"
+      - ".github/workflows/CI-web.yml"
+  push:
+    branches-ignore: [main]
+    paths:
+      - "apps/web/**"
+      - "packages/shared/**"
+      - "pnpm-lock.yaml"
+      - "pnpm-workspace.yaml"
+      - "package.json"
+      - "turbo.json"
+      - ".github/workflows/CI-web.yml"
+
+concurrency:
+  group: ci-web-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  ci:
+    name: Lint, typecheck, build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 11.9.0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: "24"
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Lint web
+        run: pnpm --filter=web lint
+
+      - name: Typecheck web (+ shared)
+        run: pnpm --filter=web... check-types
+
+      - name: Build web (+ shared)
+        run: pnpm --filter=web... build

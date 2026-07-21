@@ -88,7 +88,7 @@ export default function UploadFiles({ isOpen, onClose }: Props) {
       toast.success("Files uploaded to Metaverse archives");
       setSelectedFiles([]);
       onClose();
-    } catch (error: any) {
+    } catch {
       toast.error("Upload failed. Please try again.");
     } finally {
       setIsUploading(false);

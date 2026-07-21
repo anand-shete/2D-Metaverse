@@ -1,0 +1,36 @@
+services:
+  api:
+    image: ${ECR_REGISTRY}/metaverse/api:${IMAGE_TAG:-latest}
+    container_name: metaverse-api
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:3000:3000"
+    env_file:
+      - .env.production
+    environment:
+      NODE_ENV: production
+    volumes:
+      # App loads `.env.production` via dotenv when NODE_ENV=production
+      - ./.env.production:/app/apps/api/.env.production:ro
+    depends_on:
+      redis:
+        condition: service_started
+    networks:
+      - metaverse
+
+  redis:
+    image: redis:7-alpine
+    container_name: metaverse-redis
+    restart: unless-stopped
+    command: ["redis-server", "--appendonly", "yes"]
+    volumes:
+      - redis-data:/data
+    networks:
+      - metaverse
+
+networks:
+  metaverse:
+    driver: bridge
+
+volumes:
+  redis-data:

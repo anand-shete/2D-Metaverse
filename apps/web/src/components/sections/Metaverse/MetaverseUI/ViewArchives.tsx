@@ -18,7 +18,7 @@ const ViewArchives = ({ isOpen, onClose }: Props) => {
       try {
         const res = await api.get("/user/archives");
         setArchives(res.data);
-      } catch (error) {
+      } catch {
         toast.error("Error fetching Metaverse archives");
       }
     };
