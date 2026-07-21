@@ -58,7 +58,7 @@ export class Retrieve {
     }
 
     const rawFilter: IFilter = JSON.parse(content);
-    const filterNullValues = Object.entries(rawFilter).filter(([_, value]) => value !== null);
+    const filterNullValues = Object.entries(rawFilter).filter(([, value]) => value !== null);
 
     return {
       success: true,
@@ -68,7 +68,12 @@ export class Retrieve {
 
   static async generateFinalResponse(
     message: string,
-    summary: any,
+    summary: {
+      count: number;
+      subject: string;
+      noteType: string;
+      chapter: string | number;
+    },
   ): Promise<IMetabotServiceResponse> {
     const finalResponsePrompt = `
     You are Metabot, a concise study assistant. Use the User's Message to inform tone, but rely strictly on the DATA for facts.

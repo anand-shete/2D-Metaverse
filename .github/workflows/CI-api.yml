@@ -1,4 +1,4 @@
-name: Continuous Integration Backend 
+name: Continuous Integration Backend
 
 on:
   pull_request:
@@ -31,7 +31,7 @@ permissions:
 
 jobs:
   ci:
-    name: Typecheck and build
+    name: Lint, typecheck, build
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -51,8 +51,11 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      - name: Lint api
+        run: pnpm exec turbo run lint --filter=api
+
       - name: Typecheck api (+ shared)
-        run: pnpm --filter=api... check-types
+        run: pnpm exec turbo run check-types --filter=api...
 
       - name: Build api (+ shared)
-        run: pnpm --filter=api... build
+        run: pnpm exec turbo run build --filter=api...

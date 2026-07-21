@@ -51,10 +51,10 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Lint web
-        run: pnpm --filter=web lint
+        run: pnpm exec turbo run lint --filter=web...
 
       - name: Typecheck web (+ shared)
-        run: pnpm --filter=web... check-types
+        run: pnpm exec turbo run check-types --filter=web...
 
       - name: Build web (+ shared)
-        run: pnpm --filter=web... build
+        run: pnpm exec turbo run build --filter=web

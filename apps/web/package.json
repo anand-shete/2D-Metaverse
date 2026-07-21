@@ -4,10 +4,10 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
     "build": "tsc -b && vite build",
-    "lint": "eslint .",
     "start": "vite preview",
+    "dev": "vite",
+    "lint": "eslint .",
     "format": "prettier --write . --ignore-path ../../.prettierignore",
     "check-types": "tsc -b --noEmit"
   },

@@ -50,7 +50,7 @@ export const triggerMetabotService = async (message: string): Promise<IMetabotSe
     }
 
     return { success: true, message: response.message, notes: filteredNotes };
-  } catch (error) {
+  } catch {
     return {
       success: false,
       message: "Metabot could not generate a response. Please try again later",

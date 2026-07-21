@@ -36,7 +36,7 @@ export const signupUser = async (req: FastifyRequest, res: FastifyReply) => {
     });
 
     return res.status(201).send({ message: "Account created successfully", userId: user._id });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.log(error);
     return res.status(500).send({ message: "Failed to Create Account" });
   }
@@ -59,7 +59,7 @@ export const loginUser = async (req: FastifyRequest, res: FastifyReply) => {
 
     await setToken(res, accessToken);
     return res.status(200).send({ token: accessToken, message: "User Login success" });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.log(error);
     return res.status(500).send({ message: "Failed to Sign In User" });
   }

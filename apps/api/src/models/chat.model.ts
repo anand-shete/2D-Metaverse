@@ -1,4 +1,4 @@
-import { getModelForClass, prop, Ref } from "@typegoose/typegoose";
+import { getModelForClass, prop } from "@typegoose/typegoose";
 import { ChatUserType } from "@metaverse/shared/enum";
 import { Types } from "mongoose";
 

@@ -6,7 +6,7 @@ export const verifySocketUserMiddleware = async (
   next: (
     err?:
       | {
-          data?: any;
+          data?: unknown;
           name: string;
           message: string;
           stack?: string;

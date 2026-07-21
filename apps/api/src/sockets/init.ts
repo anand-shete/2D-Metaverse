@@ -8,7 +8,7 @@ export const initSockets = async (fastify: FastifyInstance) => {
 
     fastify.io.use(verifySocketUserMiddleware);
     fastify.io.on("connection", socket => handleConnection(socket, fastify));
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.log("Error connecting websockets", error);
     process.exit(1);
   }
