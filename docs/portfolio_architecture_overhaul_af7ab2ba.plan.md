@@ -1,19 +1,16 @@
 ---
 name: Portfolio Architecture Overhaul
-overview: Transform 2D-Metaverse from a functional demo into a portfolio-grade system by replacing mesh WebRTC with an SFU, migrating the game engine to Phaser 3 with a Tiled JSON map, introducing scalable real-time state management, hardening auth/security, and adding engineering discipline (monorepo, CI, tests, docs) — while keeping the app intentionally simple as a single shared map.
+overview: Transform 2D-Metaverse from a functional demo into a portfolio-grade system by replacing mesh WebRTC with an SFU, migrating the game engine to Phaser 3 with a Tiled JSON map, hardening auth/security, and adding engineering discipline (monorepo, CI, docs) — while keeping the app intentionally simple as a single shared map.
 todos:
   - id: monorepo-shared
-    content: Set up pnpm workspace + Turborepo with packages/shared for typed socket events, API contracts, and Zod schemas
-    status: pending
-  - id: ci-docker
-    content: Add CI workflow (lint, typecheck, test, build), Docker Compose (MongoDB, Redis, backend), rewrite stale test suite
-    status: pending
+    content: Set up pnpm workspace + Turborepo with packages/shared for API contracts and Zod schemas
+    status: completed
+  - id: ci
+    content: Add CI workflows (lint, typecheck, build) for api and web
+    status: completed
   - id: auth-security
-    content: Add Fastify auth middleware, protect all routes, JWT expiry, rate limiting, remove token from login body
-    status: pending
-  - id: redis-scaling
-    content: Replace in-memory playersMap with Redis, add Socket.IO Redis adapter for horizontal scaling (single global map)
-    status: pending
+    content: Add Fastify auth middleware for archives/upload-url, JWT expiry, MongoDB health check
+    status: completed
   - id: mediasoup-sfu
     content: Replace PeerJS with mediasoup SFU server + client, new media:* socket signaling protocol (global A/V for all connected users)
     status: pending
@@ -78,9 +75,6 @@ flowchart TB
 **Key weaknesses to address:**
 
 - Mesh P2P ([`frontend/src/media/MediaManager.ts`](frontend/src/media/MediaManager.ts)) scales O(n²) — every user calls every other user
-- In-memory `playersMap` in [`backend/src/sockets/connection.ts`](backend/src/sockets/connection.ts) — no horizontal scaling, lost on restart
-- Unauthenticated HTTP routes (`upload-url`, `archives`, `update-avatar`)
-- Stale test suite in [`tests/`](tests/) that doesn't match current API
 - README has placeholder diagrams
 - Map is a single LibreSprite PNG with hand-coded collision arrays — should be a proper Tiled JSON tilemap
 
@@ -88,6 +82,8 @@ flowchart TB
 
 - Global `player:update` broadcast to all clients — correct for a single shared map where everyone must see everyone
 - Metabot RAG pipeline — already functional via AWS Lambda (external to repo)
+- `PATCH /user/update-avatar` left open — used during signup before the user has a session
+- Login response may include JWT in JSON body — needed by the signup/avatar client flow alongside the httpOnly cookie
 
 ---
 
@@ -108,17 +104,15 @@ flowchart TB
 
     subgraph backend [Backend Services]
       API[Fastify API Layer]
-      WS[Socket.IO + Redis Adapter]
+      WS[Socket.IO]
       SFUServer[mediasoup SFU]
     end
 
-    Redis[(Redis)]
     Mongo[(MongoDB)]
     S3[(S3)]
 
     SocketClient --> WS
     SFUClient --> SFUServer
-    WS --> Redis
     WS --> API
     SFUServer --> WS
     API --> Mongo
@@ -128,105 +122,76 @@ flowchart TB
 
 ---
 
-## Phase 1: Engineering Foundation (Do First)
+## Phase 1: Engineering Foundation (Done)
 
-Before major rewrites, establish the quality bar that makes architectural changes reviewable.
+Establish the quality bar that makes architectural changes reviewable. Local Docker Compose is **out of scope** — production deploy compose / CD pipeline already exists; no separate local Mongo+API compose for now.
 
 ### 1.1 Monorepo with Shared Contracts
 
-Convert the informal multi-package layout into a **pnpm workspace + Turborepo** monorepo:
+**pnpm workspace + Turborepo** layout:
 
 ```
 2D-Metaverse/
 ├── apps/
-│   ├── frontend/
-│   └── backend/
+│   ├── web/
+│   └── api/
 ├── packages/
-│   └── shared/          # Socket events, API types, Zod schemas
-├── docker-compose.yml
+│   └── shared/          # Zod schemas, enums, shared types
 ├── turbo.json
-└── package.json         # root scripts: dev, build, test, lint
+└── package.json         # root scripts: dev, build, lint, check-types
 ```
 
-**Why:** Portfolio reviewers love typed cross-boundary contracts. Today socket events are stringly-typed on both sides ([`backend/src/sockets/events/`](backend/src/sockets/events/) vs [`frontend/src/network/SocketClient.ts`](frontend/src/network/SocketClient.ts)).
+**Shared package exports (done):**
 
-**Shared package exports:**
+- Zod schemas reused by frontend forms and backend controllers (`SignupSchema`, `LoginSchema`, etc.)
+- Shared enums / types (`Avatar`, `ChatUserType`, etc.)
 
-- `SocketEvents` enum + payload types (`player:move`, `chat:send`, `media:join`, etc.)
-- REST request/response types
-- Zod schemas reused by frontend forms and backend controllers
+Typed `SocketEvents` enum can come later when media/signaling is redesigned in Phase 3 — not a Phase 1 blocker.
 
-### 1.2 CI Pipeline (Replace Deploy-Only CD)
+### 1.2 CI Pipeline (Alongside CD)
 
-Add [`.github/workflows/CI.yml`](.github/workflows/CD.yml) alongside existing CD:
+Workflows: [`.github/workflows/CI-api.yml`](.github/workflows/CI-api.yml), [`.github/workflows/CI-web.yml`](.github/workflows/CI-web.yml), with existing CD for API deploy.
 
-| Step      | Frontend       | Backend                   |
-| --------- | -------------- | ------------------------- |
-| Install   | `pnpm install` | same                      |
-| Lint      | ESLint         | ESLint (add)              |
-| Typecheck | `tsc -b`       | `tsc`                     |
-| Test      | Vitest unit    | Vitest unit + integration |
-| Build     | `vite build`   | `tsc`                     |
+| Step      | Web            | API          |
+| --------- | -------------- | ------------ |
+| Install   | `pnpm install` | same         |
+| Lint      | ESLint         | ESLint       |
+| Typecheck | `tsc`          | `tsc`        |
+| Build     | `vite build`   | `tsc`        |
 
-Pin GitHub Actions to commit SHAs (current CD uses `@main` — supply-chain risk).
+### 1.3 Local Docker Compose — Skipped
 
-### 1.3 Docker Compose for Local Dev
-
-Single command: `docker compose up` spins up MongoDB, Redis, backend, and optionally the SFU service. Removes the "clone and pray" onboarding problem for recruiters.
-
-### 1.4 Rewrite Test Suite
-
-Delete or fully rewrite [`tests/index.test.ts`](tests/index.test.ts) (targets removed `/api/v1/space/*` endpoints). New tests should cover:
-
-- Auth flow (signup → login → cookie → `/auth`)
-- Socket auth rejection without cookie
-- `player:move` → `player:update` round-trip (broadcast to all clients)
-- Protected route 401 behavior (after Phase 2)
+Skipped. Rely on existing production compose / CD pipeline (`apps/api/compose.yml` + `CD-api.yml`) rather than a recruiter-oriented local `docker compose up` stack.
 
 ---
 
-## Phase 2: Backend Hardening + Scalable Real-Time
+## Phase 2: Backend Hardening (Done)
 
 ### 2.1 Auth Middleware + Security
 
-Add a reusable Fastify `preHandler` auth hook used on all protected routes:
+Reusable Fastify `preHandler` (`userHook` in [`apps/api/src/middlewares/user.middleware.ts`](apps/api/src/middlewares/user.middleware.ts)):
 
-| Route                       | Current | Target                 |
-| --------------------------- | ------- | ---------------------- |
-| `PATCH /user/update-avatar` | Open    | Auth + ownership check |
-| `POST /user/upload-url`     | Open    | Auth required          |
-| `GET /user/archives`        | Open    | Auth required          |
+| Route                       | Auth                                      |
+| --------------------------- | ----------------------------------------- |
+| `POST /user/upload-url`     | Required (`userHook`)                     |
+| `GET /user/archives`        | Required (`userHook`)                     |
+| `PATCH /user/update-avatar` | **Open on purpose** — signup avatar pick runs before login/session exists |
 
-Additional hardening in [`backend/src/utils/jwt.ts`](backend/src/utils/jwt.ts):
+JWT already signs with `expiresIn: "24h"` in [`apps/api/src/utils/jwt.ts`](apps/api/src/utils/jwt.ts).
 
-- Add `expiresIn: '24h'` to JWT signing (currently no crypto expiry)
-- Remove token from login JSON body (httpOnly cookie only)
-- Add rate limiting (`@fastify/rate-limit`) on auth endpoints
+**Intentionally not changing:**
 
-### 2.2 Redis-Backed Player State (Single Global Map)
+- Login JSON body may still include `token` — signup/avatar client flow needs it; httpOnly cookie remains the primary session for metaverse/socket
+- No `@fastify/rate-limit` for now (portfolio scope cut)
 
-Replace module-level `playersMap` in [`connection.ts`](backend/src/sockets/connection.ts):
+### 2.2 Health / Observability (Slim)
 
-```
-players  → Hash of socketId → { x, y, avatar, username, animation }
-presence:{socketId} → TTL key for heartbeat
-```
+Full Pino migration / replacing all `console.log` / request-ID / socket debug logging is **skipped**.
 
-Use **Socket.IO Redis Adapter** (`@socket.io/redis-adapter`) so multiple backend instances share state. All instances serve the same single map — no space/room partitioning needed.
+Keep Fastify logger as-is and ship Mongo connectivity check:
 
-**Player movement broadcast (unchanged semantics, better infrastructure):**
-
-- On `player:move`, update Redis hash entry
-- Broadcast `player:update` to **all connected sockets** (global visibility)
-- Optional optimization later: send delta updates (single player) instead of full map — but still to everyone
-
-### 2.3 Structured Logging + Observability
-
-Replace `console.log` + `logger: false` in [`server.ts`](backend/src/server.ts) with **Pino** (Fastify's native logger). Add:
-
-- Request ID tracing
-- Socket event logging at `debug` level
-- `/health` endpoint that checks MongoDB + Redis connectivity
+- `GET /api/v1/health` — process liveness
+- `GET /api/v1/health/db` — MongoDB `readyState` + `admin().ping()`
 
 ---
 
@@ -396,7 +361,7 @@ Add a `ProtectedRoute` wrapper:
 
 Fill `[Diagram 1]`, `[Diagram 2]`, `[Diagram 3]` with Mermaid diagrams covering:
 
-1. Infrastructure (Vercel + EC2 + Redis + MongoDB + S3 + mediasoup)
+1. Infrastructure (Vercel + EC2 + MongoDB + S3 + mediasoup)
 2. Real-time multiplayer flow (global player broadcast + SFU signaling)
 3. Metabot RAG flow (existing AWS pipeline: S3 upload → Lambda → MongoDB → Groq retrieval)
 
@@ -410,7 +375,7 @@ Fill `[Diagram 1]`, `[Diagram 2]`, `[Diagram 3]` with Mermaid diagrams covering:
 | `docs/map-authoring.md` | Tiled layer conventions and export steps |
 | `docs/adr/`             | Architecture Decision Records            |
 
-ADRs: `adr/001-sfu-over-mesh.md`, `adr/002-phaser-over-pixi.md`, `adr/003-tiled-json-map.md`, `adr/004-redis-socket-adapter.md`.
+ADRs: `adr/001-sfu-over-mesh.md`, `adr/002-phaser-over-pixi.md`, `adr/003-tiled-json-map.md`.
 
 ### 6.3 Demo Assets
 
@@ -444,29 +409,26 @@ gantt
   title Implementation Phases
   dateFormat YYYY-MM-DD
   section Foundation
-    Monorepo + shared types     :p1a, 2026-07-03, 5d
-    CI + Docker Compose         :p1b, after p1a, 4d
-    Rewrite tests               :p1c, after p1b, 3d
+    Monorepo + shared types     :done, p1a, 2026-07-03, 5d
+    CI workflows                :done, p1b, after p1a, 4d
   section Backend
-    Auth hardening              :p2a, after p1c, 4d
-    Redis state + socket adapter:p2b, after p2a, 5d
-    Structured logging          :p2c, after p2b, 2d
+    Auth + Mongo health         :done, p2a, after p1b, 4d
   section Media
-    mediasoup SFU server        :p3a, after p2b, 7d
+    mediasoup SFU server        :p3a, after p2a, 7d
     SFU client global A/V       :p3b, after p3a, 5d
   section GameEngine
-    Tiled map + Phaser scaffold :p4a, after p1c, 5d
-    Player + remote interpolation:p4b, after p4a, 5d
+    Tiled map + Phaser scaffold :p4a, after p2a, 5d
+    Player + remote interpolation :p4b, after p4a, 5d
     Zones + React EventBus      :p4c, after p4b, 4d
-  section Polish
+  section Polish & Docs
     React Query + route guards  :p5a, after p4c, 4d
-    Docs + ADRs + demo assets   :p6a, after p3b, 5d
+    Docs + ADRs + demo assets   :p6a, after p2a, 8d
 ```
 
 **Parallelizable work:**
 
-- Phase 4 (Phaser + Tiled) can start after Phase 1 — independent of SFU
-- Phase 3 (SFU) can run parallel to Phase 4 after Phase 2.2 (Redis)
+- Phase 4 (Phaser + Tiled) can start now — Phase 1/2 are done; independent of SFU
+- Phase 3 (SFU) can run parallel to Phase 4
 
 ---
 

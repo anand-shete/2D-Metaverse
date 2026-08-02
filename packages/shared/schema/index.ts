@@ -14,7 +14,7 @@ export const LoginSchema = z.strictObject({
 
 export const UpdateAvatarSchema = z.strictObject({
   userId: z.string(),
-  avatar: z.nativeEnum(Avatar),
+  avatar: z.enum(Avatar),
 });
 
 export const UploadFileSchema = z.strictObject({

@@ -76,12 +76,11 @@ export const updateUserAvatar = async (req: FastifyRequest, res: FastifyReply) =
       return res.status(400).send({ message: "Zod parsing failed" });
     }
     const { avatar, userId } = parsedData.data;
-    const id = new Types.ObjectId(userId);
 
-    const user = await UserModel.countDocuments({ _id: id });
+    const user = await UserModel.countDocuments({ _id: userId });
     if (!user) return res.status(404).send({ message: "User not found" });
 
-    await UserModel.updateOne({ _id: id }, { avatar });
+    await UserModel.updateOne({ _id: userId }, { avatar });
 
     return res.status(200).send({ message: "Account created successfully" });
   } catch (error) {
@@ -110,8 +109,6 @@ export const generatePutObjectSignedUrl = async (req: FastifyRequest, res: Fasti
   try {
     const parsedData = UploadFileSchema.safeParse(req.body);
     if (!parsedData.success) {
-      console.log(parsedData.error.message);
-
       return res.status(400).send({ message: "Validation failed" });
     }
     const { contentType, fileName, fileSize } = parsedData.data;

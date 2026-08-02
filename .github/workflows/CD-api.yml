@@ -1,4 +1,4 @@
-name: Continuous Deployment Backend
+name: CD Backend
 
 on:
   push:
@@ -27,7 +27,7 @@ jobs:
     uses: ./.github/workflows/CI-api.yml
 
   deploy:
-    name: Build, Push ECR and Deploy EC2
+    name: CD
     needs: ci
     runs-on: ubuntu-latest
     env:

@@ -10,7 +10,7 @@ export enum ChatUserType {
   METABOT = "metabot",
 }
 
-export const enum GroqModel {
+export enum GroqModel {
   QUICK = "llama-3.1-8b-instant",
   THINK = "llama-3.3-70b-versatile",
 }

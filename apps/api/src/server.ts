@@ -10,7 +10,7 @@ import { initSockets } from "@sockets/init";
 import { env, connectDB } from "@config/index.config";
 import Fastify from "fastify";
 
-const fastify = Fastify({ logger: false });
+const fastify = Fastify({ logger: { level: "warn" } });
 const PORT = Number(env.PORT) || 3000;
 
 const start = async () => {
