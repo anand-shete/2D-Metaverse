@@ -20,6 +20,7 @@ export const dbHealthCheck = async (_: FastifyRequest, res: FastifyReply) => {
 
     return res.status(200).send({ message: "MongoDB database server up and healthy" });
   } catch (error) {
+    console.log(error);
     return res.status(500).send({ message: "MongoDB database ping failed" });
   }
 };

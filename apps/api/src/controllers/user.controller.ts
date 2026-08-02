@@ -1,4 +1,3 @@
-import { Types } from "mongoose";
 import { FastifyRequest, FastifyReply } from "fastify";
 import { UserModel } from "@models/user.model";
 import { ListObjectsV2Command, PutObjectCommand } from "@aws-sdk/client-s3";

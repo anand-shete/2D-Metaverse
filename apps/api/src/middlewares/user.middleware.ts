@@ -1,4 +1,4 @@
-import { FastifyReply, FastifyRequest, HookHandlerDoneFunction } from "fastify";
+import { FastifyReply, FastifyRequest } from "fastify";
 import { verifyToken } from "@utils/jwt";
 
 export const userHook = async (req: FastifyRequest, res: FastifyReply) => {
